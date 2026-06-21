@@ -1,0 +1,26 @@
+{{> partials/head }}
+
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow">Recently sold</p>
+    <h1 class="page-hero-title">Sold Vehicles</h1>
+    <p class="page-hero-sub">A look at cars that have found their new owners. Like one of these? We can help you find a similar vehicle.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <p id="soldCount" class="results-count" style="margin-bottom: 20px;">Loading…</p>
+    <div class="vehicle-grid" id="soldGrid" data-loading="6"></div>
+    <div class="empty-state" id="soldEmpty" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11l1.5-4.5A2 2 0 018.4 5h7.2a2 2 0 011.9 1.5L19 11M5 11h14M5 11a2 2 0 00-2 2v3h2m14-5a2 2 0 012 2v3h-2"/></svg>
+      <h3>No sold vehicles yet</h3>
+      <p>Browse our available cars in the inventory.</p>
+      <a class="btn btn-gold" href="/inventory">View Inventory</a>
+    </div>
+    <nav class="pagination" id="soldPagination" aria-label="Sold vehicle pages"></nav>
+  </div>
+</section>
+
+<script src="/js/sold.js" defer></script>
+{{> partials/footer }}

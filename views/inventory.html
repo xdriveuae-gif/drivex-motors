@@ -1,0 +1,115 @@
+{{> partials/head }}
+
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow">Find your next car</p>
+    <h1 class="page-hero-title">Vehicle Inventory</h1>
+    <p class="page-hero-sub">Browse our full range of premium pre-owned vehicles in Abu Dhabi.</p>
+  </div>
+</section>
+
+<section class="section inventory-section">
+  <div class="container">
+    <div class="inventory-toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a6 6 0 104.5 10.1l4.7 4.7 1.4-1.4-4.7-4.7A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z"/></svg>
+        <input type="search" id="searchInput" name="q" placeholder="Search make, model, keyword…" autocomplete="off" />
+      </div>
+      <div class="toolbar-right">
+        <button class="btn btn-outline btn-sm filters-toggle" id="filtersToggle" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M6 12h12M10 19h4"/></svg> Filters
+        </button>
+        <label class="sort-field">
+          <span class="sr-only">Sort</span>
+          <select id="sortSelect" name="sort">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="mileage_asc">Mileage: Lowest</option>
+            <option value="year_desc">Year: Newest</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="inventory-layout">
+      <!-- Filters -->
+      <aside class="filters" id="filtersPanel">
+        <form id="filterForm">
+          <div class="filters-head">
+            <h2>Filters</h2>
+            <button type="button" class="link-btn" id="resetFilters">Reset</button>
+          </div>
+
+          <div class="filter-group">
+            <label for="f-make">Make</label>
+            <select id="f-make" name="make"><option value="">All makes</option></select>
+          </div>
+          <div class="filter-group">
+            <label for="f-model">Model</label>
+            <select id="f-model" name="model" disabled><option value="">All models</option></select>
+          </div>
+          <div class="filter-group">
+            <label for="f-body">Body Type</label>
+            <select id="f-body" name="body_type"><option value="">All types</option></select>
+          </div>
+          <div class="filter-group">
+            <label for="f-fuel">Fuel Type</label>
+            <select id="f-fuel" name="fuel_type"><option value="">All fuels</option></select>
+          </div>
+          <div class="filter-group">
+            <label for="f-trans">Transmission</label>
+            <select id="f-trans" name="transmission"><option value="">All</option></select>
+          </div>
+
+          <div class="filter-group">
+            <label>Year</label>
+            <div class="range-row">
+              <input type="number" id="f-year-min" name="year_min" placeholder="From" inputmode="numeric" />
+              <span>–</span>
+              <input type="number" id="f-year-max" name="year_max" placeholder="To" inputmode="numeric" />
+            </div>
+          </div>
+          <div class="filter-group">
+            <label>Price (AED)</label>
+            <div class="range-row">
+              <input type="number" id="f-price-min" name="price_min" placeholder="Min" inputmode="numeric" />
+              <span>–</span>
+              <input type="number" id="f-price-max" name="price_max" placeholder="Max" inputmode="numeric" />
+            </div>
+          </div>
+          <div class="filter-group">
+            <label for="f-mileage">Max Mileage (km)</label>
+            <input type="number" id="f-mileage" name="mileage_max" placeholder="Any" inputmode="numeric" />
+          </div>
+
+          <label class="check-line">
+            <input type="checkbox" id="favOnly" name="fav" value="1" /> Show favourites only
+          </label>
+
+          <button type="submit" class="btn btn-gold btn-block apply-btn">Apply Filters</button>
+        </form>
+      </aside>
+
+      <!-- Results -->
+      <div class="results">
+        <div class="results-bar">
+          <p id="resultsCount" class="results-count">Loading…</p>
+          <div class="active-chips" id="activeChips"></div>
+        </div>
+        <div class="vehicle-grid" id="vehicleGrid" data-loading="9"></div>
+        <div class="empty-state" id="emptyState" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11l1.5-4.5A2 2 0 018.4 5h7.2a2 2 0 011.9 1.5L19 11M5 11h14M5 11a2 2 0 00-2 2v3h2m14-5a2 2 0 012 2v3h-2"/></svg>
+          <h3>No vehicles match your search</h3>
+          <p>Try adjusting or resetting your filters.</p>
+          <button class="btn btn-outline" id="emptyReset">Reset Filters</button>
+        </div>
+        <nav class="pagination" id="pagination" aria-label="Inventory pages"></nav>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="/js/inventory.js" defer></script>
+{{> partials/footer }}

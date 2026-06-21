@@ -1,0 +1,45 @@
+{{> partials/admin-head }}
+
+<section class="admin-panel">
+  <div class="panel-head vehicles-head">
+    <h2>Manage Vehicles</h2>
+    <a href="/admin/vehicles/new" class="btn btn-gold btn-sm">＋ Add Vehicle</a>
+  </div>
+
+  <div class="vehicles-toolbar">
+    <div class="search-box admin-search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a6 6 0 104.5 10.1l4.7 4.7 1.4-1.4-4.7-4.7A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z"/></svg>
+      <input type="search" id="adminSearch" placeholder="Search title, make, model, VIN…" autocomplete="off" />
+    </div>
+    <select id="statusFilter" class="status-filter">
+      <option value="">All vehicles</option>
+      <option value="available">Available</option>
+      <option value="sold">Sold</option>
+      <option value="featured">Featured</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Vehicle</th>
+          <th>Year</th>
+          <th>Price</th>
+          <th>Mileage</th>
+          <th>Featured</th>
+          <th>Sold</th>
+          <th class="ta-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="vehiclesTbody">
+        <tr><td colspan="7" class="muted ta-center">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <nav class="pagination" id="adminPagination" aria-label="Vehicle pages"></nav>
+</section>
+
+<script src="/js/admin-vehicles.js" defer></script>
+{{> partials/admin-footer }}

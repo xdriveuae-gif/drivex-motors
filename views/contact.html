@@ -1,0 +1,81 @@
+{{> partials/head }}
+
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow">We’d love to hear from you</p>
+    <h1 class="page-hero-title">Contact Us</h1>
+    <p class="page-hero-sub">Questions about a vehicle, finance or a trade-in? Reach out and our team will respond quickly.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container contact-layout">
+    <!-- Form -->
+    <div class="contact-form-wrap" data-reveal>
+      <h2 class="section-title">Send a Message</h2>
+      <form id="contactForm" class="contact-form" novalidate>
+        <input type="hidden" name="vehicle_id" id="vehicleId" />
+        <div class="form-row">
+          <div class="form-field">
+            <label for="cf-name">Name *</label>
+            <input type="text" id="cf-name" name="name" required maxlength="120" autocomplete="name" />
+            <small class="field-error" data-error="name"></small>
+          </div>
+          <div class="form-field">
+            <label for="cf-email">Email *</label>
+            <input type="email" id="cf-email" name="email" required maxlength="160" autocomplete="email" />
+            <small class="field-error" data-error="email"></small>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="cf-phone">Phone</label>
+            <input type="tel" id="cf-phone" name="phone" maxlength="40" autocomplete="tel" />
+            <small class="field-error" data-error="phone"></small>
+          </div>
+          <div class="form-field">
+            <label for="cf-subject">Subject</label>
+            <input type="text" id="cf-subject" name="subject" maxlength="160" />
+            <small class="field-error" data-error="subject"></small>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="cf-message">Message *</label>
+          <textarea id="cf-message" name="message" rows="6" required maxlength="4000"></textarea>
+          <small class="field-error" data-error="message"></small>
+        </div>
+        <button type="submit" class="btn btn-gold btn-lg" id="contactSubmit">Send Message</button>
+      </form>
+    </div>
+
+    <!-- Info -->
+    <aside class="contact-info" data-reveal>
+      <h2 class="section-title">Reach Us Directly</h2>
+      <ul class="contact-cards">
+        <li class="contact-card">
+          <div class="cc-icon"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 013 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .7-.2 1l-2.2 2.2z"/></svg></div>
+          <div><span class="cc-label">Call us</span><a href="tel:{{SITE_PHONE_RAW}}">{{SITE_PHONE}}</a></div>
+        </li>
+        <li class="contact-card">
+          <div class="cc-icon"><svg viewBox="0 0 24 24"><path d="M3 5h18c.6 0 1 .4 1 1v12c0 .6-.4 1-1 1H3c-.6 0-1-.4-1-1V6c0-.6.4-1 1-1zm9 7L4.5 7h15L12 12z"/></svg></div>
+          <div><span class="cc-label">Email us</span><a href="mailto:{{SITE_EMAIL}}">{{SITE_EMAIL}}</a></div>
+        </li>
+        <li class="contact-card">
+          <div class="cc-icon"><svg viewBox="0 0 32 32"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.6 6L4 29l8.2-1.6c1.8.9 3.7 1.4 5.8 1.4 6.6 0 12-5.4 12-12S22.6 3 16 3z"/></svg></div>
+          <div><span class="cc-label">WhatsApp</span><a href="{{SITE_WHATSAPP_LINK}}" target="_blank" rel="noopener">Chat with us</a></div>
+        </li>
+        <li class="contact-card">
+          <div class="cc-icon"><svg viewBox="0 0 24 24"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1112 6.5a2.5 2.5 0 010 5z"/></svg></div>
+          <div><span class="cc-label">Visit us</span><span>{{SITE_ADDRESS}}</span></div>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<section class="map-section">
+  <iframe class="map-frame-full" src="{{SITE_MAP_EMBED}}" title="{{SITE_NAME}} location on Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+</section>
+
+<script src="/js/contact.js" defer></script>
+{{> partials/footer }}

@@ -1,0 +1,42 @@
+<svg viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="62%" r="65%">
+      <stop offset="0%" stop-color="#2a2310"/>
+      <stop offset="45%" stop-color="#121212"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </radialGradient>
+    <linearGradient id="streak" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D4AF37" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#D4AF37" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#D4AF37" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#glow)"/>
+  <rect y="640" width="1600" height="260" fill="url(#floor)"/>
+
+  <!-- gold light streaks -->
+  <g opacity="0.5">
+    <rect x="-200" y="180" width="2200" height="3" fill="url(#streak)" transform="rotate(-8 800 200)"/>
+    <rect x="-200" y="320" width="2200" height="2" fill="url(#streak)" transform="rotate(-8 800 320)"/>
+    <rect x="-200" y="470" width="2200" height="4" fill="url(#streak)" transform="rotate(-8 800 470)"/>
+  </g>
+
+  <!-- car silhouette -->
+  <g transform="translate(420 380) scale(1.25)" fill="#000000" opacity="0.92">
+    <ellipse cx="300" cy="312" rx="300" ry="26" fill="#000" opacity="0.5"/>
+    <path d="M40,250 C55,205 120,196 175,194 L250,196 C275,165 320,150 380,150 L470,150 C545,153 590,182 632,214 L700,224 C760,234 760,250 760,268 L760,292 C760,300 754,306 746,306 L60,306 C50,306 40,298 40,288 Z" fill="#0c0c0c" stroke="#D4AF37" stroke-opacity="0.4" stroke-width="2"/>
+    <path d="M275,168 C320,150 360,150 400,150 L460,150 L470,196 L262,196 Z" fill="#161616"/>
+    <path d="M475,152 L545,156 C580,162 600,180 618,200 L500,196 Z" fill="#161616"/>
+    <circle cx="210" cy="306" r="52" fill="#0a0a0a" stroke="#D4AF37" stroke-opacity="0.5" stroke-width="3"/>
+    <circle cx="210" cy="306" r="22" fill="#1a1a1a"/>
+    <circle cx="592" cy="306" r="52" fill="#0a0a0a" stroke="#D4AF37" stroke-opacity="0.5" stroke-width="3"/>
+    <circle cx="592" cy="306" r="22" fill="#1a1a1a"/>
+  </g>
+
+  <rect width="1600" height="900" fill="#000" opacity="0.15"/>
+</svg>

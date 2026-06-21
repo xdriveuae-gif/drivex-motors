@@ -1,0 +1,8 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DriveX Motors">
+  <circle cx="100" cy="100" r="100" fill="#0A0A0A"/>
+  <g font-family="'Segoe UI', Arial, Helvetica, sans-serif">
+    <text x="100" y="95" font-size="52" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="-2">Drive</text>
+    <tspan x="145" y="95" font-size="52" font-weight="800" fill="#FFD700" text-anchor="middle" letter-spacing="-2">X</tspan>
+    <text x="100" y="135" font-size="16" font-weight="600" fill="#ffffff" text-anchor="middle" letter-spacing="3">MOTORS</text>
+  </g>
+</svg>

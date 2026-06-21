@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <title>{{TITLE}}</title>
+  <meta name="description" content="{{META_DESCRIPTION}}" />
+  <meta name="keywords" content="{{META_KEYWORDS}}" />
+  <meta name="author" content="{{SITE_NAME}}" />
+  <meta name="theme-color" content="#0A0A0A" />
+  <link rel="canonical" href="{{CANONICAL}}" />
+  <meta name="csrf-token" content="{{CSRF_TOKEN}}" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="{{OG_TYPE}}" />
+  <meta property="og:title" content="{{OG_TITLE}}" />
+  <meta property="og:description" content="{{OG_DESCRIPTION}}" />
+  <meta property="og:image" content="{{OG_IMAGE}}" />
+  <meta property="og:url" content="{{OG_URL}}" />
+  <meta property="og:site_name" content="{{SITE_NAME}}" />
+  <meta property="og:locale" content="en_AE" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{OG_TITLE}}" />
+  <meta name="twitter:description" content="{{OG_DESCRIPTION}}" />
+  <meta name="twitter:image" content="{{OG_IMAGE}}" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/images/logo.png" />
+  <link rel="preconnect" href="https://www.google.com" />
+  <link rel="stylesheet" href="/css/styles.css" />
+
+  <!-- Organisation structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "AutoDealer",
+    "name": "{{SITE_NAME}}",
+    "image": "{{SITE_URL}}/images/og-default.svg",
+    "url": "{{SITE_URL}}",
+    "telephone": "{{SITE_PHONE_RAW}}",
+    "email": "{{SITE_EMAIL}}",
+    "priceRange": "AED",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "{{SITE_ADDRESS}}",
+      "addressLocality": "Abu Dhabi",
+      "addressCountry": "AE"
+    },
+    "openingHours": "Sa-Th 09:00-21:00"
+  }
+  </script>
+  {{JSON_LD}}
+
+  <script src="/js/main.js" defer></script>
+  <script src="/js/favorites.js" defer></script>
+</head>
+<body class="{{BODY_CLASS}}"
+      data-site="{{SITE_NAME}}"
+      data-phone="{{SITE_PHONE_RAW}}"
+      data-phone-display="{{SITE_PHONE}}"
+      data-whatsapp="{{SITE_WHATSAPP}}"
+      data-email="{{SITE_EMAIL}}"
+      data-currency="{{SITE_CURRENCY}}"
+      data-url="{{SITE_URL}}">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" id="siteHeader">
+    <div class="container header-inner">
+      {{> partials/logo }}
+
+      <nav class="main-nav" id="mainNav" aria-label="Primary navigation">
+        <a href="/" class="nav-link" data-nav="/">Home</a>
+        <a href="/inventory" class="nav-link" data-nav="/inventory">Inventory</a>
+        <a href="/sold" class="nav-link" data-nav="/sold">Sold</a>
+        <a href="/about" class="nav-link" data-nav="/about">About</a>
+        <a href="/contact" class="nav-link" data-nav="/contact">Contact</a>
+        <a href="/sell-your-car" class="btn btn-gold btn-sm nav-cta" data-nav="/sell-your-car">Sell Your Car</a>
+      </nav>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainNav">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">

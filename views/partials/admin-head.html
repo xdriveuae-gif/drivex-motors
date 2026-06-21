@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>{{TITLE}} · {{SITE_NAME}} Admin</title>
+  <meta name="csrf-token" content="{{CSRF_TOKEN}}" />
+  <meta name="showroom-whatsapp" content="{{SITE_WHATSAPP}}" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <script src="/js/admin-common.js" defer></script>
+</head>
+<body class="{{BODY_CLASS}}">
+  <div class="admin-shell">
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-brand">
+        <img src="/images/logo.png" alt="{{SITE_NAME}}" width="40" height="40" />
+        <span><strong>Drive</strong><em>X</em></span>
+      </div>
+      <nav class="admin-nav" aria-label="Admin navigation">
+        <a href="/admin/dashboard" data-anav="/admin/dashboard">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+          Dashboard
+        </a>
+        <a href="/admin/vehicles" data-anav="/admin/vehicles">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11l1.5-4.5A2 2 0 018.4 5h7.2a2 2 0 011.9 1.5L19 11m-14 0h14m-14 0a2 2 0 00-2 2v3h2m14-5a2 2 0 012 2v3h-2m-3 0H8m-1 0a1.5 1.5 0 11-3 0m13 0a1.5 1.5 0 11-3 0"/></svg>
+          Vehicles
+        </a>
+        <a href="/admin/vehicles/new" data-anav="/admin/vehicles/new">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m-7-7h14"/></svg>
+          Add Vehicle
+        </a>
+        <a href="/admin/leads" data-anav="/admin/leads">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h12M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
+          Purchase Leads
+        </a>
+        <a href="/admin/dashboard#messages" data-anav="__messages">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16c.6 0 1 .4 1 1v11c0 .6-.4 1-1 1H8l-4 4V6c0-.6.4-1 1-1z"/></svg>
+          Messages
+        </a>
+      </nav>
+      <div class="admin-sidebar-foot">
+        <a href="/" target="_blank" rel="noopener" class="admin-viewsite">↗ View website</a>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <button class="admin-menu-toggle" id="adminMenuToggle" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+        <h1 class="admin-page-title">{{TITLE}}</h1>
+        <div class="admin-topbar-right">
+          <span class="admin-user" id="adminUser">admin</span>
+          <button class="btn btn-outline btn-sm" id="logoutBtn">Logout</button>
+        </div>
+      </header>
+
+      <div class="admin-content">

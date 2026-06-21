@@ -1,0 +1,183 @@
+{{> partials/head }}
+
+<section class="page-hero sell-hero">
+  <div class="container">
+    <p class="eyebrow">Sell your car in Abu Dhabi</p>
+    <h1 class="page-hero-title">Sell Your Car — Get a <span class="gold">Free Valuation</span></h1>
+    <p class="page-hero-sub">Tell us about your vehicle and our team will review it and come back to you with an offer. Fast, transparent and completely hassle-free.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <!-- Key benefits -->
+    <div class="sell-benefits" data-reveal>
+      <div class="sell-benefit">
+        <div class="sb-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg></div>
+        <h3>Fast Evaluation</h3>
+        <p>A quick, no-obligation review of your vehicle.</p>
+      </div>
+      <div class="sell-benefit">
+        <div class="sb-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+        <h3>Free Vehicle Inspection</h3>
+        <p>Our specialists inspect your car at no cost.</p>
+      </div>
+      <div class="sell-benefit">
+        <div class="sb-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+        <h3>Instant Offer</h3>
+        <p>Receive a fair, competitive offer quickly.</p>
+      </div>
+      <div class="sell-benefit">
+        <div class="sb-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6l8-4z"/></svg></div>
+        <h3>Secure Transaction</h3>
+        <p>Safe paperwork and instant, secure payment.</p>
+      </div>
+    </div>
+
+    <div class="sell-wrap">
+      <!-- Progress indicator -->
+      <ol class="wizard-steps" id="wizardSteps">
+        <li data-step="1" class="active"><span class="ws-num">1</span><span class="ws-label">Vehicle</span></li>
+        <li data-step="2"><span class="ws-num">2</span><span class="ws-label">Condition</span></li>
+        <li data-step="3"><span class="ws-num">3</span><span class="ws-label">Your Details</span></li>
+        <li data-step="4"><span class="ws-num">4</span><span class="ws-label">Photos</span></li>
+        <li data-step="5"><span class="ws-num">5</span><span class="ws-label">Price</span></li>
+        <li data-step="6"><span class="ws-num">6</span><span class="ws-label">Review</span></li>
+      </ol>
+      <div class="wizard-progress"><span id="wizardBar"></span></div>
+
+      <form id="sellForm" class="sell-form" novalidate enctype="multipart/form-data">
+
+        <!-- Step 1: Vehicle Information -->
+        <fieldset class="wizard-step active" data-step="1">
+          <h2 class="step-title">Vehicle Information</h2>
+          <div class="form-row">
+            <div class="form-field"><label for="f-make">Make *</label><input type="text" id="f-make" name="make" maxlength="60" autocomplete="off" /><small class="field-error" data-error="make"></small></div>
+            <div class="form-field"><label for="f-model">Model *</label><input type="text" id="f-model" name="model" maxlength="60" /><small class="field-error" data-error="model"></small></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label for="f-year">Year *</label><input type="number" id="f-year" name="year" inputmode="numeric" min="1950" max="2027" /><small class="field-error" data-error="year"></small></div>
+            <div class="form-field"><label for="f-trim">Trim</label><input type="text" id="f-trim" name="trim" maxlength="80" placeholder="e.g. VXR, M-Sport" /><small class="field-error" data-error="trim"></small></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label for="f-mileage">Mileage (km)</label><input type="number" id="f-mileage" name="mileage" inputmode="numeric" min="0" /><small class="field-error" data-error="mileage"></small></div>
+            <div class="form-field"><label for="f-engine">Engine Size</label><input type="text" id="f-engine" name="engine_size" maxlength="60" placeholder="e.g. 3.5L V6" /><small class="field-error" data-error="engine_size"></small></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label for="f-fuel">Fuel Type</label>
+              <select id="f-fuel" name="fuel_type">
+                <option value="">Select…</option><option>Petrol</option><option>Diesel</option><option>Hybrid</option><option>Plug-in Hybrid</option><option>Electric</option>
+              </select>
+            </div>
+            <div class="form-field"><label for="f-trans">Transmission</label>
+              <select id="f-trans" name="transmission"><option value="">Select…</option><option>Automatic</option><option>Manual</option></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label for="f-color">Exterior Color</label><input type="text" id="f-color" name="color" maxlength="40" /></div>
+            <div class="form-field"><label for="f-vin">VIN Number <span class="muted">(optional)</span></label><input type="text" id="f-vin" name="vin" maxlength="32" /></div>
+          </div>
+        </fieldset>
+
+        <!-- Step 2: Condition & History -->
+        <fieldset class="wizard-step" data-step="2">
+          <h2 class="step-title">Condition &amp; History</h2>
+          <div class="form-row">
+            <div class="form-field"><label for="f-owners">Number of Owners</label><input type="number" id="f-owners" name="owners_count" inputmode="numeric" min="0" max="50" /></div>
+            <div class="form-field"><label for="f-service">Service History Available</label>
+              <select id="f-service" name="service_history"><option value="No">No</option><option value="Yes">Yes</option></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label for="f-accident">Accident History</label>
+              <select id="f-accident" name="accident_history"><option value="No">No</option><option value="Yes">Yes</option></select>
+            </div>
+            <div class="form-field"><label for="f-paint">Paintwork Done</label>
+              <select id="f-paint" name="paintwork"><option value="No">No</option><option value="Yes">Yes</option></select>
+            </div>
+          </div>
+          <div class="form-field"><label for="f-mech">Mechanical Issues</label><textarea id="f-mech" name="mechanical_issues" rows="3" maxlength="2000" placeholder="Describe any known issues (optional)"></textarea></div>
+          <div class="form-field"><label for="f-notes">Additional Notes</label><textarea id="f-notes" name="additional_notes" rows="3" maxlength="2000" placeholder="Anything else we should know? (optional)"></textarea></div>
+
+          <label class="field-group-label">Highlights</label>
+          <div class="check-grid">
+            <label class="check-line"><input type="checkbox" name="highlights" value="Full Service History" /> Full Service History</label>
+            <label class="check-line"><input type="checkbox" name="highlights" value="Original Paint" /> Original Paint</label>
+            <label class="check-line"><input type="checkbox" name="highlights" value="GCC Specifications" /> GCC Specifications</label>
+            <label class="check-line"><input type="checkbox" name="highlights" value="Agency Maintained" /> Agency Maintained</label>
+          </div>
+        </fieldset>
+
+        <!-- Step 3: Your Details -->
+        <fieldset class="wizard-step" data-step="3">
+          <h2 class="step-title">Your Details</h2>
+          <div class="form-row">
+            <div class="form-field"><label for="f-name">Full Name *</label><input type="text" id="f-name" name="full_name" maxlength="120" autocomplete="name" /><small class="field-error" data-error="full_name"></small></div>
+            <div class="form-field"><label for="f-city">City</label><input type="text" id="f-city" name="city" maxlength="80" placeholder="e.g. Abu Dhabi" autocomplete="address-level2" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label for="f-phone">Phone Number *</label><input type="tel" id="f-phone" name="phone" maxlength="40" autocomplete="tel" /><small class="field-error" data-error="phone"></small></div>
+            <div class="form-field"><label for="f-whatsapp">WhatsApp Number</label><input type="tel" id="f-whatsapp" name="whatsapp" maxlength="40" /><small class="field-error" data-error="whatsapp"></small></div>
+          </div>
+          <div class="form-field"><label for="f-email">Email Address *</label><input type="email" id="f-email" name="email" maxlength="160" autocomplete="email" /><small class="field-error" data-error="email"></small></div>
+        </fieldset>
+
+        <!-- Step 4: Photos -->
+        <fieldset class="wizard-step" data-step="4">
+          <h2 class="step-title">Vehicle Photos</h2>
+          <p class="step-hint">Add clear photos of your car (up to 20). Recommended angles:</p>
+          <ul class="photo-checklist">
+            <li>Front View</li><li>Rear View</li><li>Left Side</li><li>Right Side</li>
+            <li>Interior</li><li>Dashboard</li><li>Odometer</li>
+          </ul>
+          <label class="upload-drop" id="uploadDrop">
+            <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" multiple hidden />
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+            <span class="ud-title">Tap to add photos</span>
+            <span class="ud-sub">JPG, PNG or WEBP · up to 10&nbsp;MB each · max 20</span>
+          </label>
+          <small class="field-error" data-error="images"></small>
+          <div class="photo-grid" id="photoGrid"></div>
+        </fieldset>
+
+        <!-- Step 5: Pricing -->
+        <fieldset class="wizard-step" data-step="5">
+          <h2 class="step-title">Your Asking Price</h2>
+          <div class="form-row">
+            <div class="form-field"><label for="f-price">Asking Price (AED)</label><input type="number" id="f-price" name="asking_price" inputmode="numeric" min="0" placeholder="e.g. 85000" /><small class="field-error" data-error="asking_price"></small></div>
+            <div class="form-field"><label for="f-negotiable">Negotiable</label>
+              <select id="f-negotiable" name="negotiable"><option value="Yes">Yes</option><option value="No">No</option></select>
+            </div>
+          </div>
+          <p class="step-hint">Not sure of the value? Leave it blank — our team will give you a free valuation.</p>
+        </fieldset>
+
+        <!-- Step 6: Review -->
+        <fieldset class="wizard-step" data-step="6">
+          <h2 class="step-title">Review &amp; Submit</h2>
+          <p class="step-hint">Please review your details before submitting.</p>
+          <div class="review-summary" id="reviewSummary"></div>
+        </fieldset>
+
+        <div class="wizard-nav">
+          <button type="button" class="btn btn-ghost" id="wizPrev" hidden>← Back</button>
+          <button type="button" class="btn btn-gold" id="wizNext">Next →</button>
+          <button type="submit" class="btn btn-gold btn-lg" id="wizSubmit" hidden>Submit Vehicle</button>
+        </div>
+      </form>
+
+      <!-- Success -->
+      <div class="sell-success" id="sellSuccess" hidden>
+        <div class="ss-check"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <h2>Thank you!</h2>
+        <p>Our team will review your vehicle and contact you shortly.</p>
+        <p class="ss-ref" id="successRef"></p>
+        <a href="/" class="btn btn-outline">Back to Home</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="/js/sell-your-car.js" defer></script>
+{{> partials/footer }}

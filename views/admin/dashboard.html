@@ -1,0 +1,59 @@
+{{> partials/admin-head }}
+
+<!-- Stat widgets -->
+<section class="stat-cards" id="statCards">
+  <div class="stat-card">
+    <div class="stat-card-icon i-blue"><svg viewBox="0 0 24 24"><path d="M5 11l1.5-4.5A2 2 0 018.4 5h7.2a2 2 0 011.9 1.5L19 11H5zm0 0a2 2 0 00-2 2v3h2m14-5a2 2 0 012 2v3h-2"/></svg></div>
+    <div><span class="stat-card-num" id="sTotal">—</span><span class="stat-card-label">Total Vehicles</span></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon i-gold"><svg viewBox="0 0 24 24"><path d="M12 2l3 6 6 1-4.5 4 1 6L12 16l-5.5 3 1-6L3 9l6-1 3-6z"/></svg></div>
+    <div><span class="stat-card-num" id="sFeatured">—</span><span class="stat-card-label">Featured</span></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon i-green"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+    <div><span class="stat-card-num" id="sSold">—</span><span class="stat-card-label">Sold</span></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon i-purple"><svg viewBox="0 0 24 24"><path d="M4 5h16c.6 0 1 .4 1 1v12c0 .6-.4 1-1 1H8l-4 4V6c0-.6.4-1 1-1z"/></svg></div>
+    <div><span class="stat-card-num" id="sMessages">—</span><span class="stat-card-label">Messages <small id="sUnread" class="unread-pill" hidden></small></span></div>
+  </div>
+  <a class="stat-card stat-card-link" href="/admin/leads">
+    <div class="stat-card-icon i-gold"><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h12M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg></div>
+    <div><span class="stat-card-num" id="sSubmissions">—</span><span class="stat-card-label">Vehicles Submitted <small id="sNewSub" class="unread-pill" hidden></small></span></div>
+  </a>
+</section>
+
+<div class="admin-grid">
+  <!-- Latest listings -->
+  <section class="admin-panel">
+    <div class="panel-head">
+      <h2>Latest Listings</h2>
+      <a href="/admin/vehicles" class="link-btn">View all →</a>
+    </div>
+    <div class="latest-list" id="latestList"><p class="muted">Loading…</p></div>
+  </section>
+
+  <!-- Quick actions -->
+  <section class="admin-panel">
+    <div class="panel-head"><h2>Quick Actions</h2></div>
+    <div class="quick-actions">
+      <a href="/admin/vehicles/new" class="quick-action"><span>＋</span> Add a Vehicle</a>
+      <a href="/admin/vehicles" class="quick-action"><span>⚙</span> Manage Inventory</a>
+      <a href="/" target="_blank" rel="noopener" class="quick-action"><span>↗</span> View Website</a>
+    </div>
+    <div class="views-line">Total listing views: <strong id="sViews">—</strong></div>
+  </section>
+</div>
+
+<!-- Messages -->
+<section class="admin-panel" id="messages">
+  <div class="panel-head">
+    <h2>Contact Messages</h2>
+    <span class="muted" id="msgCount"></span>
+  </div>
+  <div class="messages-list" id="messagesList"><p class="muted">Loading…</p></div>
+</section>
+
+<script src="/js/admin-dashboard.js" defer></script>
+{{> partials/admin-footer }}

@@ -1,0 +1,90 @@
+{{> partials/head }}
+
+<!-- ░░ HERO ░░ -->
+<section class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-overlay" aria-hidden="true"></div>
+  <div class="container hero-inner" data-reveal>
+    <img src="/images/logo.png" alt="{{SITE_NAME}}" class="hero-logo" width="120" height="120" />
+    <p class="hero-eyebrow">Abu Dhabi · United Arab Emirates</p>
+    <h1 class="hero-title">Drive Home Your <span class="gold">Dream Car</span></h1>
+    <p class="hero-sub">{{SITE_TAGLINE}} — hand-picked, fully inspected luxury vehicles with transparent pricing and flexible finance.</p>
+    <div class="hero-actions">
+      <a href="/inventory" class="btn btn-gold btn-lg">View Inventory</a>
+      <a href="/sell-your-car" class="btn btn-ghost btn-lg">Sell Your Car</a>
+      <a href="{{SITE_WHATSAPP_LINK}}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-lg">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.6 6L4 29l8.2-1.6c1.8.9 3.7 1.4 5.8 1.4 6.6 0 12-5.4 12-12S22.6 3 16 3z"/></svg>
+        WhatsApp
+      </a>
+    </div>
+  </div>
+  <a href="#featured" class="hero-scroll" aria-label="Scroll to vehicles"><span></span></a>
+</section>
+
+<!-- ░░ FEATURED VEHICLES ░░ -->
+<section class="section" id="featured">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <p class="eyebrow">Hand-picked</p>
+      <h2 class="section-title">Featured Vehicles</h2>
+      <p class="section-lead">A selection of our finest pre-owned vehicles, ready to drive away today.</p>
+    </div>
+    <div class="vehicle-grid" id="featuredGrid" data-loading="6"></div>
+    <div class="section-cta">
+      <a href="/inventory" class="btn btn-outline">Browse Full Inventory →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ░░ TESTIMONIALS ░░ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <p class="eyebrow">Trusted by drivers</p>
+      <h2 class="section-title">What Our Customers Say</h2>
+    </div>
+    <div class="testimonial-grid">
+      <figure class="testimonial" data-reveal>
+        <div class="stars">★★★★★</div>
+        <blockquote>“Seamless experience from start to finish. The car was exactly as described and the team handled all the paperwork. Highly recommend.”</blockquote>
+        <figcaption><strong>Khalid A.</strong><span>Land Cruiser owner</span></figcaption>
+      </figure>
+      <figure class="testimonial" data-reveal>
+        <div class="stars">★★★★★</div>
+        <blockquote>“Found my dream Mustang at a fair price. Transparent history and a genuinely no-pressure showroom. Will buy again.”</blockquote>
+        <figcaption><strong>Sara M.</strong><span>Mustang GT owner</span></figcaption>
+      </figure>
+      <figure class="testimonial" data-reveal>
+        <div class="stars">★★★★★</div>
+        <blockquote>“Professional, premium and trustworthy. They even delivered the car to my home in Al Ain. Five stars.”</blockquote>
+        <figcaption><strong>Omar R.</strong><span>Range Rover owner</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ░░ CONTACT + MAP ░░ -->
+<section class="section section-alt" id="visit">
+  <div class="container split">
+    <div class="split-body" data-reveal>
+      <p class="eyebrow">Visit us</p>
+      <h2 class="section-title">Come See Us in Abu Dhabi</h2>
+      <ul class="contact-list">
+        <li><span class="ci">Phone</span><a href="tel:{{SITE_PHONE_RAW}}">{{SITE_PHONE}}</a></li>
+        <li><span class="ci">Email</span><a href="mailto:{{SITE_EMAIL}}">{{SITE_EMAIL}}</a></li>
+        <li><span class="ci">Address</span><span>{{SITE_ADDRESS}}</span></li>
+        <li><span class="ci">Hours</span><span>{{SITE_HOURS}}</span></li>
+      </ul>
+      <div class="hero-actions">
+        <a href="/contact" class="btn btn-gold">Contact Form</a>
+        <a href="{{SITE_WHATSAPP_LINK}}" target="_blank" rel="noopener" class="btn btn-whatsapp">WhatsApp Us</a>
+      </div>
+    </div>
+    <div class="split-media map-wrap" data-reveal>
+      <iframe class="map-frame" src="{{SITE_MAP_EMBED}}" title="{{SITE_NAME}} location on Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+
+<script src="/js/home.js" defer></script>
+{{> partials/footer }}

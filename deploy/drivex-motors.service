@@ -1,0 +1,25 @@
+# systemd unit (alternative to PM2).
+# Copy to /etc/systemd/system/drivex-motors.service, edit paths/user, then:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now drivex-motors
+#   sudo systemctl status drivex-motors
+
+[Unit]
+Description=DriveX Motors (Node.js/Express)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/drivex-motors
+Environment=NODE_ENV=production
+Environment=PORT=3000
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+# Harden a little
+NoNewPrivileges=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,38 @@
+{{> partials/head }}
+
+<section class="section vehicle-detail">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a><span>/</span><a href="/inventory">Inventory</a><span>/</span>
+      <span id="bcTitle" aria-current="page">Vehicle</span>
+    </nav>
+
+    <div id="vehicleDetail">
+      <div class="vd-skeleton">
+        <div class="vd-skel-gallery shimmer"></div>
+        <div class="vd-skel-info">
+          <div class="shimmer line lg"></div>
+          <div class="shimmer line"></div>
+          <div class="shimmer line sm"></div>
+          <div class="shimmer block"></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="related" id="relatedWrap" hidden>
+      <div class="section-head"><h2 class="section-title">Similar Vehicles</h2></div>
+      <div class="vehicle-grid" id="relatedGrid"></div>
+    </section>
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">×</button>
+  <button class="lightbox-nav prev" id="lightboxPrev" aria-label="Previous">‹</button>
+  <img id="lightboxImg" alt="" />
+  <button class="lightbox-nav next" id="lightboxNext" aria-label="Next">›</button>
+</div>
+
+<script src="/js/vehicle-details.js" defer></script>
+{{> partials/footer }}

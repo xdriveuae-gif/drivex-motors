@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>{{TITLE}} · {{SITE_NAME}}</title>
+  <meta name="csrf-token" content="{{CSRF_TOKEN}}" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <script src="/js/admin-login.js" defer></script>
+</head>
+<body class="admin-auth">
+  <main class="login-wrap">
+    <form class="login-card" id="loginForm" novalidate>
+      <a href="/" class="login-logo" aria-label="{{SITE_NAME}} home">
+        <img src="/images/logo.png" alt="{{SITE_NAME}}" width="72" height="72" />
+      </a>
+      <h1>Admin Login</h1>
+      <p class="login-sub">Sign in to manage your inventory.</p>
+
+      <div class="login-error" id="loginError" hidden></div>
+
+      <div class="form-field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" required autofocus />
+      </div>
+      <div class="form-field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required />
+      </div>
+
+      <button type="submit" class="btn btn-gold btn-block btn-lg" id="loginBtn">Sign In</button>
+      <a href="/" class="login-back">← Back to website</a>
+    </form>
+  </main>
+</body>
+</html>

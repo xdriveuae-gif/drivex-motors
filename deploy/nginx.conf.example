@@ -1,0 +1,46 @@
+# ─────────────────────────────────────────────────────────────
+#  Example nginx reverse-proxy for DriveX Motors
+#  Copy to /etc/nginx/sites-available/drivex-motors, edit the
+#  server_name, then:
+#     sudo ln -s /etc/nginx/sites-available/drivex-motors /etc/nginx/sites-enabled/
+#     sudo nginx -t && sudo systemctl reload nginx
+#     sudo certbot --nginx -d drivexmotors.ae -d www.drivexmotors.ae   # free HTTPS
+# ─────────────────────────────────────────────────────────────
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name drivexmotors.ae www.drivexmotors.ae;   # << change to your domain
+
+    # Allow reasonably large vehicle image uploads
+    client_max_body_size 25M;
+
+    # gzip (the app also uses compression(), this covers static edge cases)
+    gzip on;
+    gzip_types text/css application/javascript image/svg+xml application/json;
+    gzip_min_length 1024;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade           $http_upgrade;
+        proxy_set_header Connection        "upgrade";
+    }
+
+    # (Optional) let nginx serve uploaded files directly for speed.
+    # Point this at the absolute path of the app's uploads/ folder.
+    location /uploads/ {
+        alias /var/www/drivex-motors/uploads/;
+        expires 30d;
+        access_log off;
+        try_files $uri @app;
+    }
+    location @app {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+    }
+}

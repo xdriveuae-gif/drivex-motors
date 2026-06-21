@@ -1,0 +1,18 @@
+<svg viewBox="0 0 800 550" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="bgA" cx="50%" cy="34%" r="80%">
+      <stop offset="0%" stop-color="#2a2412"/><stop offset="60%" stop-color="#151515"/><stop offset="100%" stop-color="#080808"/>
+    </radialGradient>
+    <linearGradient id="gA" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F4D67A"/><stop offset="100%" stop-color="#B8860B"/></linearGradient>
+  </defs>
+  <rect width="800" height="550" fill="url(#bgA)"/>
+  <ellipse cx="400" cy="430" rx="290" ry="34" fill="#000" opacity="0.5"/>
+  <g transform="translate(120 215)">
+    <path d="M30,180 C45,140 100,132 150,130 L215,132 C238,104 280,92 332,92 L412,92 C480,95 520,120 556,150 L616,160 C668,168 668,182 668,198 L668,220 C668,228 662,232 654,232 L48,232 C40,232 30,225 30,216 Z" fill="#0d0d0d" stroke="url(#gA)" stroke-opacity="0.5" stroke-width="2.5"/>
+    <path d="M242,108 C282,92 318,92 352,92 L406,92 L414,132 L228,132 Z" fill="#1a1a1a"/>
+    <path d="M418,94 L482,98 C516,104 534,120 550,140 L440,132 Z" fill="#1a1a1a"/>
+    <circle cx="186" cy="232" r="46" fill="#0a0a0a" stroke="url(#gA)" stroke-width="3"/><circle cx="186" cy="232" r="18" fill="#1c1c1c"/>
+    <circle cx="524" cy="232" r="46" fill="#0a0a0a" stroke="url(#gA)" stroke-width="3"/><circle cx="524" cy="232" r="18" fill="#1c1c1c"/>
+  </g>
+  <text x="400" y="510" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="5" fill="#D4AF37" opacity="0.8">DRIVEX MOTORS</text>
+</svg>

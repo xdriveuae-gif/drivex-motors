@@ -1,0 +1,122 @@
+{{> partials/admin-head }}
+
+<section class="admin-panel form-panel">
+  <div class="panel-head">
+    <h2 id="formHeading">Add Vehicle</h2>
+    <a href="/admin/vehicles" class="link-btn">← Back to list</a>
+  </div>
+
+  <form id="vehicleForm" class="vehicle-form" novalidate>
+    <div class="form-grid">
+      <div class="form-field span-2">
+        <label for="title">Title *</label>
+        <input type="text" id="title" name="title" maxlength="160" placeholder="e.g. Toyota Land Cruiser VXR" required />
+        <small class="field-error" data-error="title"></small>
+      </div>
+
+      <div class="form-field">
+        <label for="make">Make *</label>
+        <input type="text" id="make" name="make" maxlength="60" required />
+        <small class="field-error" data-error="make"></small>
+      </div>
+      <div class="form-field">
+        <label for="model">Model *</label>
+        <input type="text" id="model" name="model" maxlength="60" required />
+        <small class="field-error" data-error="model"></small>
+      </div>
+
+      <div class="form-field">
+        <label for="year">Year *</label>
+        <input type="number" id="year" name="year" min="1950" max="2100" required />
+        <small class="field-error" data-error="year"></small>
+      </div>
+      <div class="form-field">
+        <label for="price">Price (AED) *</label>
+        <input type="number" id="price" name="price" min="0" required />
+        <small class="field-error" data-error="price"></small>
+      </div>
+
+      <div class="form-field">
+        <label for="mileage">Mileage (km)</label>
+        <input type="number" id="mileage" name="mileage" min="0" value="0" />
+        <small class="field-error" data-error="mileage"></small>
+      </div>
+      <div class="form-field">
+        <label for="color">Color</label>
+        <input type="text" id="color" name="color" maxlength="40" />
+      </div>
+
+      <div class="form-field">
+        <label for="body_type">Body Type</label>
+        <select id="body_type" name="body_type">
+          <option value="">Select…</option>
+          <option>SUV</option><option>Sedan</option><option>Coupe</option>
+          <option>Hatchback</option><option>Pickup</option><option>Convertible</option>
+          <option>Van</option><option>Wagon</option><option>Crossover</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="fuel_type">Fuel Type</label>
+        <select id="fuel_type" name="fuel_type">
+          <option value="">Select…</option>
+          <option>Petrol</option><option>Diesel</option><option>Hybrid</option><option>Electric</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="transmission">Transmission</label>
+        <select id="transmission" name="transmission">
+          <option value="">Select…</option>
+          <option>Automatic</option><option>Manual</option><option>CVT</option><option>Tiptronic</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="engine">Engine</label>
+        <input type="text" id="engine" name="engine" maxlength="80" placeholder="e.g. 5.7L V8" />
+      </div>
+
+      <div class="form-field span-2">
+        <label for="vin">VIN</label>
+        <input type="text" id="vin" name="vin" maxlength="32" placeholder="Vehicle Identification Number" />
+      </div>
+
+      <div class="form-field span-2">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="5" maxlength="6000"></textarea>
+      </div>
+
+      <div class="form-field span-2">
+        <label for="features">Features <span class="hint">(one per line, or comma-separated)</span></label>
+        <textarea id="features" name="features" rows="4" placeholder="Sunroof&#10;360° Camera&#10;Leather Seats"></textarea>
+      </div>
+
+      <div class="form-field span-2 toggles">
+        <label class="switch"><input type="checkbox" id="is_featured" name="is_featured" /> <span>Mark as Featured</span></label>
+        <label class="switch"><input type="checkbox" id="is_sold" name="is_sold" /> <span>Mark as Sold</span></label>
+      </div>
+    </div>
+
+    <!-- Images -->
+    <div class="image-manager">
+      <h3>Images</h3>
+      <div class="existing-images" id="existingImages" hidden></div>
+
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="imageInput" name="images" accept="image/*" multiple hidden />
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+        <p><strong>Click to upload</strong> or drag &amp; drop images here</p>
+        <span class="hint">JPG, PNG, WEBP, GIF, AVIF — up to the configured size limit</span>
+      </div>
+      <div class="image-preview" id="imagePreview"></div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-gold btn-lg" id="saveBtn">Save Vehicle</button>
+      <a href="/admin/vehicles" class="btn btn-outline btn-lg">Cancel</a>
+      <span class="form-status" id="formStatus"></span>
+    </div>
+  </form>
+</section>
+
+<script src="/js/admin-vehicle-form.js" defer></script>
+{{> partials/admin-footer }}

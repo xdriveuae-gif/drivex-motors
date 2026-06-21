@@ -1,0 +1,24 @@
+DriveX Motors — static site
+===========================
+
+HOW TO PUBLISH ON HOSTINGER (shared Web Hosting):
+1. Log in to hPanel > Files > File Manager.
+2. Open the public_html folder.
+3. Upload EVERYTHING inside this folder (index.html, css/, js/, images/,
+   .htaccess, etc.) into public_html. (Tip: zip this folder, upload the zip,
+   then "Extract" inside public_html.)
+4. Visit your domain — the site is live.
+
+MANAGE YOUR CARS:
+- Edit  js/data.js  to add / edit / remove vehicles (instructions are at the
+  top of that file). Re-upload it after changes.
+- Add car photos into the images/ folder and reference them in data.js.
+
+NOTES:
+- Set your real domain before building for accurate links/sitemap:
+    STATIC_DOMAIN=https://yourdomain.com node build-static.js   (current: https://www.drivexmotors.ae)
+- The contact form opens WhatsApp with the message (no server needed).
+- There is no admin panel in the static version (manage cars via data.js).
+- Open the site through your domain (or a local web server), not by double-
+  clicking the .html files — the shared "/css, /js, /images" paths need a
+  web root to resolve.
