@@ -3,7 +3,7 @@ node_modules/
 
 # Environment
 .env
-
+.env.example
 # Database (keep schema.sql; ignore the generated DB + WAL files)
 database/*.db
 database/*.db-shm
@@ -19,6 +19,7 @@ uploads/*
 logs/
 *.log
 npm-debug.log*
+
 
 # OS / editor
 .DS_Store
