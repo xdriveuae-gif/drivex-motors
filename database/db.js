@@ -49,6 +49,19 @@ raw.exec('PRAGMA foreign_keys = ON');
 const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
 raw.exec(schema);
 
+// ── Lightweight in-place migrations ──────────────────────────────
+// schema.sql uses CREATE TABLE IF NOT EXISTS, which will NOT add new columns
+// to a table that already exists. So for columns added after the first release
+// we add them here, idempotently: existing databases upgrade in place with no
+// data loss and no manual database deletion.
+function ensureColumn(table, column, definition) {
+  const cols = raw.all(`PRAGMA table_info(${table})`);
+  if (!cols.some((c) => c.name === column)) {
+    raw.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+ensureColumn('vehicles', 'is_published', 'INTEGER NOT NULL DEFAULT 1');
+
 /* ---------- better-sqlite3 compatibility shim ---------- */
 
 function coerce(v) {
