@@ -17,7 +17,7 @@
   var previewWrap = document.getElementById('imagePreview');
 
   var FIELDS = ['title', 'make', 'model', 'year', 'price', 'mileage', 'engine',
-    'transmission', 'fuel_type', 'body_type', 'color', 'vin', 'description'];
+    'transmission', 'fuel_type', 'body_type', 'color', 'description'];
 
   /* ---------- errors ---------- */
   function clearErrors() {
