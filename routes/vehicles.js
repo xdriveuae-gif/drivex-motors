@@ -42,6 +42,7 @@ router.get('/vehicles', (req, res) => {
   const where = [];
   const params = [];
 
+  where.push('v.is_published = 1');  // only published cars (hide unpublished)
   if (req.query.sold === '1') where.push('v.is_sold = 1');          // only sold (Sold page)
   else if (req.query.include_sold !== '1') where.push('v.is_sold = 0'); // default: hide sold
   if (req.query.featured === '1') where.push('v.is_featured = 1');
@@ -113,7 +114,7 @@ router.get('/vehicles', (req, res) => {
 
 /* ───────────── GET /api/filters ───────────── */
 router.get('/filters', (_req, res) => {
-  const onlyAvailable = 'WHERE is_sold = 0';
+  const onlyAvailable = 'WHERE is_sold = 0 AND is_published = 1';
   const col = (name) =>
     db
       .prepare(`SELECT DISTINCT ${name} AS v FROM vehicles ${onlyAvailable} AND ${name} IS NOT NULL AND ${name} <> '' ORDER BY ${name}`)

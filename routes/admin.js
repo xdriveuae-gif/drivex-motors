@@ -275,7 +275,7 @@ router.get('/api/vehicles', requireAuth, (req, res) => {
   const rows = db
     .prepare(
       `SELECT v.id, v.title, v.make, v.model, v.year, v.price, v.mileage,
-              v.fuel_type, v.transmission, v.is_featured, v.is_sold, v.views, v.created_at,
+              v.fuel_type, v.transmission, v.is_featured, v.is_sold, v.is_published, v.views, v.created_at,
               ${PRIMARY_IMAGE_SQL},
               (SELECT COUNT(*) FROM vehicle_images WHERE vehicle_id = v.id) AS image_count
          FROM vehicles v ${whereSql}
@@ -365,12 +365,16 @@ router.patch('/api/vehicles/:id', requireAuth, (req, res) => {
     fields.push('is_sold=@is_sold');
     params.is_sold = toBool(req.body.is_sold) ? 1 : 0;
   }
+  if (req.body.is_published !== undefined) {
+    fields.push('is_published=@is_published');
+    params.is_published = toBool(req.body.is_published) ? 1 : 0;
+  }
   if (!fields.length) return res.status(400).json({ error: 'Nothing to update.' });
   db.prepare(
     `UPDATE vehicles SET ${fields.join(', ')}, updated_at=datetime('now') WHERE id=@id`
   ).run({ ...params, id: vehicle.id });
   const updated = db
-    .prepare('SELECT id, is_featured, is_sold FROM vehicles WHERE id = ?')
+    .prepare('SELECT id, is_featured, is_sold, is_published FROM vehicles WHERE id = ?')
     .get(vehicle.id);
   res.json({ ok: true, ...updated });
 });

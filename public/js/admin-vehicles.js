@@ -15,7 +15,7 @@
   var DEL = '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0l1 13h8l1-13"/></svg>';
 
   async function load() {
-    tbody.innerHTML = '<tr><td colspan="7" class="muted ta-center">Loading…</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="muted ta-center">Loading…</td></tr>';
     var p = new URLSearchParams();
     if (state.q) p.set('q', state.q);
     if (state.status) p.set('status', state.status);
@@ -30,7 +30,7 @@
 
   function render(rows, pagination) {
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="7" class="muted ta-center" style="padding:30px">No vehicles found. <a class="link-btn" href="/admin/vehicles/new">Add one →</a></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="muted ta-center" style="padding:30px">No vehicles found. <a class="link-btn" href="/admin/vehicles/new">Add one →</a></td></tr>';
       pager.innerHTML = ''; return;
     }
     tbody.innerHTML = rows.map(function (v) {
@@ -43,6 +43,7 @@
         '<td>' + km(v.mileage) + '</td>' +
         '<td><label class="switch"><input type="checkbox" data-feature ' + (v.is_featured ? 'checked' : '') + '></label></td>' +
         '<td><label class="switch"><input type="checkbox" data-sold ' + (v.is_sold ? 'checked' : '') + '></label></td>' +
+        '<td><label class="switch"><input type="checkbox" data-published ' + (v.is_published ? 'checked' : '') + '></label></td>' +
         '<td><div class="row-actions">' +
           '<a class="icon-btn" href="/admin/vehicles/' + v.id + '/edit" title="Edit">' + EDIT + '</a>' +
           '<button class="icon-btn danger" data-del="' + v.id + '" title="Delete">' + DEL + '</button>' +
@@ -60,6 +61,9 @@
       });
       tr.querySelector('[data-sold]').addEventListener('change', function () {
         patch(id, { is_sold: this.checked ? 1 : 0 }, this.checked ? 'Marked as sold' : 'Marked as available');
+      });
+      tr.querySelector('[data-published]').addEventListener('change', function () {
+        patch(id, { is_published: this.checked ? 1 : 0 }, this.checked ? 'Published to inventory' : 'Hidden from inventory');
       });
       tr.querySelector('[data-del]').addEventListener('click', async function () {
         if (!(await DXA.confirm('Delete this vehicle and all its images? This cannot be undone.'))) return;
