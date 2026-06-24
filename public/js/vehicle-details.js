@@ -73,7 +73,7 @@
       '<div class="vd-section"><h2>Specifications</h2><table class="specs-table"><tbody>' +
         row('Make', vehicle.make) + row('Model', vehicle.model) + row('Year', vehicle.year) +
         row('Mileage', DX.fmtMileage(vehicle.mileage)) + row('Price', DX.fmtPrice(vehicle.price)) +
-        row('VIN', vehicle.vin) + row('Engine', vehicle.engine) + row('Fuel Type', vehicle.fuel_type) +
+        row('Engine', vehicle.engine) + row('Fuel Type', vehicle.fuel_type) +
         row('Transmission', vehicle.transmission) + row('Body Type', vehicle.body_type) + row('Color', vehicle.color) +
       '</tbody></table></div>' +
       featuresHtml;
