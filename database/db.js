@@ -45,22 +45,26 @@ const raw = new Database(DB_PATH);
 // the default rollback journal is correct and durable.)
 raw.exec('PRAGMA foreign_keys = ON');
 
-// Apply the schema (CREATE TABLE/INDEX IF NOT EXISTS — safe to re-run).
-const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
-raw.exec(schema);
-
-// ── Lightweight in-place migrations ──────────────────────────────
-// schema.sql uses CREATE TABLE IF NOT EXISTS, which will NOT add new columns
-// to a table that already exists. So for columns added after the first release
-// we add them here, idempotently: existing databases upgrade in place with no
-// data loss and no manual database deletion.
+// ── Lightweight in-place migrations (MUST run before the schema) ──
+// schema.sql uses CREATE TABLE IF NOT EXISTS, which will NOT add new columns to
+// a table that already exists — and it also creates indexes on those new
+// columns. On an OLD database the table exists without the column, so the index
+// creation in schema.sql would crash. We therefore add any missing columns
+// FIRST, idempotently, so existing databases upgrade in place (no data loss,
+// no manual database deletion). On a brand-new database the table doesn't exist
+// yet, so these are skipped and schema.sql creates everything correctly.
 function ensureColumn(table, column, definition) {
   const cols = raw.all(`PRAGMA table_info(${table})`);
+  if (cols.length === 0) return;          // table doesn't exist yet (fresh DB)
   if (!cols.some((c) => c.name === column)) {
     raw.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
   }
 }
 ensureColumn('vehicles', 'is_published', 'INTEGER NOT NULL DEFAULT 1');
+
+// Apply the schema (CREATE TABLE/INDEX IF NOT EXISTS — safe to re-run).
+const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
+raw.exec(schema);
 
 /* ---------- better-sqlite3 compatibility shim ---------- */
 
