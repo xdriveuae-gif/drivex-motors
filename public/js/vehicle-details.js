@@ -17,18 +17,9 @@
       DX.fmtPrice(vehicle.price) + '. ' + data.url + '/vehicle/' + vehicle.id;
     return 'https://wa.me/' + (data.whatsapp || '') + '?text=' + encodeURIComponent(msg);
   }
-  function mailLink() {
-    var subject = 'Enquiry: ' + vehicle.title + ' (' + vehicle.year + ')';
-    var bd = 'Hello,%0D%0A%0D%0AI would like more information about the ' +
-      encodeURIComponent(vehicle.title) + ' priced at ' + encodeURIComponent(DX.fmtPrice(vehicle.price)) +
-      '.%0D%0A%0D%0ALink: ' + data.url + '/vehicle/' + vehicle.id;
-    return 'mailto:' + (data.email || '') + '?subject=' + encodeURIComponent(subject) + '&body=' + bd;
-  }
-
   function render() {
     images = (vehicle.images && vehicle.images.length) ? vehicle.images.map(function (i) { return i.file_path; })
       : ['/images/placeholders/car-a.svg'];
-    var fav = DXFav.has(vehicle.id);
     var badges = '';
     if (vehicle.is_featured) badges += '<span class="vc-badge gold">Featured</span> ';
     if (vehicle.is_sold) badges += '<span class="vc-badge sold">Sold</span>';
@@ -61,10 +52,8 @@
             '<li><span class="k">Transmission</span><span class="v">' + esc(vehicle.transmission || '—') + '</span></li>' +
           '</ul>' +
           '<div class="vd-actions">' +
-            '<a class="btn btn-whatsapp full" href="' + waLink() + '" target="_blank" rel="noopener">WhatsApp Inquiry</a>' +
+            '<a class="btn btn-whatsapp full" href="' + waLink() + '" target="_blank" rel="noopener">WhatsApp</a>' +
             '<a class="btn btn-gold" href="tel:' + esc(data.phone) + '">Call Dealer</a>' +
-            '<a class="btn btn-outline" href="' + mailLink() + '">Email Inquiry</a>' +
-            '<button class="btn btn-outline" id="favBtn">' + (fav ? '♥ Saved' : '♡ Save') + '</button>' +
             '<button class="btn btn-ghost" id="shareBtn">Share</button>' +
           '</div>' +
         '</div>' +
@@ -97,12 +86,6 @@
   }
 
   function bindActions() {
-    var favBtn = document.getElementById('favBtn');
-    favBtn.addEventListener('click', function () {
-      var on = DXFav.toggle(vehicle.id);
-      favBtn.textContent = on ? '♥ Saved' : '♡ Save';
-      DX.toast(on ? 'Added to favourites' : 'Removed from favourites', on ? 'success' : 'info');
-    });
     document.getElementById('shareBtn').addEventListener('click', function () {
       var url = data.url + '/vehicle/' + vehicle.id;
       if (navigator.share) {
