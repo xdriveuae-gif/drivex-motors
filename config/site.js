@@ -36,11 +36,8 @@ const site = {
 
   // Social links (replace with the dealership's real profiles)
   social: {
-    facebook: 'https://facebook.com/',
-    instagram: 'https://www.instagram.com/drivex_motors.ae/',
-    x: 'https://x.com/',
-    youtube: 'https://youtube.com/',
-    tiktok: 'https://tiktok.com/'
+    facebook: 'https://www.facebook.com/share/1DA6LWnMuv/?mibextid=wwXIfr',
+    instagram: 'https://www.instagram.com/drivex_motors.ae/'
   }
 };
 

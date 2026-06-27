@@ -67,9 +67,6 @@ function baseTokens(req, res) {
     SITE_MAP_LINK: site.mapLink,
     SOC_FACEBOOK: site.social.facebook,
     SOC_INSTAGRAM: site.social.instagram,
-    SOC_X: site.social.x,
-    SOC_YOUTUBE: site.social.youtube,
-    SOC_TIKTOK: site.social.tiktok,
     YEAR: String(new Date().getFullYear()),
     CSRF_TOKEN: (res.locals && res.locals.csrfToken) || ''
   };
