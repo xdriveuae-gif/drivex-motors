@@ -12,7 +12,7 @@
   var makeSel = $('f-make'), modelSel = $('f-model'), bodySel = $('f-body'),
     fuelSel = $('f-fuel'), transSel = $('f-trans'),
     yMin = $('f-year-min'), yMax = $('f-year-max'),
-    pMin = $('f-price-min'), pMax = $('f-price-max'), mMax = $('f-mileage'), favOnly = $('favOnly');
+    pMin = $('f-price-min'), pMax = $('f-price-max'), mMax = $('f-mileage');
 
   function controls() {
     return {
@@ -21,8 +21,7 @@
       make: makeSel.value, model: modelSel.value, body_type: bodySel.value,
       fuel_type: fuelSel.value, transmission: transSel.value,
       year_min: yMin.value, year_max: yMax.value,
-      price_min: pMin.value, price_max: pMax.value, mileage_max: mMax.value,
-      fav: favOnly.checked
+      price_min: pMin.value, price_max: pMax.value, mileage_max: mMax.value
     };
   }
 
@@ -40,8 +39,7 @@
   function syncUrl(c) {
     var p = new URLSearchParams();
     Object.keys(c).forEach(function (k) {
-      if (k === 'fav') { if (c.fav) p.set('fav', '1'); }
-      else if (c[k] && !(k === 'sort' && c[k] === 'newest')) p.set(k, c[k]);
+      if (c[k] && !(k === 'sort' && c[k] === 'newest')) p.set(k, c[k]);
     });
     if (state.page > 1) p.set('page', state.page);
     var qs = p.toString();
@@ -96,7 +94,6 @@
     if (c.year_min || c.year_max) chips.push(chip('Year ' + (c.year_min || '…') + '–' + (c.year_max || '…'), 'year'));
     if (c.price_min || c.price_max) chips.push(chip('AED ' + (c.price_min || '0') + '–' + (c.price_max || '∞'), 'price'));
     if (c.mileage_max) chips.push(chip('≤ ' + Number(c.mileage_max).toLocaleString() + ' km', 'mileage_max'));
-    if (c.fav) chips.push(chip('Favourites', 'fav'));
     chipsEl.innerHTML = chips.join('');
     chipsEl.querySelectorAll('[data-clear]').forEach(function (b) {
       b.addEventListener('click', function () { clearControl(b.getAttribute('data-clear')); });
@@ -107,7 +104,6 @@
     var map = { q: searchInput, make: makeSel, model: modelSel, body_type: bodySel, fuel_type: fuelSel, transmission: transSel, mileage_max: mMax };
     if (key === 'year') { yMin.value = ''; yMax.value = ''; }
     else if (key === 'price') { pMin.value = ''; pMax.value = ''; }
-    else if (key === 'fav') { favOnly.checked = false; }
     else if (map[key]) { map[key].value = ''; if (key === 'make') populateModels(''); }
     state.page = 1; load();
   }
@@ -116,24 +112,12 @@
     showSkeletons();
     var c = controls();
     try {
-      if (c.fav) return await loadFavorites(c);
       var res = await DX.api.get('/api/vehicles?' + apiQS(c, state.page, PER_PAGE));
       render(res.data, res.pagination);
     } catch (e) {
       grid.innerHTML = '<p class="muted ta-center" style="grid-column:1/-1">Unable to load inventory. Please retry.</p>';
     }
     updateChips(c); syncUrl(c);
-  }
-
-  async function loadFavorites(c) {
-    var ids = DXFav.list();
-    if (!ids.length) { render([], { total: 0, page: 1, totalPages: 1 }); return; }
-    var res = await DX.api.get('/api/vehicles?' + apiQS(c, 1, 48));
-    var all = (res.data || []).filter(function (v) { return ids.indexOf(v.id) !== -1; });
-    var total = all.length, totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
-    if (state.page > totalPages) state.page = 1;
-    var slice = all.slice((state.page - 1) * PER_PAGE, state.page * PER_PAGE);
-    render(slice, { total: total, page: state.page, totalPages: totalPages });
   }
 
   function fillSelect(sel, values, current) {
@@ -176,7 +160,6 @@
     yMin.value = url.get('year_min') || ''; yMax.value = url.get('year_max') || '';
     pMin.value = url.get('price_min') || ''; pMax.value = url.get('price_max') || '';
     mMax.value = url.get('mileage_max') || '';
-    if (url.get('fav') === '1') favOnly.checked = true;
     state.page = Math.max(1, Number(url.get('page')) || 1);
 
     bindEvents();
@@ -187,7 +170,7 @@
     searchInput.addEventListener('input', DX.debounce(function () { state.page = 1; load(); }, 350));
     sortSelect.addEventListener('change', function () { state.page = 1; load(); });
     makeSel.addEventListener('change', function () { populateModels(makeSel.value); state.page = 1; load(); });
-    [modelSel, bodySel, fuelSel, transSel, yMin, yMax, pMin, pMax, mMax, favOnly].forEach(function (el) {
+    [modelSel, bodySel, fuelSel, transSel, yMin, yMax, pMin, pMax, mMax].forEach(function (el) {
       el.addEventListener('change', function () { state.page = 1; load(); });
     });
     form.addEventListener('submit', function (e) {
@@ -210,8 +193,11 @@
     }
     function closeFilters() {
       if (panel) panel.classList.remove('open');
+      if (toggle) toggle.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = '';
     }
+    var closeBtn = $('closeFilters');
+    if (closeBtn) closeBtn.addEventListener('click', closeFilters);
     // close filters when clicking a result on mobile handled by reload; expose
     window.__closeFilters = closeFilters;
   }
