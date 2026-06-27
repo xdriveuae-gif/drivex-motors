@@ -477,6 +477,7 @@ h1, h2, h3, h4 { line-height: 1.15; font-weight: 700; color: var(--white); lette
   .vd-actions { grid-template-columns: 1fr; }
   .vd-key { grid-template-columns: 1fr; }
   .hero-actions .btn { width: 100%; }
+  .hero-scroll { bottom: 10px; }
   .toast-container { left: 12px; right: 12px; max-width: none; }
   .brand-word { display: none; }
 }
