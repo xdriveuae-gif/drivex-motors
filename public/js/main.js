@@ -66,7 +66,6 @@
   /* ---------- vehicle card (shared by home + inventory) ---------- */
   function vehicleCard(v) {
     var img = v.primary_image || '/images/placeholders/car-a.svg';
-    var fav = window.DXFav && window.DXFav.has(v.id);
     var badges = '';
     if (v.is_featured) badges += '<span class="vc-badge gold">Featured</span>';
     if (v.is_sold) badges += '<span class="vc-badge sold">Sold</span>';
@@ -77,7 +76,6 @@
             '<img class="vc-img" src="' + escapeHtml(img) + '" alt="' + escapeHtml(v.title) + '" loading="lazy">' +
           '</a>' +
           '<div class="vc-badges">' + badges + '</div>' +
-          '<button class="vc-fav ' + (fav ? 'active' : '') + '" data-fav="' + v.id + '" aria-label="Save to favourites">' + ICON.heart + '</button>' +
         '</div>' +
         '<div class="vc-body">' +
           '<h3 class="vc-title"><a href="/vehicle/' + v.id + '">' + escapeHtml(v.title) + '</a></h3>' +
