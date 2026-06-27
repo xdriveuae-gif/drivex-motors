@@ -117,7 +117,7 @@ h1, h2, h3, h4 { line-height: 1.15; font-weight: 700; color: var(--white); lette
 .brand-word strong { font-weight: 800; }
 .brand-word em { color: var(--gold); font-style: normal; font-weight: 800; }
 
-.main-nav { display: flex; align-items: center; gap: 6px; }
+.main-nav { display: flex; align-items: center; gap: 6px; margin-right: 32px; }
 .nav-link { padding: 10px 14px; border-radius: 8px; color: var(--text); font-weight: 500; transition: color .2s, background .2s; position: relative; }
 .nav-link:hover { color: var(--gold); }
 .nav-link.active { color: var(--gold); }
@@ -451,6 +451,7 @@ h1, h2, h3, h4 { line-height: 1.15; font-weight: 700; color: var(--white); lette
     position: fixed; inset: var(--header-h) 0 auto 0; flex-direction: column; align-items: stretch;
     background: rgba(10,10,10,.98); border-bottom: 1px solid var(--line); padding: 16px 20px 24px; gap: 4px;
     transform: translateY(-130%); transition: transform .35s var(--ease); max-height: calc(100vh - var(--header-h)); overflow-y: auto;
+    margin-right: 0;
   }
   .main-nav.open { transform: none; }
   .nav-link { padding: 14px 8px; border-bottom: 1px solid var(--line); }
