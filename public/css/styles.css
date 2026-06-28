@@ -157,6 +157,11 @@ h1, h2, h3, h4 { line-height: 1.15; font-weight: 700; color: var(--white); lette
 
 /* ---------- Vehicle grid + cards ---------- */
 .vehicle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+
+/* Similar Vehicles: centre the cards (so a single result isn't stuck left) and
+   add a little breathing room above the section. */
+.related { margin-top: clamp(36px, 6vw, 64px); }
+.related .vehicle-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 340px)); justify-content: center; }
 .vehicle-card {
   background: var(--gray); border: 1px solid var(--line); border-radius: var(--radius);
   overflow: hidden; display: flex; flex-direction: column;
