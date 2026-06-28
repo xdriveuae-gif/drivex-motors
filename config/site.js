@@ -31,7 +31,7 @@ const site = {
   email: process.env.SITE_EMAIL || 'info@drivex-motors.com',
   addressLine: process.env.SITE_ADDRESS || 'Industrial City - ICAD V - Abu Dhabi, Abu Dhabi, United Arab Emirates',
   mapQuery: process.env.SITE_MAP_QUERY || '24.2542396,54.4713298',
-  hours: 'Sat – Thu: 9:00 AM – 9:00 PM  ·  Fri: 2:00 PM – 9:00 PM',
+  hours: 'Sat – Thu: 9:00 AM – 1:00 PM & 4:00 PM – 9:00 PM  ·  Fri: 4:00 PM – 9:00 PM',
   currency: 'AED',
 
   // Social links (replace with the dealership's real profiles)
