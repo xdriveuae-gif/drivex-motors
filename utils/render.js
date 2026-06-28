@@ -22,6 +22,12 @@ const VIEWS_DIR = path.join(__dirname, '..', 'views');
 const IS_PROD = process.env.NODE_ENV === 'production';
 const cache = new Map();
 
+// Cache-busting version for static assets (CSS/JS). Computed once per process,
+// so every deploy/restart produces a fresh value — browsers then always fetch
+// the latest CSS/JS instead of serving a stale cached copy. Use it in templates
+// as:  <link href="/css/styles.css?v={{ASSET_VER}}">
+const ASSET_VER = String(Date.now());
+
 const INCLUDE_RE = /{{>\s*([\w\-./]+)\s*}}/g;
 const TOKEN_RE = /{{\s*([A-Z0-9_]+)\s*}}/g;
 
@@ -67,6 +73,7 @@ function baseTokens(req, res) {
     SITE_MAP_LINK: site.mapLink,
     SOC_FACEBOOK: site.social.facebook,
     SOC_INSTAGRAM: site.social.instagram,
+    ASSET_VER: ASSET_VER,
     YEAR: String(new Date().getFullYear()),
     CSRF_TOKEN: (res.locals && res.locals.csrfToken) || ''
   };
