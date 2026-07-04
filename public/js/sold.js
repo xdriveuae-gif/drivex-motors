@@ -30,6 +30,8 @@
     }
     if (countEl) countEl.textContent = p.total + ' sold vehicle' + (p.total === 1 ? '' : 's');
     grid.innerHTML = rows.map(DX.vehicleCard).join('');
+    // Sold cars are displayed without their price.
+    grid.querySelectorAll('.vc-price').forEach(function (el) { el.remove(); });
     DX.revealScan(grid);
     renderPager(p);
   }
