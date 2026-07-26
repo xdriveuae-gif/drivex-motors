@@ -18,8 +18,9 @@
   var WA = '<svg viewBox="0 0 32 32"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.6 6L4 29l8.2-1.6c1.8.9 3.7 1.4 5.8 1.4 6.6 0 12-5.4 12-12S22.6 3 16 3zm0 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-4.3.8.8-4.2-.2-.4A9.8 9.8 0 016.2 15c0-5.4 4.4-9.8 9.8-9.8s9.8 4.4 9.8 9.8-4.4 9.8-9.8 9.8zm5.4-7.3c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.2-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.5-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.2.2 2.1 3.3 5.1 4.6.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.4z"/></svg>';
 
   var SHOWROOM = ((document.querySelector('meta[name="showroom-whatsapp"]') || {}).content || '').replace(/[^\d]/g, '');
-  function waLink(s) {
-    if (!SHOWROOM) return '';
+  var PERSONAL = ((document.querySelector('meta[name="personal-whatsapp"]') || {}).content || '').replace(/[^\d]/g, '');
+  function waLink(s, number) {
+    if (!number) return '';
     var lines = [
       'New car submission — ' + (s.submission_number || ('#' + s.id)),
       s.year + ' ' + s.make + ' ' + s.model,
@@ -36,7 +37,7 @@
     (s.image_paths ? String(s.image_paths).split('|') : []).forEach(function (p, i) {
       if (p) lines.push('Photo ' + (i + 1) + ': ' + origin + p);
     });
-    return 'https://wa.me/' + SHOWROOM + '?text=' + encodeURIComponent(lines.join('\n'));
+    return 'https://wa.me/' + number + '?text=' + encodeURIComponent(lines.join('\n'));
   }
 
   async function load() {
@@ -68,7 +69,8 @@
         '<td>' + badge(s.status) + '</td>' +
         '<td>' + when(s.created_at) + '</td>' +
         '<td><div class="row-actions">' +
-          (waLink(s) ? '<a class="icon-btn wa" href="' + esc(waLink(s)) + '" target="_blank" rel="noopener" title="Send lead to showroom WhatsApp">' + WA + '</a>' : '') +
+          (waLink(s, SHOWROOM) ? '<a class="icon-btn wa" href="' + esc(waLink(s, SHOWROOM)) + '" target="_blank" rel="noopener" title="Send lead to showroom WhatsApp">' + WA + '</a>' : '') +
+          (waLink(s, PERSONAL) ? '<a class="icon-btn wa" href="' + esc(waLink(s, PERSONAL)) + '" target="_blank" rel="noopener" title="Send lead to personal WhatsApp">' + WA + '</a>' : '') +
           '<a class="btn btn-outline btn-sm" href="/admin/leads/' + s.id + '">View</a>' +
           '<button class="icon-btn danger" data-del="' + s.id + '" title="Delete">' + DEL + '</button>' +
         '</div></td></tr>';

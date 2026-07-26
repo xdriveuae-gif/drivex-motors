@@ -6,6 +6,7 @@
   var m = location.pathname.match(/\/admin\/leads\/(\d+)/);
   var id = m ? m[1] : null;
   var SHOWROOM = ((document.querySelector('meta[name="showroom-whatsapp"]') || {}).content || '').replace(/[^\d]/g, '');
+  var PERSONAL = ((document.querySelector('meta[name="personal-whatsapp"]') || {}).content || '').replace(/[^\d]/g, '');
 
   var esc = function (v) { return (v === null || v === undefined || v === '') ? '' : String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   var aed = function (n) { return n == null || n === '' ? '—' : 'AED ' + (Number(n) || 0).toLocaleString('en-US'); };
@@ -18,8 +19,8 @@
     return '<div class="dl-row"><span>' + esc(label) + '</span><strong>' + (isHtml ? value : esc(value)) + '</strong></div>';
   }
 
-  function waLink(sub) {
-    if (!SHOWROOM) return '';
+  function waLink(sub, number) {
+    if (!number) return '';
     var lines = [
       'New car submission — ' + (sub.submission_number || ('#' + sub.id)),
       sub.year + ' ' + sub.make + ' ' + sub.model + (sub.trim ? ' ' + sub.trim : ''),
@@ -40,7 +41,7 @@
     // wa.me links can't attach images — include tappable links to each photo instead.
     var origin = location.origin;
     (sub.images || []).forEach(function (im, i) { lines.push('Photo ' + (i + 1) + ': ' + origin + im.image_path); });
-    return 'https://wa.me/' + SHOWROOM + '?text=' + encodeURIComponent(lines.join('\n'));
+    return 'https://wa.me/' + number + '?text=' + encodeURIComponent(lines.join('\n'));
   }
 
   async function loadAndRender() {
@@ -54,7 +55,8 @@
     }).join('') || '<p class="muted">No photos uploaded.</p>';
 
     var highlights = (sub.highlights || []).map(function (h) { return '<span class="hl-tag">' + esc(h) + '</span>'; }).join(' ');
-    var wa = waLink(sub);
+    var waShowroom = waLink(sub, SHOWROOM);
+    var waPersonal = waLink(sub, PERSONAL);
 
     var statusBtns = STATUSES.map(function (s) {
       return '<button class="status-btn ' + ST_CLASS[s] + (s === sub.status ? ' active' : '') + '" data-status="' + esc(s) + '">' + esc(s) + '</button>';
@@ -83,7 +85,8 @@
           row('WhatsApp', sub.whatsapp ? '<a href="https://wa.me/' + esc(String(sub.whatsapp).replace(/[^\d]/g, '')) + '" target="_blank" rel="noopener">' + esc(sub.whatsapp) + '</a>' : '', true) +
           row('Email', '<a href="mailto:' + esc(sub.email) + '">' + esc(sub.email) + '</a>', true) +
           row('City', sub.city) +
-          (wa ? '<a class="btn btn-gold btn-sm lead-wa" href="' + esc(wa) + '" target="_blank" rel="noopener">Send this lead to showroom WhatsApp</a>' : '') +
+          (waShowroom ? '<a class="btn btn-gold btn-sm lead-wa" href="' + esc(waShowroom) + '" target="_blank" rel="noopener">Send this lead to showroom WhatsApp</a>' : '') +
+          (waPersonal ? '<a class="btn btn-outline btn-sm lead-wa" href="' + esc(waPersonal) + '" target="_blank" rel="noopener" style="margin-top:8px">Send this lead to personal WhatsApp</a>' : '') +
         '</section>' +
 
         '<section class="admin-panel">' +

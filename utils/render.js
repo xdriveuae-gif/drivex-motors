@@ -62,6 +62,7 @@ function baseTokens(req, res) {
     SITE_PHONE: site.phoneDisplay,
     SITE_PHONE_RAW: site.phone,
     SITE_WHATSAPP: site.whatsapp,
+    PERSONAL_WHATSAPP: site.personalWhatsapp,
     SITE_WHATSAPP_LINK: site.whatsappLink(
       `Hello ${site.name}, I'm interested in a vehicle from your showroom.`
     ),

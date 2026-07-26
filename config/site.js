@@ -28,6 +28,7 @@ const site = {
   phoneDisplay,
   phone: phoneDisplay.replace(/[^\d+]/g, ''), // tel: friendly, e.g. +97125550199
   whatsapp: (process.env.SITE_WHATSAPP || '971506730006').replace(/[^\d]/g, ''), // intl, no "+"
+  personalWhatsapp: (process.env.PERSONAL_WHATSAPP || '971551027110').replace(/[^\d]/g, ''), // owner's personal WhatsApp (admin leads only)
   email: process.env.SITE_EMAIL || 'info@drivex-motors.com',
   addressLine: process.env.SITE_ADDRESS || 'Industrial City - ICAD V - Abu Dhabi, Abu Dhabi, United Arab Emirates',
   mapQuery: process.env.SITE_MAP_QUERY || '24.2542396,54.4713298',
