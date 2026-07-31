@@ -61,6 +61,10 @@
       else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errs.push(['email', 'Enter a valid email address.']);
     } else if (step === 4) {
       if (files.length < MIN_PHOTOS) errs.push(['images', 'Please add at least ' + MIN_PHOTOS + ' photos of your car.']);
+    } else if (step === 5) {
+      var price = val('asking_price');
+      if (!price) errs.push(['asking_price', 'Asking price is required.']);
+      else if (isNaN(parseInt(price, 10)) || parseInt(price, 10) < 0) errs.push(['asking_price', 'Enter a valid asking price.']);
     }
     if (errs.length) { errs.forEach(function (e) { setError(e[0], e[1]); }); return false; }
     return true;

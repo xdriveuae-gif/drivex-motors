@@ -74,7 +74,8 @@ const submissionValidators = [
   body('mechanical_issues').optional({ checkFalsy: true }).trim().isLength({ max: 2000 }),
   body('additional_notes').optional({ checkFalsy: true }).trim().isLength({ max: 2000 }),
   // Pricing
-  body('asking_price').optional({ checkFalsy: true }).toInt().isInt({ min: 0 }).withMessage('Asking price must be a positive number.')
+  body('asking_price').notEmpty().withMessage('Asking price is required.').bail()
+    .toInt().isInt({ min: 0 }).withMessage('Asking price must be a positive number.')
 ];
 
 /** Convert validation errors into a 422 JSON payload. */
