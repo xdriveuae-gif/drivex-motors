@@ -30,6 +30,11 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
+/* Guard the hidden attribute: element rules like .btn { display:inline-flex }
+   have equal CSS specificity to the browser's [hidden]{display:none} default,
+   so whichever is declared later in the stylesheet wins — silently un-hiding
+   "hidden" buttons/panels. Force it here so [hidden] always wins everywhere. */
+[hidden] { display: none !important; }
 
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
