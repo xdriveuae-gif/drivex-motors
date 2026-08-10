@@ -6,7 +6,9 @@
  *           /admin/vehicles/new  /admin/vehicles/:id/edit
  *   API:    /admin/api/stats
  *           /admin/api/vehicles            (GET list, POST create)
+ *           /admin/api/vehicles/filters    (GET distinct make/model/year/color)
  *           /admin/api/vehicles/:id        (GET, PUT update, PATCH flags, DELETE)
+ *           /admin/api/vehicles/:id/duplicate (POST clone listing + images)
  *           /admin/api/vehicles/:id/images (POST add)
  *           /admin/api/vehicles/:id/images/:imageId        (DELETE)
  *           /admin/api/vehicles/:id/images/:imageId/primary (PATCH)
@@ -15,6 +17,8 @@
  */
 
 const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { validationResult } = require('express-validator');
@@ -31,6 +35,7 @@ const {
 const {
   upload,
   MAX_IMAGES,
+  UPLOAD_DIR,
   webPath,
   deleteUploadByWebPath,
   deleteSubmissionByWebPath
@@ -44,6 +49,17 @@ const SUBMISSION_STATUSES = [
 const PRIMARY_IMAGE_SQL = `
   (SELECT file_path FROM vehicle_images WHERE vehicle_id = v.id
     ORDER BY is_primary DESC, sort_order ASC, id ASC LIMIT 1) AS primary_image`;
+const ADMIN_SORT_MAP = {
+  newest: 'v.created_at DESC, v.id DESC',
+  oldest: 'v.created_at ASC, v.id ASC',
+  price_asc: 'v.price ASC',
+  price_desc: 'v.price DESC',
+  mileage_asc: 'v.mileage ASC',
+  mileage_desc: 'v.mileage DESC',
+  year_asc: 'v.year ASC',
+  year_desc: 'v.year DESC',
+  views_desc: 'v.views DESC'
+};
 
 /* ───────────────────────── helpers ───────────────────────── */
 
@@ -290,6 +306,7 @@ router.get('/api/vehicles', requireAuth, (req, res) => {
   }
 
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
+  const orderSql = ADMIN_SORT_MAP[req.query.sort] || ADMIN_SORT_MAP.newest;
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
   const limit = Math.min(50, Math.max(5, parseInt(req.query.limit, 10) || 15));
   const offset = (page - 1) * limit;
@@ -302,7 +319,7 @@ router.get('/api/vehicles', requireAuth, (req, res) => {
               ${PRIMARY_IMAGE_SQL},
               (SELECT COUNT(*) FROM vehicle_images WHERE vehicle_id = v.id) AS image_count
          FROM vehicles v ${whereSql}
-         ORDER BY v.created_at DESC, v.id DESC
+         ORDER BY ${orderSql}
          LIMIT ? OFFSET ?`
     )
     .all(...params, limit, offset);
@@ -380,6 +397,56 @@ router.post('/api/vehicles', requireAuth, uploadImages('images'), vehicleValidat
 
   const id = create();
   res.status(201).json({ ok: true, id, redirect: '/admin/vehicles' });
+});
+
+// Duplicate an existing vehicle (fields + a physical copy of its images).
+// New listing is unpublished by default so it can be reviewed/edited before going live;
+// featured/sold flags are reset since those rarely apply to the copy as-is.
+router.post('/api/vehicles/:id/duplicate', requireAuth, (req, res) => {
+  const source = getVehicleOr404(req.params.id, res);
+  if (!source) return;
+
+  const images = db
+    .prepare('SELECT file_path, is_primary, sort_order FROM vehicle_images WHERE vehicle_id = ? ORDER BY sort_order ASC, id ASC')
+    .all(source.id);
+
+  const duplicate = db.transaction(() => {
+    const info = db
+      .prepare(
+        `INSERT INTO vehicles
+          (title, make, model, year, price, mileage, engine, transmission,
+           fuel_type, body_type, color, vin, description, features, is_featured, is_sold, is_published)
+         VALUES
+          (@title, @make, @model, @year, @price, @mileage, @engine, @transmission,
+           @fuel_type, @body_type, @color, @vin, @description, @features, 0, 0, 0)`
+      )
+      .run({
+        title: `${source.title} (Copy)`,
+        make: source.make, model: source.model, year: source.year, price: source.price,
+        mileage: source.mileage, engine: source.engine, transmission: source.transmission,
+        fuel_type: source.fuel_type, body_type: source.body_type, color: source.color,
+        vin: source.vin, description: source.description, features: source.features
+      });
+    const newId = info.lastInsertRowid;
+
+    const insImg = db.prepare(
+      'INSERT INTO vehicle_images (vehicle_id, file_path, is_primary, sort_order) VALUES (?, ?, ?, ?)'
+    );
+    images.forEach((img) => {
+      const srcName = path.basename(img.file_path);
+      const ext = path.extname(srcName) || '.jpg';
+      const newName = `${Date.now()}-${crypto.randomBytes(12).toString('hex')}${ext}`;
+      try {
+        fs.copyFileSync(path.join(UPLOAD_DIR, srcName), path.join(UPLOAD_DIR, newName));
+        insImg.run(newId, webPath(newName), img.is_primary, img.sort_order);
+      } catch (e) { /* source file missing on disk — skip that image */ }
+    });
+
+    return newId;
+  });
+
+  const id = duplicate();
+  res.status(201).json({ ok: true, id, redirect: '/admin/vehicles/' + id + '/edit' });
 });
 
 // Update fields (JSON)

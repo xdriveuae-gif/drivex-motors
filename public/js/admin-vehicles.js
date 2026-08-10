@@ -9,10 +9,12 @@
   var pager = document.getElementById('adminPagination');
   var search = document.getElementById('adminSearch');
   var statusSel = document.getElementById('statusFilter');
-  var state = { page: 1, q: '', status: '', make: '', model: '', year: '', color: '', price_min: '', price_max: '', mileage_max: '' };
+  var sortSel = document.getElementById('sortSelect');
+  var state = { page: 1, q: '', status: '', sort: 'newest', make: '', model: '', year: '', color: '', price_min: '', price_max: '', mileage_max: '' };
 
   var EDIT = '<svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4zM14 6l4 4"/></svg>';
   var DEL = '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0l1 13h8l1-13"/></svg>';
+  var DUP = '<svg viewBox="0 0 24 24"><path d="M8 8V5a2 2 0 012-2h9a2 2 0 012 2v9a2 2 0 01-2 2h-3M8 8H5a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3M8 8h5a2 2 0 012 2v5"/></svg>';
 
   var toggle = document.getElementById('advFilterToggle');
   var panel = document.getElementById('advFilterPanel');
@@ -57,6 +59,7 @@
     var p = new URLSearchParams();
     if (state.q) p.set('q', state.q);
     if (state.status) p.set('status', state.status);
+    if (state.sort) p.set('sort', state.sort);
     ['make', 'model', 'year', 'color', 'price_min', 'price_max', 'mileage_max'].forEach(function (k) {
       if (state[k]) p.set(k, state[k]);
     });
@@ -87,6 +90,7 @@
         '<td><label class="switch"><input type="checkbox" data-published ' + (v.is_published ? 'checked' : '') + '></label></td>' +
         '<td><div class="row-actions">' +
           '<a class="icon-btn" href="/admin/vehicles/' + v.id + '/edit" title="Edit">' + EDIT + '</a>' +
+          '<button class="icon-btn" data-dup="' + v.id + '" title="Duplicate">' + DUP + '</button>' +
           '<button class="icon-btn danger" data-del="' + v.id + '" title="Delete">' + DEL + '</button>' +
         '</div></td></tr>';
     }).join('');
@@ -111,6 +115,14 @@
         try { await DXA.api.send('/admin/api/vehicles/' + id, 'DELETE'); DXA.toast('Vehicle deleted', 'success'); load(); }
         catch (e) { DXA.toast(e.message, 'error'); }
       });
+      tr.querySelector('[data-dup]').addEventListener('click', async function () {
+        if (!(await DXA.confirm('Duplicate this listing? A new unpublished copy with the same photos will be created.'))) return;
+        try {
+          var res = await DXA.api.send('/admin/api/vehicles/' + id + '/duplicate', 'POST');
+          DXA.toast('Vehicle duplicated', 'success');
+          location.href = res.redirect || '/admin/vehicles';
+        } catch (e) { DXA.toast(e.message, 'error'); }
+      });
     });
   }
 
@@ -133,6 +145,7 @@
   var debounce = function (fn, w) { var t; return function () { var a = arguments, c = this; clearTimeout(t); t = setTimeout(function () { fn.apply(c, a); }, w); }; };
   search.addEventListener('input', debounce(function () { state.q = search.value.trim(); state.page = 1; load(); }, 350));
   statusSel.addEventListener('change', function () { state.status = statusSel.value; state.page = 1; load(); });
+  sortSel.addEventListener('change', function () { state.sort = sortSel.value; state.page = 1; load(); });
 
   if (toggle && panel) {
     toggle.addEventListener('click', function () { panel.hidden = !panel.hidden; });
