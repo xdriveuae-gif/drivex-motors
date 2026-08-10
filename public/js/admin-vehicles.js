@@ -9,16 +9,57 @@
   var pager = document.getElementById('adminPagination');
   var search = document.getElementById('adminSearch');
   var statusSel = document.getElementById('statusFilter');
-  var state = { page: 1, q: '', status: '' };
+  var state = { page: 1, q: '', status: '', make: '', model: '', year: '', color: '', price_min: '', price_max: '', mileage_max: '' };
 
   var EDIT = '<svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4zM14 6l4 4"/></svg>';
   var DEL = '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0l1 13h8l1-13"/></svg>';
+
+  var toggle = document.getElementById('advFilterToggle');
+  var panel = document.getElementById('advFilterPanel');
+  var makeSel = document.getElementById('af-make');
+  var modelSel = document.getElementById('af-model');
+  var yearSel = document.getElementById('af-year');
+  var colorSel = document.getElementById('af-color');
+  var priceMin = document.getElementById('af-price-min');
+  var priceMax = document.getElementById('af-price-max');
+  var mileageMax = document.getElementById('af-mileage');
+  var modelsByMake = {};
+
+  function fillSelect(sel, values) {
+    var first = sel.options[0] ? sel.options[0].outerHTML : '<option value="">All</option>';
+    sel.innerHTML = first + values.map(function (v) {
+      return '<option value="' + esc(v) + '">' + esc(v) + '</option>';
+    }).join('');
+  }
+
+  function populateModels(make) {
+    var models = modelsByMake[make] || [];
+    if (!make || !models.length) {
+      modelSel.innerHTML = '<option value="">All models</option>';
+      modelSel.disabled = true; return;
+    }
+    modelSel.disabled = false;
+    fillSelect(modelSel, models);
+  }
+
+  async function loadFilterMeta() {
+    try {
+      var f = await DXA.api.get('/admin/api/vehicles/filters');
+      modelsByMake = f.modelsByMake || {};
+      fillSelect(makeSel, f.makes || []);
+      fillSelect(yearSel, f.years || []);
+      fillSelect(colorSel, f.colors || []);
+    } catch (e) { /* keep defaults */ }
+  }
 
   async function load() {
     tbody.innerHTML = '<tr><td colspan="8" class="muted ta-center">Loading…</td></tr>';
     var p = new URLSearchParams();
     if (state.q) p.set('q', state.q);
     if (state.status) p.set('status', state.status);
+    ['make', 'model', 'year', 'color', 'price_min', 'price_max', 'mileage_max'].forEach(function (k) {
+      if (state[k]) p.set(k, state[k]);
+    });
     p.set('page', state.page); p.set('limit', 12);
     try {
       var res = await DXA.api.get('/admin/api/vehicles?' + p.toString());
@@ -93,6 +134,33 @@
   search.addEventListener('input', debounce(function () { state.q = search.value.trim(); state.page = 1; load(); }, 350));
   statusSel.addEventListener('change', function () { state.status = statusSel.value; state.page = 1; load(); });
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
-  else load();
+  if (toggle && panel) {
+    toggle.addEventListener('click', function () { panel.hidden = !panel.hidden; });
+  }
+  makeSel.addEventListener('change', function () { populateModels(makeSel.value); modelSel.value = ''; });
+  var applyBtn = document.getElementById('advFilterApply');
+  if (applyBtn) applyBtn.addEventListener('click', function () {
+    state.make = makeSel.value;
+    state.model = modelSel.value;
+    state.year = yearSel.value;
+    state.color = colorSel.value;
+    state.price_min = priceMin.value;
+    state.price_max = priceMax.value;
+    state.mileage_max = mileageMax.value;
+    state.page = 1;
+    load();
+  });
+  var resetBtn = document.getElementById('advFilterReset');
+  if (resetBtn) resetBtn.addEventListener('click', function () {
+    makeSel.value = ''; populateModels(''); yearSel.value = ''; colorSel.value = '';
+    priceMin.value = ''; priceMax.value = ''; mileageMax.value = '';
+    state.make = state.model = state.year = state.color = state.price_min = state.price_max = state.mileage_max = '';
+    state.page = 1;
+    load();
+  });
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+
+  function init() { loadFilterMeta(); load(); }
 })();

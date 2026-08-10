@@ -266,6 +266,29 @@ router.get('/api/vehicles', requireAuth, (req, res) => {
   if (req.query.status === 'available') where.push('v.is_sold = 0');
   if (req.query.status === 'featured') where.push('v.is_featured = 1');
 
+  const exact = { make: 'v.make', model: 'v.model', year: 'v.year', color: 'v.color' };
+  for (const [param, col] of Object.entries(exact)) {
+    if (req.query[param]) {
+      where.push(`${col} = ?`);
+      params.push(String(req.query[param]));
+    }
+  }
+
+  const ranges = [
+    ['price_min', 'v.price >= ?'],
+    ['price_max', 'v.price <= ?'],
+    ['mileage_max', 'v.mileage <= ?']
+  ];
+  for (const [param, clause] of ranges) {
+    if (req.query[param] !== undefined && req.query[param] !== '') {
+      const n = parseInt(req.query[param], 10);
+      if (!Number.isNaN(n)) {
+        where.push(clause);
+        params.push(n);
+      }
+    }
+  }
+
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
   const limit = Math.min(50, Math.max(5, parseInt(req.query.limit, 10) || 15));
@@ -274,7 +297,7 @@ router.get('/api/vehicles', requireAuth, (req, res) => {
   const total = db.prepare(`SELECT COUNT(*) AS n FROM vehicles v ${whereSql}`).get(...params).n;
   const rows = db
     .prepare(
-      `SELECT v.id, v.title, v.make, v.model, v.year, v.price, v.mileage,
+      `SELECT v.id, v.title, v.make, v.model, v.year, v.price, v.mileage, v.color,
               v.fuel_type, v.transmission, v.is_featured, v.is_sold, v.is_published, v.views, v.created_at,
               ${PRIMARY_IMAGE_SQL},
               (SELECT COUNT(*) FROM vehicle_images WHERE vehicle_id = v.id) AS image_count
@@ -287,6 +310,30 @@ router.get('/api/vehicles', requireAuth, (req, res) => {
   res.json({
     data: rows,
     pagination: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) }
+  });
+});
+
+// Filter metadata for the admin vehicles list (distinct across ALL vehicles,
+// including sold/unpublished — unlike the public /api/filters).
+router.get('/api/vehicles/filters', requireAuth, (_req, res) => {
+  const col = (name) =>
+    db.prepare(`SELECT DISTINCT ${name} AS v FROM vehicles WHERE ${name} IS NOT NULL AND ${name} <> '' ORDER BY ${name}`)
+      .all()
+      .map((r) => r.v);
+
+  const makeModelRows = db.prepare('SELECT DISTINCT make, model FROM vehicles ORDER BY make, model').all();
+  const modelsByMake = {};
+  for (const { make, model } of makeModelRows) {
+    (modelsByMake[make] = modelsByMake[make] || []).push(model);
+  }
+
+  const years = db.prepare('SELECT DISTINCT year AS v FROM vehicles ORDER BY year DESC').all().map((r) => r.v);
+
+  res.json({
+    makes: col('make'),
+    modelsByMake,
+    years,
+    colors: col('color')
   });
 });
 

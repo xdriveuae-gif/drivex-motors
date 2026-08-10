@@ -172,6 +172,17 @@ h1, h2, h3, h4 { color: var(--white); line-height: 1.2; }
 .admin-search input:focus { outline: none; border-color: var(--line-gold); }
 .status-filter { padding: 11px 16px; background: var(--black); border: 1px solid var(--line); border-radius: 100px; color: #fff; }
 
+.admin-filters {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px;
+  background: var(--gray); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin-bottom: 18px;
+}
+.admin-filters .filter-group label { display: block; font-size: .78rem; color: var(--muted); margin-bottom: 6px; letter-spacing: .03em; }
+.admin-filters select, .admin-filters input { width: 100%; padding: 10px 12px; background: var(--black); border: 1px solid var(--line); border-radius: var(--radius-sm); color: #fff; font-size: .88rem; }
+.admin-filters select:focus, .admin-filters input:focus { outline: none; border-color: var(--line-gold); }
+.admin-filters .range-row { display: flex; align-items: center; gap: 8px; }
+.admin-filters .range-row span { color: var(--muted); }
+.admin-filters .filter-actions { display: flex; align-items: flex-end; gap: 12px; }
+
 .table-wrap { overflow-x: auto; }
 .admin-table { width: 100%; border-collapse: collapse; min-width: 720px; }
 .admin-table th { text-align: left; color: var(--muted); font-weight: 500; font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; padding: 12px; border-bottom: 1px solid var(--line); }

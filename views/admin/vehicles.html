@@ -17,6 +17,42 @@
       <option value="sold">Sold</option>
       <option value="featured">Featured</option>
     </select>
+    <button type="button" class="btn btn-outline btn-sm" id="advFilterToggle">Filters</button>
+  </div>
+
+  <div class="admin-filters" id="advFilterPanel" hidden>
+    <div class="filter-group">
+      <label for="af-make">Make</label>
+      <select id="af-make"><option value="">All makes</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="af-model">Model</label>
+      <select id="af-model" disabled><option value="">All models</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="af-year">Year</label>
+      <select id="af-year"><option value="">All years</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="af-color">Color</label>
+      <select id="af-color"><option value="">All colors</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Price (AED)</label>
+      <div class="range-row">
+        <input type="number" id="af-price-min" placeholder="Min" inputmode="numeric" />
+        <span>–</span>
+        <input type="number" id="af-price-max" placeholder="Max" inputmode="numeric" />
+      </div>
+    </div>
+    <div class="filter-group">
+      <label for="af-mileage">Max Mileage (km)</label>
+      <input type="number" id="af-mileage" placeholder="Any" inputmode="numeric" />
+    </div>
+    <div class="filter-group filter-actions">
+      <button type="button" class="btn btn-gold btn-sm" id="advFilterApply">Apply</button>
+      <button type="button" class="link-btn" id="advFilterReset">Reset</button>
+    </div>
   </div>
 
   <div class="table-wrap">
