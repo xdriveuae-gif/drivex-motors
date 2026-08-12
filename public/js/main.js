@@ -71,7 +71,7 @@
     if (v.is_sold) badges += '<span class="vc-badge sold">Sold</span>';
     return '' +
       '<article class="vehicle-card" data-reveal>' +
-        '<div class="vc-media">' +
+        '<div class="vc-media" data-id="' + v.id + '" data-primary="' + escapeHtml(img) + '">' +
           '<a href="/vehicle/' + v.id + '" aria-label="' + escapeHtml(v.title) + '">' +
             '<img class="vc-img" src="' + escapeHtml(img) + '" alt="' + escapeHtml(v.title) + '" loading="lazy">' +
           '</a>' +
@@ -196,6 +196,62 @@
     });
   }
 
+  /* ---------- vehicle card hover gallery ---------- */
+  // Hovering a card's photo scrubs through that vehicle's other photos (left→right),
+  // without navigating into the listing. Photos are fetched lazily on first hover via
+  // /api/vehicles/:id/images — a dedicated endpoint that does NOT count a view, so
+  // browsing thumbnails on hover never inflates the "listing views" stat.
+  function initHoverGallery() {
+    var cache = {}; // id -> array of paths | 'loading' | null (failed / <=1 photo)
+
+    function fetchImages(id) {
+      cache[id] = 'loading';
+      apiGet('/api/vehicles/' + id + '/images').then(function (res) {
+        var imgs = (res && res.images) || [];
+        if (imgs.length < 2) { cache[id] = null; return; }
+        imgs.forEach(function (src) { var pre = new Image(); pre.src = src; }); // preload
+        cache[id] = imgs;
+      }).catch(function () { cache[id] = null; });
+    }
+
+    document.addEventListener('mouseover', function (e) {
+      var media = e.target.closest('.vc-media');
+      if (!media) return;
+      var id = media.getAttribute('data-id');
+      if (!id || Object.prototype.hasOwnProperty.call(cache, id)) return;
+      fetchImages(id);
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      var media = e.target.closest('.vc-media');
+      if (!media) return;
+      var id = media.getAttribute('data-id');
+      var imgs = cache[id];
+      if (!imgs || imgs === 'loading') return;
+      var rect = media.getBoundingClientRect();
+      if (!rect.width) return;
+      var ratio = (e.clientX - rect.left) / rect.width;
+      ratio = ratio < 0 ? 0 : ratio > 0.999 ? 0.999 : ratio;
+      var idx = Math.floor(ratio * imgs.length);
+      var el = media.querySelector('.vc-img');
+      if (el && el.getAttribute('data-idx') != idx) {
+        el.src = imgs[idx];
+        el.setAttribute('data-idx', idx);
+      }
+    });
+
+    document.addEventListener('mouseout', function (e) {
+      var media = e.target.closest('.vc-media');
+      if (!media || (e.relatedTarget && media.contains(e.relatedTarget))) return;
+      var el = media.querySelector('.vc-img');
+      var primary = media.getAttribute('data-primary');
+      if (el && primary && el.getAttribute('data-idx') !== '0') {
+        el.src = primary;
+        el.setAttribute('data-idx', '0');
+      }
+    });
+  }
+
   /* ---------- expose + init ---------- */
   window.DX = {
     escapeHtml: escapeHtml, fmtPrice: fmtPrice, fmtMileage: fmtMileage, debounce: debounce,
@@ -208,7 +264,7 @@
     document.querySelectorAll('[data-loading]').forEach(function (g) {
       g.innerHTML = skeletons(Number(g.getAttribute('data-loading')) || 3);
     });
-    initNav(); initBackToTop(); initActions(); initCounters(); revealScan();
+    initNav(); initBackToTop(); initActions(); initHoverGallery(); initCounters(); revealScan();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

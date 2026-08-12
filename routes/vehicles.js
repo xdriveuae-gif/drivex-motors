@@ -2,9 +2,10 @@
 
 /**
  * Public vehicle JSON API  (mounted at /api)
- *   GET /api/vehicles          → search / filter / sort / paginate
- *   GET /api/vehicles/:id       → single vehicle + images + features
- *   GET /api/filters            → distinct values to populate filter UI
+ *   GET /api/vehicles              → search / filter / sort / paginate
+ *   GET /api/vehicles/:id           → single vehicle + images + features
+ *   GET /api/vehicles/:id/images    → just the photo list (does NOT count a view)
+ *   GET /api/filters                → distinct values to populate filter UI
  *
  * All inventory data comes from SQLite — nothing is hard-coded.
  */
@@ -178,6 +179,24 @@ router.get('/vehicles/:id', (req, res) => {
       ? images
       : [{ id: 0, file_path: '/images/placeholders/car-a.svg', is_primary: 1, sort_order: 0 }]
   });
+});
+
+/* ─────────── GET /api/vehicles/:id/images (no view count) ─────────── */
+// Used by the vehicle-card hover gallery on Home/Inventory/Sold — deliberately
+// separate from GET /api/vehicles/:id so hovering never inflates listing views.
+router.get('/vehicles/:id/images', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid vehicle id.' });
+
+  const images = db
+    .prepare(
+      `SELECT file_path FROM vehicle_images
+        WHERE vehicle_id = ?
+        ORDER BY is_primary DESC, sort_order ASC, id ASC`
+    )
+    .all(id);
+
+  res.json({ images: images.map((r) => r.file_path) });
 });
 
 module.exports = router;
