@@ -76,6 +76,7 @@
             '<img class="vc-img" src="' + escapeHtml(img) + '" alt="' + escapeHtml(v.title) + '" loading="lazy">' +
           '</a>' +
           '<div class="vc-badges">' + badges + '</div>' +
+          '<div class="vc-dots" hidden></div>' +
         '</div>' +
         '<div class="vc-body">' +
           '<h3 class="vc-title"><a href="/vehicle/' + v.id + '">' + escapeHtml(v.title) + '</a></h3>' +
@@ -196,13 +197,18 @@
     });
   }
 
-  /* ---------- vehicle card hover gallery ---------- */
-  // Hovering a card's photo scrubs through that vehicle's other photos (left→right),
-  // without navigating into the listing. Photos are fetched lazily on first hover via
-  // /api/vehicles/:id/images — a dedicated endpoint that does NOT count a view, so
-  // browsing thumbnails on hover never inflates the "listing views" stat.
-  function initHoverGallery() {
+  /* ---------- vehicle card gallery: desktop hover-scrub + mobile swipe ---------- */
+  // Desktop: moving the mouse left→right over a card's photo scrubs through that
+  // vehicle's other photos. Mobile: swiping the photo left/right (Instagram-style)
+  // moves to the next/previous photo, with dot indicators, and never navigates into
+  // the listing when a swipe is detected (a plain tap still opens it normally).
+  // Photos are fetched lazily on first interaction via /api/vehicles/:id/images —
+  // a dedicated endpoint that does NOT count a view, so browsing photos this way
+  // never inflates the "listing views" stat.
+  function initGallery() {
     var cache = {}; // id -> array of paths | 'loading' | null (failed / <=1 photo)
+    var SWIPE_PX = 30;
+    var touchState = null;
 
     function fetchImages(id) {
       cache[id] = 'loading';
@@ -211,9 +217,36 @@
         if (imgs.length < 2) { cache[id] = null; return; }
         imgs.forEach(function (src) { var pre = new Image(); pre.src = src; }); // preload
         cache[id] = imgs;
+        document.querySelectorAll('.vc-media[data-id="' + id + '"]').forEach(function (m) {
+          renderDots(m, imgs.length, 0);
+        });
       }).catch(function () { cache[id] = null; });
     }
 
+    function renderDots(media, count, activeIdx) {
+      var dots = media.querySelector('.vc-dots');
+      if (!dots) return;
+      if (count < 2) { dots.hidden = true; dots.innerHTML = ''; return; }
+      dots.hidden = false;
+      var html = '';
+      for (var i = 0; i < count; i++) html += '<span class="vc-dot' + (i === activeIdx ? ' active' : '') + '"></span>';
+      dots.innerHTML = html;
+    }
+
+    function setImage(media, idx) {
+      var id = media.getAttribute('data-id');
+      var imgs = cache[id];
+      if (!imgs || imgs === 'loading') return;
+      idx = idx < 0 ? 0 : idx > imgs.length - 1 ? imgs.length - 1 : idx;
+      var el = media.querySelector('.vc-img');
+      if (el && el.getAttribute('data-idx') != idx) {
+        el.src = imgs[idx];
+        el.setAttribute('data-idx', idx);
+      }
+      renderDots(media, imgs.length, idx);
+    }
+
+    /* ---- desktop hover-scrub ---- */
     document.addEventListener('mouseover', function (e) {
       var media = e.target.closest('.vc-media');
       if (!media) return;
@@ -225,31 +258,61 @@
     document.addEventListener('mousemove', function (e) {
       var media = e.target.closest('.vc-media');
       if (!media) return;
-      var id = media.getAttribute('data-id');
-      var imgs = cache[id];
+      var imgs = cache[media.getAttribute('data-id')];
       if (!imgs || imgs === 'loading') return;
       var rect = media.getBoundingClientRect();
       if (!rect.width) return;
       var ratio = (e.clientX - rect.left) / rect.width;
       ratio = ratio < 0 ? 0 : ratio > 0.999 ? 0.999 : ratio;
-      var idx = Math.floor(ratio * imgs.length);
-      var el = media.querySelector('.vc-img');
-      if (el && el.getAttribute('data-idx') != idx) {
-        el.src = imgs[idx];
-        el.setAttribute('data-idx', idx);
-      }
+      setImage(media, Math.floor(ratio * imgs.length));
     });
 
     document.addEventListener('mouseout', function (e) {
       var media = e.target.closest('.vc-media');
       if (!media || (e.relatedTarget && media.contains(e.relatedTarget))) return;
-      var el = media.querySelector('.vc-img');
-      var primary = media.getAttribute('data-primary');
-      if (el && primary && el.getAttribute('data-idx') !== '0') {
-        el.src = primary;
-        el.setAttribute('data-idx', '0');
-      }
+      setImage(media, 0);
     });
+
+    /* ---- mobile swipe ---- */
+    document.addEventListener('touchstart', function (e) {
+      var media = e.target.closest('.vc-media');
+      if (!media) { touchState = null; return; }
+      var id = media.getAttribute('data-id');
+      if (id && !Object.prototype.hasOwnProperty.call(cache, id)) fetchImages(id);
+      var t = e.touches[0];
+      var el = media.querySelector('.vc-img');
+      var curIdx = parseInt((el && el.getAttribute('data-idx')) || '0', 10) || 0;
+      touchState = { media: media, id: id, startX: t.clientX, startY: t.clientY, moved: false, dx: 0, startIdx: curIdx };
+    }, { passive: true });
+
+    document.addEventListener('touchmove', function (e) {
+      if (!touchState) return;
+      var t = e.touches[0];
+      var dx = t.clientX - touchState.startX, dy = t.clientY - touchState.startY;
+      if (!touchState.moved && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) touchState.moved = true;
+      if (touchState.moved) {
+        if (e.cancelable) e.preventDefault(); // lock out vertical page scroll during a horizontal swipe
+        touchState.dx = dx;
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchend', function () {
+      if (!touchState) return;
+      var ts = touchState; touchState = null;
+      if (!ts.moved) return; // plain tap — let the link navigate normally
+      var imgs = cache[ts.id];
+      if (imgs && imgs !== 'loading' && Math.abs(ts.dx) >= SWIPE_PX) {
+        setImage(ts.media, ts.startIdx + (ts.dx < 0 ? 1 : -1));
+      }
+      // any horizontal drag (even below the swipe threshold) cancels navigation for this tap
+      ts.media.__suppressClick = true;
+      setTimeout(function () { ts.media.__suppressClick = false; }, 350);
+    });
+
+    document.addEventListener('click', function (e) {
+      var media = e.target.closest('.vc-media');
+      if (media && media.__suppressClick) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
   }
 
   /* ---------- expose + init ---------- */
@@ -264,7 +327,7 @@
     document.querySelectorAll('[data-loading]').forEach(function (g) {
       g.innerHTML = skeletons(Number(g.getAttribute('data-loading')) || 3);
     });
-    initNav(); initBackToTop(); initActions(); initHoverGallery(); initCounters(); revealScan();
+    initNav(); initBackToTop(); initActions(); initGallery(); initCounters(); revealScan();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
