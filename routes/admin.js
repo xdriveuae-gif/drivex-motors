@@ -172,6 +172,14 @@ router.get('/vehicles', requireAuth, (req, res) =>
   render(req, res, 'admin/vehicles', { title: 'Manage Vehicles', bodyClass: 'admin' })
 );
 
+router.get('/vehicles/sold', requireAuth, (req, res) =>
+  render(req, res, 'admin/vehicles', { title: 'Sold Vehicles', bodyClass: 'admin' })
+);
+
+router.get('/vehicles/available', requireAuth, (req, res) =>
+  render(req, res, 'admin/vehicles', { title: 'Available Vehicles', bodyClass: 'admin' })
+);
+
 router.get('/vehicles/new', requireAuth, (req, res) =>
   render(req, res, 'admin/vehicle-form', { title: 'Add Vehicle', bodyClass: 'admin' })
 );

@@ -13,8 +13,8 @@
   function row(label, val) { return '<tr><th>' + label + '</th><td>' + esc(val || '—') + '</td></tr>'; }
 
   function waLink() {
-    var msg = "Hi, I'm interested in the " + vehicle.title + ' (' + vehicle.year + ') listed for ' +
-      DX.fmtPrice(vehicle.price) + '. ' + data.url + '/vehicle/' + vehicle.id;
+    var priceLine = vehicle.is_sold ? '' : ' listed for ' + DX.fmtPrice(vehicle.price);
+    var msg = "Hi, I'm interested in the " + vehicle.title + ' (' + vehicle.year + ')' + priceLine + '. ' + data.url + '/vehicle/' + vehicle.id;
     return 'https://wa.me/' + (data.whatsapp || '') + '?text=' + encodeURIComponent(msg);
   }
   function render() {
@@ -43,7 +43,7 @@
         '<div class="vd-info">' +
           '<h1>' + esc(vehicle.title) + '</h1>' +
           '<p class="vd-sub">' + esc(vehicle.year) + ' · ' + DX.fmtMileage(vehicle.mileage) + ' · ' + esc(vehicle.body_type || '—') + '</p>' +
-          '<div class="vd-price">' + DX.fmtPrice(vehicle.price) + '</div>' +
+          (vehicle.is_sold ? '' : '<div class="vd-price">' + DX.fmtPrice(vehicle.price) + '</div>') +
           '<div class="vd-badges">' + badges + '</div>' +
           '<ul class="vd-key">' +
             '<li><span class="k">Year</span><span class="v">' + esc(vehicle.year) + '</span></li>' +
@@ -61,7 +61,7 @@
       (vehicle.description ? '<div class="vd-section"><h2>Description</h2><p class="vd-desc">' + esc(vehicle.description) + '</p></div>' : '') +
       '<div class="vd-section"><h2>Specifications</h2><table class="specs-table"><tbody>' +
         row('Make', vehicle.make) + row('Model', vehicle.model) + row('Year', vehicle.year) +
-        row('Mileage', DX.fmtMileage(vehicle.mileage)) + row('Price', DX.fmtPrice(vehicle.price)) +
+        row('Mileage', DX.fmtMileage(vehicle.mileage)) + (vehicle.is_sold ? '' : row('Price', DX.fmtPrice(vehicle.price))) +
         row('Engine', vehicle.engine) + row('Fuel Type', vehicle.fuel_type) +
         row('Transmission', vehicle.transmission) + row('Body Type', vehicle.body_type) + row('Color', vehicle.color) +
       '</tbody></table></div>' +

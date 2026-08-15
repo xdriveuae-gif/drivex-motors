@@ -10,7 +10,13 @@
   var search = document.getElementById('adminSearch');
   var statusSel = document.getElementById('statusFilter');
   var sortSel = document.getElementById('sortSelect');
-  var state = { page: 1, q: '', status: '', sort: 'newest', make: '', model: '', year: '', color: '', price_min: '', price_max: '', mileage_max: '' };
+
+  // Dedicated pages (Sold Vehicles / Available Vehicles) lock the status filter
+  // to that value and hide the dropdown, since the whole page is that view.
+  var LOCKED_STATUS = location.pathname === '/admin/vehicles/sold' ? 'sold'
+    : location.pathname === '/admin/vehicles/available' ? 'available' : '';
+
+  var state = { page: 1, q: '', status: LOCKED_STATUS, sort: 'newest', make: '', model: '', year: '', color: '', price_min: '', price_max: '', mileage_max: '' };
 
   var EDIT = '<svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4zM14 6l4 4"/></svg>';
   var DEL = '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0l1 13h8l1-13"/></svg>';
@@ -175,5 +181,9 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
-  function init() { loadFilterMeta(); load(); }
+  function init() {
+    if (LOCKED_STATUS && statusSel) statusSel.hidden = true;
+    loadFilterMeta();
+    load();
+  }
 })();
