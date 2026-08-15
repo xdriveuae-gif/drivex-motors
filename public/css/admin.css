@@ -165,6 +165,7 @@ h1, h2, h3, h4 { color: var(--white); line-height: 1.2; }
 
 /* ---------- Vehicles table ---------- */
 .vehicles-head { flex-wrap: wrap; }
+.ph-heading { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .vehicles-toolbar { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
 .admin-search { position: relative; flex: 1; min-width: 220px; }
 .admin-search svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; fill: var(--muted); }

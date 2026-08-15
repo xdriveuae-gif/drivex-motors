@@ -13,7 +13,7 @@
   async function loadStats() {
     try {
       var s = await DXA.api.get('/admin/api/stats');
-      set('sTotal', s.totalVehicles); set('sFeatured', s.featured);
+      set('sTotal', s.totalVehicles); set('sAvailable', s.available);
       set('sSold', s.sold); set('sMessages', s.messages);
       set('sSubmissions', s.submissions || 0);
       set('sViews', (s.totalViews || 0).toLocaleString('en-US'));
