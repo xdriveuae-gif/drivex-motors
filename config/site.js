@@ -39,7 +39,11 @@ const site = {
   social: {
     facebook: 'https://www.facebook.com/share/1DA6LWnMuv/?mibextid=wwXIfr',
     instagram: 'https://www.instagram.com/drivex_motors.ae/'
-  }
+  },
+
+  // Google Analytics 4 Measurement ID (Analytics → Admin → Data Streams).
+  // Leave GA_MEASUREMENT_ID unset in Hostinger to disable tracking entirely.
+  gaId: process.env.GA_MEASUREMENT_ID || 'G-6S62HCZPXH'
 };
 
 /** Pre-filled WhatsApp deep link. */

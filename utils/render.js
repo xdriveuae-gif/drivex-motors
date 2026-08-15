@@ -75,9 +75,22 @@ function baseTokens(req, res) {
     SOC_FACEBOOK: site.social.facebook,
     SOC_INSTAGRAM: site.social.instagram,
     ASSET_VER: ASSET_VER,
+    GA_TAG: gaTag(),
     YEAR: String(new Date().getFullYear()),
     CSRF_TOKEN: (res.locals && res.locals.csrfToken) || ''
   };
+}
+
+/** Google Analytics 4 tag markup — empty string (no tracking) if gaId isn't set. */
+function gaTag() {
+  if (!site.gaId) return '';
+  return `<script async src="https://www.googletagmanager.com/gtag/js?id=${site.gaId}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '${site.gaId}');
+  </script>`;
 }
 
 /**
