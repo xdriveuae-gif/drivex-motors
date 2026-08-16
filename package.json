@@ -12,6 +12,7 @@
     "dev": "nodemon server.js",
     "build": "node build-static.js",
     "seed": "node database/seed.js",
+    "create-admin": "node database/create-admin.js",
     "init-db": "node database/seed.js",
     "reset-db": "node database/seed.js --reset"
   },
