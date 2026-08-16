@@ -137,7 +137,7 @@ const vehicles = rows.map((v) => ({
   id: v.id, title: v.title, make: v.make, model: v.model, year: v.year, price: v.price,
   mileage: v.mileage, engine: v.engine, transmission: v.transmission, fuel_type: v.fuel_type,
   body_type: v.body_type, color: v.color, vin: v.vin, description: v.description,
-  features: parseFeatures(v.features), is_featured: v.is_featured ? 1 : 0, is_sold: v.is_sold ? 1 : 0,
+  features: parseFeatures(v.features), is_sold: v.is_sold ? 1 : 0,
   created_at: v.created_at,
   images: db.prepare('SELECT file_path FROM vehicle_images WHERE vehicle_id = ? ORDER BY is_primary DESC, sort_order ASC, id ASC').all(v.id).map((r) => r.file_path)
 }));
@@ -147,7 +147,7 @@ const dataHeader =
   '   ------------------------------------------------------------\n' +
   '   • Add a car: copy an object in the array and change the fields.\n' +
   '   • Remove a car: delete its object.\n' +
-  '   • Mark sold: set "is_sold": 1.  Feature on home: "is_featured": 1.\n' +
+  '   • Mark sold: set "is_sold": 1.\n' +
   '   • Images: put files in /images and list their paths, e.g.\n' +
   '       "images": ["/images/cars/patrol-1.jpg", "/images/cars/patrol-2.jpg"]\n' +
   '   • Each car needs a UNIQUE "id".\n' +

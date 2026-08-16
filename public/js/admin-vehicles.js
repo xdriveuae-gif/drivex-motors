@@ -85,7 +85,7 @@
   function render(rows, pagination) {
     if (countEl) countEl.textContent = (pagination.total || 0) + ' listing' + (pagination.total === 1 ? '' : 's');
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="muted ta-center" style="padding:30px">No vehicles found. <a class="link-btn" href="/admin/vehicles/new">Add one →</a></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="muted ta-center" style="padding:30px">No vehicles found. <a class="link-btn" href="/admin/vehicles/new">Add one →</a></td></tr>';
       pager.innerHTML = ''; return;
     }
     tbody.innerHTML = rows.map(function (v) {
@@ -96,7 +96,6 @@
         '<td>' + esc(v.year) + '</td>' +
         '<td class="price-cell">' + aed(v.price) + '</td>' +
         '<td>' + km(v.mileage) + '</td>' +
-        '<td><label class="switch"><input type="checkbox" data-feature ' + (v.is_featured ? 'checked' : '') + '></label></td>' +
         '<td><label class="switch"><input type="checkbox" data-sold ' + (v.is_sold ? 'checked' : '') + '></label></td>' +
         '<td><label class="switch"><input type="checkbox" data-published ' + (v.is_published ? 'checked' : '') + '></label></td>' +
         '<td><div class="row-actions">' +
@@ -112,9 +111,6 @@
   function bindRows() {
     tbody.querySelectorAll('tr[data-id]').forEach(function (tr) {
       var id = tr.getAttribute('data-id');
-      tr.querySelector('[data-feature]').addEventListener('change', function () {
-        patch(id, { is_featured: this.checked ? 1 : 0 }, this.checked ? 'Marked as featured' : 'Removed from featured');
-      });
       tr.querySelector('[data-sold]').addEventListener('change', function () {
         patch(id, { is_sold: this.checked ? 1 : 0 }, this.checked ? 'Marked as sold' : 'Marked as available');
       });

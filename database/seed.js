@@ -51,7 +51,7 @@ const SAMPLE_VEHICLES = [
     vin: 'JTMHV05J104120771',
     description: 'GCC-spec Land Cruiser VXR with full Toyota service history. Immaculate condition inside and out, fully loaded with rear entertainment, cool box and premium leather.',
     features: ['Sunroof', '360° Camera', 'Leather Seats', 'Adaptive Cruise', 'Rear Entertainment', 'Cool Box', 'Power Tailgate'],
-    is_featured: 1, is_sold: 0, daysAgo: 1
+    is_sold: 0, daysAgo: 1
   },
   {
     title: 'Nissan Patrol Platinum', make: 'Nissan', model: 'Patrol', year: 2020,
@@ -60,7 +60,7 @@ const SAMPLE_VEHICLES = [
     vin: 'JN8AY2NF7L9320145',
     description: 'Patrol Platinum City — agency maintained, accident free. Quilted leather, BOSE sound system and intelligent rear-view mirror.',
     features: ['BOSE Sound', 'Leather Seats', '360° Camera', 'Cruise Control', 'Sunroof', 'Apple CarPlay'],
-    is_featured: 1, is_sold: 0, daysAgo: 3
+    is_sold: 0, daysAgo: 3
   },
   {
     title: 'Mercedes-Benz G 63 AMG', make: 'Mercedes-Benz', model: 'G 63 AMG', year: 2019,
@@ -69,7 +69,7 @@ const SAMPLE_VEHICLES = [
     vin: 'WDCYC7HJ5KX320991',
     description: 'Iconic G 63 AMG with AMG Night Package and carbon trim. Burmester surround sound, designo leather and 22" AMG wheels.',
     features: ['AMG Night Package', 'Burmester Sound', 'Carbon Trim', 'designo Leather', '22" Wheels', 'Heads-Up Display'],
-    is_featured: 1, is_sold: 0, daysAgo: 5
+    is_sold: 0, daysAgo: 5
   },
   {
     title: 'Land Rover Range Rover Vogue SE', make: 'Land Rover', model: 'Range Rover', year: 2020,
@@ -78,7 +78,7 @@ const SAMPLE_VEHICLES = [
     vin: 'SALGS2SE7LA420118',
     description: 'Range Rover Vogue SE with panoramic roof, Meridian sound and soft-close doors. Full service history, warranty available.',
     features: ['Panoramic Roof', 'Meridian Sound', 'Soft-Close Doors', 'Massage Seats', 'Air Suspension'],
-    is_featured: 0, is_sold: 0, daysAgo: 7
+    is_sold: 0, daysAgo: 7
   },
   {
     title: 'BMW X5 xDrive40i M-Sport', make: 'BMW', model: 'X5', year: 2021,
@@ -87,7 +87,7 @@ const SAMPLE_VEHICLES = [
     vin: '5UXCR6C09M9D12045',
     description: 'X5 40i with M-Sport package, Harman Kardon audio and laser headlights. Under warranty, single owner.',
     features: ['M-Sport Package', 'Harman Kardon', 'Laser Lights', 'Panoramic Roof', 'Wireless CarPlay', 'Heated Seats'],
-    is_featured: 1, is_sold: 0, daysAgo: 9
+    is_sold: 0, daysAgo: 9
   },
   {
     title: 'Lexus LX 570', make: 'Lexus', model: 'LX 570', year: 2019,
@@ -96,7 +96,7 @@ const SAMPLE_VEHICLES = [
     vin: 'JTJHY00W104230882',
     description: 'LX 570 with Mark Levinson audio and rear entertainment. Beautifully maintained, full Lexus history.',
     features: ['Mark Levinson Sound', 'Rear Entertainment', 'Cool Box', '360° Camera', 'Sunroof'],
-    is_featured: 0, is_sold: 0, daysAgo: 12
+    is_sold: 0, daysAgo: 12
   },
   {
     title: 'Porsche Cayenne', make: 'Porsche', model: 'Cayenne', year: 2020,
@@ -105,7 +105,7 @@ const SAMPLE_VEHICLES = [
     vin: 'WP1AA2AY7LDA20771',
     description: 'Cayenne with Sport Chrono, panoramic roof and BOSE sound. Pristine, accident-free, agency serviced.',
     features: ['Sport Chrono', 'Panoramic Roof', 'BOSE Sound', 'Air Suspension', 'Apple CarPlay'],
-    is_featured: 0, is_sold: 0, daysAgo: 14
+    is_sold: 0, daysAgo: 14
   },
   {
     title: 'Audi Q7 45 TFSI quattro', make: 'Audi', model: 'Q7', year: 2021,
@@ -114,7 +114,7 @@ const SAMPLE_VEHICLES = [
     vin: 'WA1VAAF77MD030552',
     description: '7-seater Q7 quattro with virtual cockpit, Bang & Olufsen sound and matrix LED headlights.',
     features: ['Virtual Cockpit', 'Bang & Olufsen', 'Matrix LED', '7 Seats', 'Panoramic Roof'],
-    is_featured: 0, is_sold: 0, daysAgo: 16
+    is_sold: 0, daysAgo: 16
   },
   {
     title: 'Ford Mustang GT Premium', make: 'Ford', model: 'Mustang', year: 2021,
@@ -123,7 +123,7 @@ const SAMPLE_VEHICLES = [
     vin: '1FA6P8CF7M5120447',
     description: 'Mustang GT Premium with active exhaust, Recaro seats and digital cluster. Low mileage, stunning condition.',
     features: ['Active Exhaust', 'Recaro Seats', 'Digital Cluster', 'B&O Sound', 'Launch Control'],
-    is_featured: 1, is_sold: 0, daysAgo: 18
+    is_sold: 0, daysAgo: 18
   },
   {
     title: 'Mercedes-Benz S 500', make: 'Mercedes-Benz', model: 'S 500', year: 2020,
@@ -132,7 +132,7 @@ const SAMPLE_VEHICLES = [
     vin: 'WDDUG8DB7LA520663',
     description: 'Flagship S 500 with Burmester 3D sound, rear executive seating and full ADAS suite. Showroom condition.',
     features: ['Burmester 3D Sound', 'Executive Rear Seats', 'Massage Seats', 'Heads-Up Display', 'Night Vision'],
-    is_featured: 0, is_sold: 0, daysAgo: 21
+    is_sold: 0, daysAgo: 21
   },
   {
     title: 'Tesla Model 3 Long Range', make: 'Tesla', model: 'Model 3', year: 2022,
@@ -141,7 +141,7 @@ const SAMPLE_VEHICLES = [
     vin: '5YJ3E1EB7NF120994',
     description: 'Model 3 Long Range AWD with Autopilot, premium interior and panoramic glass roof. Includes home charger.',
     features: ['Autopilot', 'Glass Roof', 'Premium Audio', 'Heated Seats', 'Home Charger'],
-    is_featured: 0, is_sold: 0, daysAgo: 24
+    is_sold: 0, daysAgo: 24
   },
   {
     title: 'Chevrolet Tahoe LT', make: 'Chevrolet', model: 'Tahoe', year: 2021,
@@ -150,7 +150,7 @@ const SAMPLE_VEHICLES = [
     vin: '1GNSKNKD7MR320110',
     description: 'Spacious Tahoe LT 8-seater with rear camera, Bose audio and large infotainment. Family-ready and reliable.',
     features: ['8 Seats', 'Bose Audio', 'Rear Camera', 'Apple CarPlay', 'Power Seats'],
-    is_featured: 0, is_sold: 1, daysAgo: 30
+    is_sold: 1, daysAgo: 30
   }
 ];
 
@@ -176,11 +176,11 @@ function seedVehicles({ reset = false } = {}) {
     INSERT INTO vehicles
       (title, make, model, year, price, mileage, engine, transmission,
        fuel_type, body_type, color, vin, description, features,
-       is_featured, is_sold, views, created_at, updated_at)
+       is_sold, views, created_at, updated_at)
     VALUES
       (@title, @make, @model, @year, @price, @mileage, @engine, @transmission,
        @fuel_type, @body_type, @color, @vin, @description, @features,
-       @is_featured, @is_sold, @views,
+       @is_sold, @views,
        datetime('now', @createdMod), datetime('now', @createdMod))
   `);
 
@@ -197,7 +197,7 @@ function seedVehicles({ reset = false } = {}) {
         transmission: v.transmission, fuel_type: v.fuel_type,
         body_type: v.body_type, color: v.color, vin: v.vin,
         description: v.description, features: JSON.stringify(v.features),
-        is_featured: v.is_featured, is_sold: v.is_sold,
+        is_sold: v.is_sold,
         views: Math.floor(Math.random() * 400) + 20,
         createdMod: `-${v.daysAgo} days`
       });

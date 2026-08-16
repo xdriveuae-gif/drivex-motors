@@ -46,7 +46,6 @@ router.get('/vehicles', (req, res) => {
   where.push('v.is_published = 1');  // only published cars (hide unpublished)
   if (req.query.sold === '1') where.push('v.is_sold = 1');          // only sold (Sold page)
   else if (req.query.include_sold !== '1') where.push('v.is_sold = 0'); // default: hide sold
-  if (req.query.featured === '1') where.push('v.is_featured = 1');
 
   if (q) {
     where.push(
@@ -94,7 +93,7 @@ router.get('/vehicles', (req, res) => {
     .prepare(
       `SELECT v.id, v.title, v.make, v.model, v.year, v.price, v.mileage,
               v.engine, v.transmission, v.fuel_type, v.body_type, v.color,
-              v.is_featured, v.is_sold, v.created_at, ${PRIMARY_IMAGE_SQL}
+              v.is_sold, v.created_at, ${PRIMARY_IMAGE_SQL}
          FROM vehicles v
          ${whereSql}
          ORDER BY ${orderSql}

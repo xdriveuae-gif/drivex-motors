@@ -96,7 +96,6 @@
     try {
       var v = await DXA.api.get('/admin/api/vehicles/' + editId);
       FIELDS.forEach(function (k) { if (form[k] != null && v[k] != null) form[k].value = v[k]; });
-      form.is_featured.checked = !!v.is_featured;
       form.is_sold.checked = !!v.is_sold;
       form.features.value = (v.features || []).join('\n');
       renderExisting(v.images);
@@ -113,7 +112,6 @@
         var payload = {};
         FIELDS.forEach(function (k) { payload[k] = form[k].value; });
         payload.features = form.features.value;
-        payload.is_featured = form.is_featured.checked ? 1 : 0;
         payload.is_sold = form.is_sold.checked ? 1 : 0;
         await DXA.api.send('/admin/api/vehicles/' + editId, 'PUT', payload);
         if (selectedFiles.length) {
@@ -127,7 +125,6 @@
         var form2 = new FormData();
         FIELDS.forEach(function (k) { form2.append(k, form[k].value); });
         form2.append('features', form.features.value);
-        form2.append('is_featured', form.is_featured.checked ? '1' : '');
         form2.append('is_sold', form.is_sold.checked ? '1' : '');
         selectedFiles.forEach(function (f) { form2.append('images', f); });
         var res = await DXA.api.send('/admin/api/vehicles', 'POST', form2, true);

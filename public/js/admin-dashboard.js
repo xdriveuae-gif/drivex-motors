@@ -29,7 +29,7 @@
         return '<a class="latest-item" href="/admin/vehicles/' + v.id + '/edit">' +
           '<img src="' + esc(img) + '" alt="' + esc(v.title) + '">' +
           '<div class="li-body"><div class="li-title">' + esc(v.title) + '</div>' +
-          '<div class="li-meta">' + esc(v.year) + ' · ' + esc(v.make) + (v.is_sold ? ' · Sold' : '') + (v.is_featured ? ' · ★' : '') + '</div></div>' +
+          '<div class="li-meta">' + esc(v.year) + ' · ' + esc(v.make) + (v.is_sold ? ' · Sold' : '') + '</div></div>' +
           '<span class="li-price">' + aed(v.price) + '</span></a>';
       }).join('');
     } catch (e) { /* handled by DXA (401 redirect) */ }

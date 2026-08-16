@@ -8,7 +8,7 @@ A complete, production-ready website for a premium used-car dealership in **Abu 
 
 **Public site**
 - Luxury responsive design (gold `#D4AF37` / black `#0A0A0A`), mobile menu, smooth scroll-reveal animations, toasts, back-to-top, floating WhatsApp button.
-- **Home** — hero, featured vehicles, company intro, why-choose-us, benefits, animated stats, latest inventory, testimonials, contact + Google Map.
+- **Home** — hero, latest vehicles, company intro, why-choose-us, benefits, animated stats, latest inventory, testimonials, contact + Google Map.
 - **Inventory** — keyword search, filters (make, model, year, price, mileage, fuel, body, transmission), sorting, pagination — all powered by SQLite (no hard-coded cars).
 - **Vehicle details** — image gallery + lightbox, full spec table, features, description, and WhatsApp / Call / Email / Share actions. Server-injected SEO meta + `Car` structured data per vehicle.
 - **About** & **Contact** (form submissions saved to the database).
@@ -17,8 +17,8 @@ A complete, production-ready website for a premium used-car dealership in **Abu 
 
 **Admin panel** (`/admin`)
 - Session login (bcrypt-hashed passwords), logout, route protection, auth middleware.
-- Dashboard widgets: total / featured / sold vehicles, messages, total views, latest listings.
-- Full vehicle **CRUD**, mark **featured/sold**, multi-image upload (Multer), set primary image, delete images.
+- Dashboard widgets: total / available / sold vehicles, messages, total views, latest listings.
+- Full vehicle **CRUD**, mark **sold/published**, multi-image upload (Multer), set primary image, delete images.
 - Contact message inbox: read/unread + delete.
 
 **Security:** Helmet (with a tuned Content-Security-Policy), session-based CSRF protection, `express-validator` input validation, parameterised SQL (injection-safe), output escaping (XSS), rate limiting on login + contact, secure cookies, secrets via `.env`.
@@ -128,7 +128,7 @@ The password is hashed with bcrypt during initialization. **Change it before goi
 
 ## 🌱 Sample data
 
-`npm run seed` inserts 12 realistic Abu Dhabi-market vehicles (Land Cruiser, Patrol, G 63, Range Rover, X5, LX 570, Cayenne, Q7, Mustang, S 500, Model 3, Tahoe) with images, features, featured/sold flags and staggered dates.
+`npm run seed` inserts 12 realistic Abu Dhabi-market vehicles (Land Cruiser, Patrol, G 63, Range Rover, X5, LX 570, Cayenne, Q7, Mustang, S 500, Model 3, Tahoe) with images, features, sold flags and staggered dates.
 
 ```bash
 npm run seed          # seed only if empty
@@ -222,7 +222,7 @@ Prefer the exact packages from the brief? It’s straightforward:
 Four tables (full DDL in [`database/schema.sql`](database/schema.sql)):
 
 - **admins** — `id`, `username` (unique), `password_hash`, `created_at`
-- **vehicles** — title, make, model, year, price, mileage, engine, transmission, fuel_type, body_type, color, vin, description, features (JSON), is_featured, is_sold, views, created_at, updated_at — indexed on make/model/featured/sold/price/year/created_at
+- **vehicles** — title, make, model, year, price, mileage, engine, transmission, fuel_type, body_type, color, vin, description, features (JSON), is_sold, views, created_at, updated_at — indexed on make/model/sold/price/year/created_at
 - **vehicle_images** — `vehicle_id` → vehicles (FK, `ON DELETE CASCADE`), file_path, is_primary, sort_order
 - **contact_messages** — name, email, phone, subject, message, `vehicle_id` → vehicles (FK, `ON DELETE SET NULL`), is_read, created_at
 

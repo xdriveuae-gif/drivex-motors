@@ -1,4 +1,4 @@
-/* Home page — load featured + latest vehicles from the API. */
+/* Home page — load the latest vehicles from the API. */
 (function () {
   'use strict';
 
@@ -24,8 +24,7 @@
   }
 
   function init() {
-    fill('featuredGrid', '/api/vehicles?featured=1&limit=6', '/api/vehicles?limit=6&sort=newest');
-    fill('latestGrid', '/api/vehicles?sort=newest&limit=3');
+    fill('showcaseGrid', '/api/vehicles?limit=6&sort=newest');
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

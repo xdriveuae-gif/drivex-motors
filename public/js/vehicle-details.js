@@ -21,7 +21,6 @@
     images = (vehicle.images && vehicle.images.length) ? vehicle.images.map(function (i) { return i.file_path; })
       : ['/images/placeholders/car-a.svg'];
     var badges = '';
-    if (vehicle.is_featured) badges += '<span class="vc-badge gold">Featured</span> ';
     if (vehicle.is_sold) badges += '<span class="vc-badge sold">Sold</span>';
 
     var features = (vehicle.features || []);

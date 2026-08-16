@@ -28,7 +28,6 @@
   function query(p) {
     var list = all();
     if (p.include_sold !== '1') list = list.filter(function (v) { return !v.is_sold; });
-    if (p.featured === '1') list = list.filter(function (v) { return v.is_featured; });
 
     var q = (p.q || '').toLowerCase().trim();
     if (q) {
