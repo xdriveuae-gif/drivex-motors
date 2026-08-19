@@ -91,8 +91,8 @@
     tbody.innerHTML = rows.map(function (v) {
       var img = v.primary_image || '/images/placeholders/car-a.svg';
       return '<tr data-id="' + v.id + '">' +
-        '<td><div class="cell-vehicle"><img src="' + esc(img) + '" alt="' + esc(v.title) + '">' +
-          '<div><div class="cv-title">' + esc(v.title) + '</div><div class="cv-sub">' + esc(v.make) + ' ' + esc(v.model) + ' · ' + (v.image_count || 0) + ' photos</div></div></div></td>' +
+        '<td><a class="cell-vehicle" href="/admin/vehicles/' + v.id + '/edit"><img src="' + esc(img) + '" alt="' + esc(v.title) + '">' +
+          '<div><div class="cv-title">' + esc(v.title) + '</div><div class="cv-sub">' + esc(v.make) + ' ' + esc(v.model) + ' · ' + (v.image_count || 0) + ' photos</div></div></a></td>' +
         '<td>' + esc(v.year) + '</td>' +
         '<td class="price-cell">' + aed(v.price) + '</td>' +
         '<td>' + km(v.mileage) + '</td>' +

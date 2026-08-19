@@ -193,7 +193,9 @@ h1, h2, h3, h4 { color: var(--white); line-height: 1.2; }
 .admin-table th.ta-right { text-align: right; }
 .admin-table td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 .admin-table tr:hover td { background: rgba(255,255,255,.02); }
-.cell-vehicle { display: flex; align-items: center; gap: 12px; }
+.cell-vehicle { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.cell-vehicle .cv-title { text-decoration: underline; text-decoration-color: transparent; transition: text-decoration-color .15s; }
+.cell-vehicle:hover .cv-title { text-decoration-color: currentColor; }
 .cell-vehicle img { width: 58px; height: 44px; border-radius: 8px; object-fit: cover; background: #0d0d0d; flex: none; }
 .cell-vehicle .cv-title { color: var(--white); font-weight: 600; }
 .cell-vehicle .cv-sub { color: var(--muted); font-size: .82rem; }
