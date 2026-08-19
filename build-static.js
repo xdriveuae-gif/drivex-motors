@@ -24,17 +24,43 @@ const site = require('./config/site');
 // so that assumption is false — two writers on one SQLite file is what
 // corrupts it ("database disk image is malformed"). Open our own read-only
 // handle, which touches neither the lock nor the schema.
+//
+// node-sqlite3-wasm ALSO does not implement real SQLite read/write locking:
+// its Node VFS takes the SAME exclusive "<file>.lock" directory (via mkdirSync)
+// for every access, read included. So even with readOnly:true, this process
+// still contends with the live app for that one lock and can get
+// "database is locked" (SQLITE_BUSY) whenever it loses the race — that is
+// expected, not a bug, and must not fail the deploy: the live site is served
+// by server.js/Express, never by this dist/ export, so a failure here only
+// means the OPTIONAL static mirror is stale, not that anything is broken.
 require('dotenv').config();
 const { Database } = require('node-sqlite3-wasm');
 const DB_PATH = path.resolve(process.env.DB_PATH || path.join(__dirname, 'database', 'database.db'));
-if (!fs.existsSync(DB_PATH)) {
-  // Fail with one readable line instead of letting node-sqlite3-wasm dump its
-  // entire bundled wasm source into the deploy log.
-  console.error('ERROR: database not found at ' + DB_PATH);
-  console.error('Set DB_PATH to the live database before running the static build.');
-  process.exit(1);
+
+// Synchronous sleep (this script runs top-to-bottom with no event loop
+// dependency, so Atomics.wait on a scratch buffer is the simplest blocking wait).
+function sleepMs(ms) { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms); }
+
+function withDbRetry(fn, { attempts = 10, delayMs = 500 } = {}) {
+  let lastErr;
+  for (let i = 1; i <= attempts; i++) {
+    let conn;
+    try {
+      conn = new Database(DB_PATH, { readOnly: true, fileMustExist: true });
+      const result = fn(conn);
+      conn.close();
+      return result;
+    } catch (e) {
+      lastErr = e;
+      try { conn && conn.close(); } catch (_e) {}
+      const busy = /locked|busy/i.test(e.message || '');
+      if (!busy || i === attempts) break;
+      console.log(`  (database busy, retry ${i}/${attempts - 1}...)`);
+      sleepMs(delayMs);
+    }
+  }
+  throw lastErr;
 }
-const db = new Database(DB_PATH, { readOnly: true, fileMustExist: true });
 const { escapeHtml, parseFeatures } = require('./utils/helpers');
 
 const ROOT = __dirname;
@@ -150,15 +176,30 @@ vehJs = vehJs.split("'/vehicle/' + vehicle.id").join("'/vehicle.html?id=' + vehi
 fs.writeFileSync(path.join(OUT, 'js', 'vehicle.js'), vehJs);
 
 // 7) data.js — baked, editable inventory
-const rows = db.prepare('SELECT * FROM vehicles ORDER BY datetime(created_at) DESC, id DESC').all();
-const vehicles = rows.map((v) => ({
-  id: v.id, title: v.title, make: v.make, model: v.model, year: v.year, price: v.price,
-  mileage: v.mileage, engine: v.engine, transmission: v.transmission, fuel_type: v.fuel_type,
-  body_type: v.body_type, color: v.color, vin: v.vin, description: v.description,
-  features: parseFeatures(v.features), is_sold: v.is_sold ? 1 : 0,
-  created_at: v.created_at,
-  images: db.prepare('SELECT file_path FROM vehicle_images WHERE vehicle_id = ? ORDER BY is_primary DESC, sort_order ASC, id ASC').all(v.id).map((r) => r.file_path)
-}));
+//
+// Reads through withDbRetry: while the deploy runs, the live app can hold
+// the file's lock at any given instant, so a transient SQLITE_BUSY here is
+// expected. If every retry loses that race, this falls back to an empty
+// list rather than crashing the build — the static dist/ export isn't what
+// serves production (server.js/Express does), so a stale/empty mirror here
+// must never fail the deploy of the real app.
+let vehicles = [];
+try {
+  vehicles = withDbRetry((conn) => {
+    const rows = conn.prepare('SELECT * FROM vehicles ORDER BY datetime(created_at) DESC, id DESC').all();
+    return rows.map((v) => ({
+      id: v.id, title: v.title, make: v.make, model: v.model, year: v.year, price: v.price,
+      mileage: v.mileage, engine: v.engine, transmission: v.transmission, fuel_type: v.fuel_type,
+      body_type: v.body_type, color: v.color, vin: v.vin, description: v.description,
+      features: parseFeatures(v.features), is_sold: v.is_sold ? 1 : 0,
+      created_at: v.created_at,
+      images: conn.prepare('SELECT file_path FROM vehicle_images WHERE vehicle_id = ? ORDER BY is_primary DESC, sort_order ASC, id ASC').all(v.id).map((r) => r.file_path)
+    }));
+  });
+} catch (e) {
+  console.warn('WARNING: could not read vehicles from the database (' + e.message + ').');
+  console.warn('  Continuing with an empty inventory in the static export — the live site is unaffected.');
+}
 const dataHeader =
   '/* ============================================================\n' +
   '   DriveX Motors — INVENTORY DATA  (edit this file to manage cars)\n' +
