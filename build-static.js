@@ -16,7 +16,25 @@
 const fs = require('fs');
 const path = require('path');
 const site = require('./config/site');
-const db = require('./database/db');
+// The static export is a READ-ONLY consumer of the database, so it deliberately
+// does NOT import ./database/db. Importing that module opens the file
+// read-write, runs migrations (ALTER TABLE / exec(schema)), and deletes the
+// "<file>.lock" directory on the assumption that only one process is ever
+// attached. During a Hostinger deploy the live app is still serving requests,
+// so that assumption is false — two writers on one SQLite file is what
+// corrupts it ("database disk image is malformed"). Open our own read-only
+// handle, which touches neither the lock nor the schema.
+require('dotenv').config();
+const { Database } = require('node-sqlite3-wasm');
+const DB_PATH = path.resolve(process.env.DB_PATH || path.join(__dirname, 'database', 'database.db'));
+if (!fs.existsSync(DB_PATH)) {
+  // Fail with one readable line instead of letting node-sqlite3-wasm dump its
+  // entire bundled wasm source into the deploy log.
+  console.error('ERROR: database not found at ' + DB_PATH);
+  console.error('Set DB_PATH to the live database before running the static build.');
+  process.exit(1);
+}
+const db = new Database(DB_PATH, { readOnly: true, fileMustExist: true });
 const { escapeHtml, parseFeatures } = require('./utils/helpers');
 
 const ROOT = __dirname;
