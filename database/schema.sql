@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
   description  TEXT,
   features     TEXT,                          -- JSON array string, e.g. ["Sunroof","360 Camera"]
   is_sold      INTEGER NOT NULL DEFAULT 0,    -- 0 | 1
+  is_reserved  INTEGER NOT NULL DEFAULT 0,    -- 0 | 1 (still shown in inventory, badged)
   is_published INTEGER NOT NULL DEFAULT 1,    -- 0 | 1 (hidden from public inventory)
   views        INTEGER NOT NULL DEFAULT 0,
   created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
@@ -40,6 +41,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
 CREATE INDEX IF NOT EXISTS idx_vehicles_make      ON vehicles (make);
 CREATE INDEX IF NOT EXISTS idx_vehicles_model     ON vehicles (model);
 CREATE INDEX IF NOT EXISTS idx_vehicles_sold      ON vehicles (is_sold);
+CREATE INDEX IF NOT EXISTS idx_vehicles_reserved  ON vehicles (is_reserved);
 CREATE INDEX IF NOT EXISTS idx_vehicles_published ON vehicles (is_published);
 CREATE INDEX IF NOT EXISTS idx_vehicles_price     ON vehicles (price);
 CREATE INDEX IF NOT EXISTS idx_vehicles_year      ON vehicles (year);

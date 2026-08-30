@@ -68,6 +68,7 @@
     var img = v.primary_image || '/images/placeholders/car-a.svg';
     var badges = '';
     if (v.is_sold) badges += '<span class="vc-badge sold">Sold</span>';
+    else if (v.is_reserved) badges += '<span class="vc-badge reserved">Reserved</span>';
     return '' +
       '<article class="vehicle-card" data-reveal>' +
         '<div class="vc-media" data-id="' + v.id + '" data-primary="' + escapeHtml(img) + '">' +

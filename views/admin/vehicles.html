@@ -17,6 +17,7 @@
     <select id="statusFilter" class="status-filter">
       <option value="">All vehicles</option>
       <option value="available">Available</option>
+      <option value="reserved">Reserved</option>
       <option value="sold">Sold</option>
     </select>
     <select id="sortSelect" class="status-filter">
@@ -76,13 +77,14 @@
           <th>Year</th>
           <th>Price</th>
           <th>Mileage</th>
+          <th>Reserved</th>
           <th>Sold</th>
           <th>Published</th>
           <th class="ta-right">Actions</th>
         </tr>
       </thead>
       <tbody id="vehiclesTbody">
-        <tr><td colspan="7" class="muted ta-center">Loading…</td></tr>
+        <tr><td colspan="8" class="muted ta-center">Loading…</td></tr>
       </tbody>
     </table>
   </div>

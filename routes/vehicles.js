@@ -93,7 +93,7 @@ router.get('/vehicles', (req, res) => {
     .prepare(
       `SELECT v.id, v.title, v.make, v.model, v.year, v.price, v.mileage,
               v.engine, v.transmission, v.fuel_type, v.body_type, v.color,
-              v.is_sold, v.created_at, ${PRIMARY_IMAGE_SQL}
+              v.is_sold, v.is_reserved, v.created_at, ${PRIMARY_IMAGE_SQL}
          FROM vehicles v
          ${whereSql}
          ORDER BY ${orderSql}

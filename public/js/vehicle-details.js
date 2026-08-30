@@ -22,6 +22,7 @@
       : ['/images/placeholders/car-a.svg'];
     var badges = '';
     if (vehicle.is_sold) badges += '<span class="vc-badge sold">Sold</span>';
+    else if (vehicle.is_reserved) badges += '<span class="vc-badge reserved">Reserved</span>';
 
     var features = (vehicle.features || []);
     var featuresHtml = features.length
@@ -32,7 +33,7 @@
     root.innerHTML =
       '<div class="vd-layout">' +
         '<div class="vd-gallery">' +
-          '<div class="vd-main">' + (vehicle.is_sold ? '<span class="vc-badge sold">Sold</span>' : '') +
+          '<div class="vd-main">' + (vehicle.is_sold ? '<span class="vc-badge sold">Sold</span>' : (vehicle.is_reserved ? '<span class="vc-badge reserved">Reserved</span>' : '')) +
             '<img id="vdMain" src="' + esc(images[0]) + '" alt="' + esc(vehicle.title) + '"></div>' +
           '<div class="vd-thumbs" id="vdThumbs">' + images.map(function (src, i) {
             return '<button class="vd-thumb ' + (i === 0 ? 'active' : '') + '" data-i="' + i + '">' +

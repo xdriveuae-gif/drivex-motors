@@ -96,7 +96,8 @@ function vehiclePayload(body) {
     vin: (body.vin || '').trim() || null,
     description: (body.description || '').trim() || null,
     features: JSON.stringify(normalizeFeatures(body.features)),
-    is_sold: toBool(body.is_sold) ? 1 : 0
+    is_sold: toBool(body.is_sold) ? 1 : 0,
+    is_reserved: toBool(body.is_reserved) ? 1 : 0
   };
 }
 
@@ -252,7 +253,7 @@ router.get('/api/stats', requireAuth, (_req, res) => {
     .get();
   const latest = db
     .prepare(
-      `SELECT v.id, v.title, v.make, v.model, v.year, v.price, v.is_sold,
+      `SELECT v.id, v.title, v.make, v.model, v.year, v.price, v.is_sold, v.is_reserved,
               v.created_at, ${PRIMARY_IMAGE_SQL}
          FROM vehicles v ORDER BY v.created_at DESC, v.id DESC LIMIT 6`
     )
@@ -285,6 +286,7 @@ router.get('/api/vehicles', requireAuth, (req, res) => {
   }
   if (req.query.status === 'sold') where.push('v.is_sold = 1');
   if (req.query.status === 'available') where.push('v.is_sold = 0');
+  if (req.query.status === 'reserved') where.push('v.is_reserved = 1');
 
   const exact = { make: 'v.make', model: 'v.model', year: 'v.year', color: 'v.color' };
   for (const [param, col] of Object.entries(exact)) {
@@ -319,7 +321,7 @@ router.get('/api/vehicles', requireAuth, (req, res) => {
   const rows = db
     .prepare(
       `SELECT v.id, v.title, v.make, v.model, v.year, v.price, v.mileage, v.color,
-              v.fuel_type, v.transmission, v.is_sold, v.is_published, v.views, v.created_at,
+              v.fuel_type, v.transmission, v.is_sold, v.is_reserved, v.is_published, v.views, v.created_at,
               ${PRIMARY_IMAGE_SQL},
               (SELECT COUNT(*) FROM vehicle_images WHERE vehicle_id = v.id) AS image_count
          FROM vehicles v ${whereSql}
@@ -388,10 +390,10 @@ router.post('/api/vehicles', requireAuth, uploadImages('images'), vehicleValidat
       .prepare(
         `INSERT INTO vehicles
           (title, make, model, year, price, mileage, engine, transmission,
-           fuel_type, body_type, color, vin, description, features, is_sold)
+           fuel_type, body_type, color, vin, description, features, is_sold, is_reserved)
          VALUES
           (@title, @make, @model, @year, @price, @mileage, @engine, @transmission,
-           @fuel_type, @body_type, @color, @vin, @description, @features, @is_sold)`
+           @fuel_type, @body_type, @color, @vin, @description, @features, @is_sold, @is_reserved)`
       )
       .run(p);
     const id = info.lastInsertRowid;
@@ -405,7 +407,7 @@ router.post('/api/vehicles', requireAuth, uploadImages('images'), vehicleValidat
 
 // Duplicate an existing vehicle (fields + a physical copy of its images).
 // New listing is unpublished by default so it can be reviewed/edited before going live;
-// the sold flag is reset since it rarely applies to the copy as-is.
+// the sold/reserved flags are reset since they rarely apply to the copy as-is.
 router.post('/api/vehicles/:id/duplicate', requireAuth, (req, res) => {
   const source = getVehicleOr404(req.params.id, res);
   if (!source) return;
@@ -419,10 +421,10 @@ router.post('/api/vehicles/:id/duplicate', requireAuth, (req, res) => {
       .prepare(
         `INSERT INTO vehicles
           (title, make, model, year, price, mileage, engine, transmission,
-           fuel_type, body_type, color, vin, description, features, is_sold, is_published)
+           fuel_type, body_type, color, vin, description, features, is_sold, is_reserved, is_published)
          VALUES
           (@title, @make, @model, @year, @price, @mileage, @engine, @transmission,
-           @fuel_type, @body_type, @color, @vin, @description, @features, 0, 0)`
+           @fuel_type, @body_type, @color, @vin, @description, @features, 0, 0, 0)`
       )
       .run({
         title: `${source.title} (Copy)`,
@@ -463,13 +465,13 @@ router.put('/api/vehicles/:id', requireAuth, vehicleValidators, handleValidation
         title=@title, make=@make, model=@model, year=@year, price=@price, mileage=@mileage,
         engine=@engine, transmission=@transmission, fuel_type=@fuel_type, body_type=@body_type,
         color=@color, vin=@vin, description=@description, features=@features,
-        is_sold=@is_sold, updated_at=datetime('now')
+        is_sold=@is_sold, is_reserved=@is_reserved, updated_at=datetime('now')
       WHERE id=@id`
   ).run({ ...p, id: vehicle.id });
   res.json({ ok: true, id: vehicle.id });
 });
 
-// Quick flag toggle (sold / published) from the list view
+// Quick flag toggle (sold / reserved / published) from the list view
 router.patch('/api/vehicles/:id', requireAuth, (req, res) => {
   const vehicle = getVehicleOr404(req.params.id, res);
   if (!vehicle) return;
@@ -478,6 +480,10 @@ router.patch('/api/vehicles/:id', requireAuth, (req, res) => {
   if (req.body.is_sold !== undefined) {
     fields.push('is_sold=@is_sold');
     params.is_sold = toBool(req.body.is_sold) ? 1 : 0;
+  }
+  if (req.body.is_reserved !== undefined) {
+    fields.push('is_reserved=@is_reserved');
+    params.is_reserved = toBool(req.body.is_reserved) ? 1 : 0;
   }
   if (req.body.is_published !== undefined) {
     fields.push('is_published=@is_published');
@@ -488,7 +494,7 @@ router.patch('/api/vehicles/:id', requireAuth, (req, res) => {
     `UPDATE vehicles SET ${fields.join(', ')}, updated_at=datetime('now') WHERE id=@id`
   ).run({ ...params, id: vehicle.id });
   const updated = db
-    .prepare('SELECT id, is_sold, is_published FROM vehicles WHERE id = ?')
+    .prepare('SELECT id, is_sold, is_reserved, is_published FROM vehicles WHERE id = ?')
     .get(vehicle.id);
   res.json({ ok: true, ...updated });
 });
