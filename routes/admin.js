@@ -180,6 +180,10 @@ router.get('/vehicles/available', requireAuth, (req, res) =>
   render(req, res, 'admin/vehicles', { title: 'Available Vehicles', bodyClass: 'admin' })
 );
 
+router.get('/vehicles/reserved', requireAuth, (req, res) =>
+  render(req, res, 'admin/vehicles', { title: 'Reserved Vehicles', bodyClass: 'admin' })
+);
+
 router.get('/vehicles/new', requireAuth, (req, res) =>
   render(req, res, 'admin/vehicle-form', { title: 'Add Vehicle', bodyClass: 'admin' })
 );
