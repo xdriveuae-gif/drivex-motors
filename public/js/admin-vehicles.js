@@ -4,6 +4,15 @@
   var esc = function (v) { return (v === null || v === undefined) ? '' : String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   var aed = function (n) { return 'AED ' + (Number(n) || 0).toLocaleString('en-US'); };
   var km = function (n) { return (Number(n) || 0).toLocaleString('en-US') + ' km'; };
+  // created_at comes back as SQLite's naive "YYYY-MM-DD HH:MM:SS" in UTC —
+  // inject "T" + "Z" so Date parses it as UTC and formats in the viewer's local time.
+  var uploaded = function (s) {
+    if (!s) return '';
+    var d = new Date(String(s).replace(' ', 'T') + 'Z');
+    if (isNaN(d)) return s;
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) +
+      ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  };
 
   var tbody = document.getElementById('vehiclesTbody');
   var pager = document.getElementById('adminPagination');
@@ -67,7 +76,7 @@
   }
 
   async function load() {
-    tbody.innerHTML = '<tr><td colspan="8" class="muted ta-center">Loading…</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="muted ta-center">Loading…</td></tr>';
     var p = new URLSearchParams();
     if (state.q) p.set('q', state.q);
     if (state.status) p.set('status', state.status);
@@ -80,14 +89,14 @@
       var res = await DXA.api.get('/admin/api/vehicles?' + p.toString());
       render(res.data, res.pagination);
     } catch (e) {
-      tbody.innerHTML = '<tr><td colspan="8" class="muted ta-center">Failed to load.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="muted ta-center">Failed to load.</td></tr>';
     }
   }
 
   function render(rows, pagination) {
     if (countEl) countEl.textContent = (pagination.total || 0) + ' listing' + (pagination.total === 1 ? '' : 's');
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="muted ta-center" style="padding:30px">No vehicles found. <a class="link-btn" href="/admin/vehicles/new">Add one →</a></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="muted ta-center" style="padding:30px">No vehicles found. <a class="link-btn" href="/admin/vehicles/new">Add one →</a></td></tr>';
       pager.innerHTML = ''; return;
     }
     tbody.innerHTML = rows.map(function (v) {
@@ -98,6 +107,7 @@
         '<td>' + esc(v.year) + '</td>' +
         '<td class="price-cell">' + aed(v.price) + '</td>' +
         '<td>' + km(v.mileage) + '</td>' +
+        '<td class="muted">' + esc(uploaded(v.created_at)) + '</td>' +
         '<td><label class="switch"><input type="checkbox" data-reserved ' + (v.is_reserved ? 'checked' : '') + '></label></td>' +
         '<td><label class="switch"><input type="checkbox" data-sold ' + (v.is_sold ? 'checked' : '') + '></label></td>' +
         '<td><label class="switch"><input type="checkbox" data-published ' + (v.is_published ? 'checked' : '') + '></label></td>' +
