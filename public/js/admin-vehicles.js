@@ -19,6 +19,16 @@
   var search = document.getElementById('adminSearch');
   var statusSel = document.getElementById('statusFilter');
   var sortSel = document.getElementById('sortSelect');
+  var pageSizeSel = document.getElementById('pageSizeSelect');
+
+  // Remembered per-browser so the admin doesn't have to reselect it every visit.
+  var PAGE_SIZE_KEY = 'dxa-vehicles-page-size';
+  var savedLimit = 12;
+  try {
+    var raw = parseInt(localStorage.getItem(PAGE_SIZE_KEY), 10);
+    if ([12, 24, 50].indexOf(raw) !== -1) savedLimit = raw;
+  } catch (e) { /* localStorage unavailable — fall back to default */ }
+  if (pageSizeSel) pageSizeSel.value = String(savedLimit);
 
   // Dedicated pages (Sold Vehicles / Available Vehicles) lock the status filter
   // to that value and hide the dropdown, since the whole page is that view.
@@ -26,7 +36,7 @@
     : location.pathname === '/admin/vehicles/available' ? 'available'
     : location.pathname === '/admin/vehicles/reserved' ? 'reserved' : '';
 
-  var state = { page: 1, q: '', status: LOCKED_STATUS, sort: 'newest', make: '', model: '', year: '', color: '', price_min: '', price_max: '', mileage_max: '' };
+  var state = { page: 1, q: '', status: LOCKED_STATUS, sort: 'newest', limit: savedLimit, make: '', model: '', year: '', color: '', price_min: '', price_max: '', mileage_max: '' };
   var headingEl = document.getElementById('vehiclesHeading');
   var countEl = document.getElementById('vehiclesCount');
   if (headingEl && LOCKED_STATUS === 'sold') headingEl.textContent = 'Sold Vehicles';
@@ -84,7 +94,7 @@
     ['make', 'model', 'year', 'color', 'price_min', 'price_max', 'mileage_max'].forEach(function (k) {
       if (state[k]) p.set(k, state[k]);
     });
-    p.set('page', state.page); p.set('limit', 12);
+    p.set('page', state.page); p.set('limit', state.limit);
     try {
       var res = await DXA.api.get('/admin/api/vehicles?' + p.toString());
       render(res.data, res.pagination);
@@ -169,6 +179,14 @@
   search.addEventListener('input', debounce(function () { state.q = search.value.trim(); state.page = 1; load(); }, 350));
   statusSel.addEventListener('change', function () { state.status = statusSel.value; state.page = 1; load(); });
   sortSel.addEventListener('change', function () { state.sort = sortSel.value; state.page = 1; load(); });
+  if (pageSizeSel) {
+    pageSizeSel.addEventListener('change', function () {
+      state.limit = parseInt(pageSizeSel.value, 10) || 12;
+      state.page = 1;
+      try { localStorage.setItem(PAGE_SIZE_KEY, String(state.limit)); } catch (e) { /* ignore */ }
+      load();
+    });
+  }
 
   if (toggle && panel) {
     toggle.addEventListener('click', function () { panel.hidden = !panel.hidden; });
