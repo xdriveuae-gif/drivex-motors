@@ -98,6 +98,18 @@
       FIELDS.forEach(function (k) { if (form[k] != null && v[k] != null) form[k].value = v[k]; });
       form.is_sold.checked = !!v.is_sold;
       form.is_reserved.checked = !!v.is_reserved;
+      var soldAtHint = document.getElementById('soldAtHint');
+      if (soldAtHint) {
+        if (v.sold_at) {
+          var d = new Date(String(v.sold_at).replace(' ', 'T') + 'Z');
+          soldAtHint.textContent = isNaN(d) ? '' :
+            'Marked sold on ' + d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) +
+            ' at ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+          soldAtHint.hidden = isNaN(d);
+        } else {
+          soldAtHint.hidden = true;
+        }
+      }
       form.features.value = (v.features || []).join('\n');
       renderExisting(v.images);
     } catch (e) { DXA.toast('Could not load vehicle.', 'error'); }

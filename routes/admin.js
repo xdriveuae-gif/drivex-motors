@@ -80,6 +80,16 @@ function normalizeFeatures(input) {
   return str.split(/[\n,]/).map((s) => s.trim()).filter(Boolean);
 }
 
+// SQL fragment for the sold_at column given the sold flag's old/new value:
+// stamps the moment it flips to sold, clears it if unmarked (a stale "sold on"
+// date would be misleading once a car is available again), and otherwise
+// leaves the column out of the SET clause entirely so it's untouched.
+function soldAtClause(wasSold, willBeSold) {
+  if (willBeSold && !wasSold) return "sold_at=datetime('now')";
+  if (!willBeSold && wasSold) return 'sold_at=NULL';
+  return null;
+}
+
 function vehiclePayload(body) {
   return {
     title: (body.title || '').trim(),
@@ -325,7 +335,7 @@ router.get('/api/vehicles', requireAuth, (req, res) => {
   const rows = db
     .prepare(
       `SELECT v.id, v.title, v.make, v.model, v.year, v.price, v.mileage, v.color,
-              v.fuel_type, v.transmission, v.is_sold, v.is_reserved, v.is_published, v.views, v.created_at,
+              v.fuel_type, v.transmission, v.is_sold, v.sold_at, v.is_reserved, v.is_published, v.views, v.created_at,
               ${PRIMARY_IMAGE_SQL},
               (SELECT COUNT(*) FROM vehicle_images WHERE vehicle_id = v.id) AS image_count
          FROM vehicles v ${whereSql}
@@ -389,15 +399,18 @@ router.post('/api/vehicles', requireAuth, uploadImages('images'), vehicleValidat
   }
 
   const p = vehiclePayload(req.body);
+  // A vehicle can in principle be created already marked sold — stamp sold_at
+  // then too, rather than leaving it NULL until the next edit touches it.
+  const soldAtSql = p.is_sold ? "datetime('now')" : 'NULL';
   const create = db.transaction(() => {
     const info = db
       .prepare(
         `INSERT INTO vehicles
           (title, make, model, year, price, mileage, engine, transmission,
-           fuel_type, body_type, color, vin, description, features, is_sold, is_reserved)
+           fuel_type, body_type, color, vin, description, features, is_sold, sold_at, is_reserved)
          VALUES
           (@title, @make, @model, @year, @price, @mileage, @engine, @transmission,
-           @fuel_type, @body_type, @color, @vin, @description, @features, @is_sold, @is_reserved)`
+           @fuel_type, @body_type, @color, @vin, @description, @features, @is_sold, ${soldAtSql}, @is_reserved)`
       )
       .run(p);
     const id = info.lastInsertRowid;
@@ -464,12 +477,13 @@ router.put('/api/vehicles/:id', requireAuth, vehicleValidators, handleValidation
   const vehicle = getVehicleOr404(req.params.id, res);
   if (!vehicle) return;
   const p = vehiclePayload(req.body);
+  const soldClause = soldAtClause(!!vehicle.is_sold, !!p.is_sold);
   db.prepare(
     `UPDATE vehicles SET
         title=@title, make=@make, model=@model, year=@year, price=@price, mileage=@mileage,
         engine=@engine, transmission=@transmission, fuel_type=@fuel_type, body_type=@body_type,
         color=@color, vin=@vin, description=@description, features=@features,
-        is_sold=@is_sold, is_reserved=@is_reserved, updated_at=datetime('now')
+        is_sold=@is_sold, is_reserved=@is_reserved${soldClause ? ', ' + soldClause : ''}, updated_at=datetime('now')
       WHERE id=@id`
   ).run({ ...p, id: vehicle.id });
   res.json({ ok: true, id: vehicle.id });
@@ -482,8 +496,11 @@ router.patch('/api/vehicles/:id', requireAuth, (req, res) => {
   const fields = [];
   const params = {};
   if (req.body.is_sold !== undefined) {
+    const newSold = toBool(req.body.is_sold) ? 1 : 0;
     fields.push('is_sold=@is_sold');
-    params.is_sold = toBool(req.body.is_sold) ? 1 : 0;
+    params.is_sold = newSold;
+    const soldClause = soldAtClause(!!vehicle.is_sold, !!newSold);
+    if (soldClause) fields.push(soldClause);
   }
   if (req.body.is_reserved !== undefined) {
     fields.push('is_reserved=@is_reserved');
@@ -498,7 +515,7 @@ router.patch('/api/vehicles/:id', requireAuth, (req, res) => {
     `UPDATE vehicles SET ${fields.join(', ')}, updated_at=datetime('now') WHERE id=@id`
   ).run({ ...params, id: vehicle.id });
   const updated = db
-    .prepare('SELECT id, is_sold, is_reserved, is_published FROM vehicles WHERE id = ?')
+    .prepare('SELECT id, is_sold, sold_at, is_reserved, is_published FROM vehicles WHERE id = ?')
     .get(vehicle.id);
   res.json({ ok: true, ...updated });
 });

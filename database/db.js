@@ -62,6 +62,7 @@ function ensureColumn(table, column, definition) {
 }
 ensureColumn('vehicles', 'is_published', 'INTEGER NOT NULL DEFAULT 1');
 ensureColumn('vehicles', 'is_reserved', 'INTEGER NOT NULL DEFAULT 0');
+ensureColumn('vehicles', 'sold_at', 'TEXT');
 
 // Apply the schema (CREATE TABLE/INDEX IF NOT EXISTS — safe to re-run).
 const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');

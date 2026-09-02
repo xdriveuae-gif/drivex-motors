@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
   description  TEXT,
   features     TEXT,                          -- JSON array string, e.g. ["Sunroof","360 Camera"]
   is_sold      INTEGER NOT NULL DEFAULT 0,    -- 0 | 1
+  sold_at      TEXT,                          -- when is_sold last flipped 0->1; NULL if never/unset
   is_reserved  INTEGER NOT NULL DEFAULT 0,    -- 0 | 1 (still shown in inventory, badged)
   is_published INTEGER NOT NULL DEFAULT 1,    -- 0 | 1 (hidden from public inventory)
   views        INTEGER NOT NULL DEFAULT 0,
