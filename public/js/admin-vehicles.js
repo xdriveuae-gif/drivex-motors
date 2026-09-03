@@ -43,6 +43,7 @@
   else if (headingEl && LOCKED_STATUS === 'available') headingEl.textContent = 'Available Vehicles';
   else if (headingEl && LOCKED_STATUS === 'reserved') headingEl.textContent = 'Reserved Vehicles';
 
+  var VIEW = '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
   var EDIT = '<svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4zM14 6l4 4"/></svg>';
   var DEL = '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0l1 13h8l1-13"/></svg>';
   var DUP = '<svg viewBox="0 0 24 24"><path d="M8 8V5a2 2 0 012-2h9a2 2 0 012 2v9a2 2 0 01-2 2h-3M8 8H5a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3M8 8h5a2 2 0 012 2v5"/></svg>';
@@ -123,6 +124,7 @@
         '<td class="muted">' + esc(fmtDateTime(v.sold_at)) + '</td>' +
         '<td><label class="switch"><input type="checkbox" data-published ' + (v.is_published ? 'checked' : '') + '></label></td>' +
         '<td><div class="row-actions">' +
+          '<a class="icon-btn" href="/vehicle/' + v.id + '" target="_blank" rel="noopener" title="View on website">' + VIEW + '</a>' +
           '<a class="icon-btn" href="/admin/vehicles/' + v.id + '/edit" title="Edit">' + EDIT + '</a>' +
           '<button class="icon-btn" data-dup="' + v.id + '" title="Duplicate">' + DUP + '</button>' +
           '<button class="icon-btn danger" data-del="' + v.id + '" title="Delete">' + DEL + '</button>' +
