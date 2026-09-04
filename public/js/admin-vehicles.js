@@ -191,6 +191,22 @@
     });
   }
 
+  var exportBtn = document.getElementById('exportBtn');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', function () {
+      // Same filters as the on-screen list, minus pagination — the export
+      // covers every matching row, not just the current page.
+      var p = new URLSearchParams();
+      if (state.q) p.set('q', state.q);
+      if (state.status) p.set('status', state.status);
+      if (state.sort) p.set('sort', state.sort);
+      ['make', 'model', 'year', 'color', 'price_min', 'price_max', 'mileage_max'].forEach(function (k) {
+        if (state[k]) p.set(k, state[k]);
+      });
+      window.location.href = '/admin/api/vehicles/export?' + p.toString();
+    });
+  }
+
   if (toggle && panel) {
     toggle.addEventListener('click', function () { panel.hidden = !panel.hidden; });
   }

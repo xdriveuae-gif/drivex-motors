@@ -21,6 +21,7 @@ const path = require('path');
 const crypto = require('crypto');
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const ExcelJS = require('exceljs');
 const { validationResult } = require('express-validator');
 
 const db = require('../database/db');
@@ -157,6 +158,47 @@ function getVehicleOr404(id, res) {
   return v;
 }
 
+// Shared by the vehicle list and export endpoints so their filtering can
+// never drift apart — same query params, same WHERE clause, either way.
+function buildVehicleWhere(query) {
+  const where = [];
+  const params = [];
+  const q = (query.q || '').trim();
+  if (q) {
+    where.push('(v.title LIKE ? OR v.make LIKE ? OR v.model LIKE ? OR v.vin LIKE ?)');
+    const like = `%${q}%`;
+    params.push(like, like, like, like);
+  }
+  if (query.status === 'sold') where.push('v.is_sold = 1');
+  if (query.status === 'available') where.push('v.is_sold = 0');
+  if (query.status === 'reserved') where.push('v.is_reserved = 1');
+
+  const exact = { make: 'v.make', model: 'v.model', year: 'v.year', color: 'v.color' };
+  for (const [param, col] of Object.entries(exact)) {
+    if (query[param]) {
+      where.push(`${col} = ?`);
+      params.push(String(query[param]));
+    }
+  }
+
+  const ranges = [
+    ['price_min', 'v.price >= ?'],
+    ['price_max', 'v.price <= ?'],
+    ['mileage_max', 'v.mileage <= ?']
+  ];
+  for (const [param, clause] of ranges) {
+    if (query[param] !== undefined && query[param] !== '') {
+      const n = parseInt(query[param], 10);
+      if (!Number.isNaN(n)) {
+        where.push(clause);
+        params.push(n);
+      }
+    }
+  }
+
+  return { whereSql: where.length ? `WHERE ${where.join(' AND ')}` : '', params };
+}
+
 function safeNext(next) {
   if (typeof next === 'string' && /^\/admin(\/|$)/.test(next) && !next.startsWith('//')) {
     return next;
@@ -290,42 +332,7 @@ router.get('/api/stats', requireAuth, (_req, res) => {
 
 // List (admin view — includes sold flag + image counts)
 router.get('/api/vehicles', requireAuth, (req, res) => {
-  const q = (req.query.q || '').trim();
-  const where = [];
-  const params = [];
-  if (q) {
-    where.push('(v.title LIKE ? OR v.make LIKE ? OR v.model LIKE ? OR v.vin LIKE ?)');
-    const like = `%${q}%`;
-    params.push(like, like, like, like);
-  }
-  if (req.query.status === 'sold') where.push('v.is_sold = 1');
-  if (req.query.status === 'available') where.push('v.is_sold = 0');
-  if (req.query.status === 'reserved') where.push('v.is_reserved = 1');
-
-  const exact = { make: 'v.make', model: 'v.model', year: 'v.year', color: 'v.color' };
-  for (const [param, col] of Object.entries(exact)) {
-    if (req.query[param]) {
-      where.push(`${col} = ?`);
-      params.push(String(req.query[param]));
-    }
-  }
-
-  const ranges = [
-    ['price_min', 'v.price >= ?'],
-    ['price_max', 'v.price <= ?'],
-    ['mileage_max', 'v.mileage <= ?']
-  ];
-  for (const [param, clause] of ranges) {
-    if (req.query[param] !== undefined && req.query[param] !== '') {
-      const n = parseInt(req.query[param], 10);
-      if (!Number.isNaN(n)) {
-        where.push(clause);
-        params.push(n);
-      }
-    }
-  }
-
-  const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
+  const { whereSql, params } = buildVehicleWhere(req.query);
   const orderSql = ADMIN_SORT_MAP[req.query.sort] || ADMIN_SORT_MAP.newest;
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
   const limit = Math.min(50, Math.max(5, parseInt(req.query.limit, 10) || 15));
@@ -372,6 +379,39 @@ router.get('/api/vehicles/filters', requireAuth, (_req, res) => {
     years,
     colors: col('color')
   });
+});
+
+// Export the current filtered view (same params as the list endpoint, minus
+// pagination — every matching row, not just the current page) as a real .xlsx.
+router.get('/api/vehicles/export', requireAuth, async (req, res) => {
+  const { whereSql, params } = buildVehicleWhere(req.query);
+  const orderSql = ADMIN_SORT_MAP[req.query.sort] || ADMIN_SORT_MAP.newest;
+  const rows = db
+    .prepare(`SELECT year, title, color, price FROM vehicles v ${whereSql} ORDER BY ${orderSql}`)
+    .all(...params);
+
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet('Vehicles');
+  sheet.columns = [
+    { header: 'Title', key: 'title', width: 45 },
+    { header: 'Colour', key: 'colour', width: 18 },
+    { header: 'Price (AED)', key: 'price', width: 16 }
+  ];
+  sheet.getRow(1).font = { bold: true };
+  rows.forEach((v) => {
+    sheet.addRow({ title: `${v.year} ${v.title}`, colour: v.color || '', price: v.price });
+  });
+  sheet.getColumn('price').numFmt = '#,##0';
+
+  // Whitelist rather than reflect req.query.status straight into the
+  // filename — it ends up in a response header.
+  const statusLabel = { available: 'available', reserved: 'reserved', sold: 'sold' }[req.query.status] || 'all';
+  const filename = `drivex-vehicles-${statusLabel}-${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  await workbook.xlsx.write(res);
+  res.end();
 });
 
 // Single (for the edit form)
