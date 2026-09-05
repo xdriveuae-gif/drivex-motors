@@ -53,6 +53,8 @@ const PRIMARY_IMAGE_SQL = `
 const ADMIN_SORT_MAP = {
   newest: 'v.created_at DESC, v.id DESC',
   oldest: 'v.created_at ASC, v.id ASC',
+  title_asc: 'v.title COLLATE NOCASE ASC',
+  title_desc: 'v.title COLLATE NOCASE DESC',
   price_asc: 'v.price ASC',
   price_desc: 'v.price DESC',
   mileage_asc: 'v.mileage ASC',
