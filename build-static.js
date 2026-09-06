@@ -94,7 +94,9 @@ function buildTokens(meta) {
   return {
     SITE_NAME: site.name, SITE_LEGAL_NAME: site.legalName, SITE_TAGLINE: site.tagline,
     SITE_DESC: site.shortDescription, SITE_URL: DOMAIN,
-    SITE_PHONE: site.phoneDisplay, SITE_PHONE_RAW: site.phone, SITE_WHATSAPP: site.whatsapp,
+    SITE_PHONE: site.phoneDisplay, SITE_PHONE_RAW: site.phone,
+    SITE_LANDLINE: site.landlinePhoneDisplay, SITE_LANDLINE_RAW: site.landlinePhone,
+    SITE_WHATSAPP: site.whatsapp,
     SITE_WHATSAPP_LINK: site.whatsappLink(`Hello ${site.name}, I'm interested in a vehicle from your showroom.`),
     SITE_EMAIL: site.email, SITE_ADDRESS: site.addressLine, SITE_HOURS: site.hours, SITE_CURRENCY: site.currency,
     SITE_MAP_EMBED: site.mapEmbedUrl, SITE_MAP_LINK: site.mapLink,

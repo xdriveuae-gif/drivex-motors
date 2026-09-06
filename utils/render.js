@@ -61,6 +61,8 @@ function baseTokens(req, res) {
     SITE_URL: site.url,
     SITE_PHONE: site.phoneDisplay,
     SITE_PHONE_RAW: site.phone,
+    SITE_LANDLINE: site.landlinePhoneDisplay,
+    SITE_LANDLINE_RAW: site.landlinePhone,
     SITE_WHATSAPP: site.whatsapp,
     PERSONAL_WHATSAPP: site.personalWhatsapp,
     SITE_WHATSAPP_LINK: site.whatsappLink(

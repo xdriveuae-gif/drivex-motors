@@ -13,6 +13,13 @@ require('dotenv').config();
 
 const phoneDisplay = process.env.SITE_PHONE || '+971 50 673 0006';
 
+// Landline (Abu Dhabi office number). Input as local digits with area code,
+// e.g. "024420896" — formatted for display and converted to E.164 for tel: links.
+const landlineDigits = (process.env.SITE_PHONE_LANDLINE || '024420896').replace(/[^\d]/g, '');
+const landlinePhoneDisplay = process.env.SITE_PHONE_LANDLINE_DISPLAY ||
+  `${landlineDigits.slice(0, 2)} ${landlineDigits.slice(2, 5)} ${landlineDigits.slice(5)}`;
+const landlinePhone = `+971${landlineDigits.replace(/^0/, '')}`;
+
 const site = {
   // Brand
   name: 'DriveX Motors',
@@ -27,6 +34,8 @@ const site = {
   // Contact
   phoneDisplay,
   phone: phoneDisplay.replace(/[^\d+]/g, ''), // tel: friendly, e.g. +97125550199
+  landlinePhoneDisplay,
+  landlinePhone,
   whatsapp: (process.env.SITE_WHATSAPP || '971506730006').replace(/[^\d]/g, ''), // intl, no "+"
   personalWhatsapp: (process.env.PERSONAL_WHATSAPP || '971551027110').replace(/[^\d]/g, ''), // owner's personal WhatsApp (admin leads only)
   email: process.env.SITE_EMAIL || 'info@drivex-motors.com',
