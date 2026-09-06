@@ -53,7 +53,7 @@
           '</ul>' +
           '<div class="vd-actions">' +
             '<a class="btn btn-whatsapp full" href="' + waLink() + '" target="_blank" rel="noopener">WhatsApp</a>' +
-            '<a class="btn btn-gold" href="tel:' + esc(data.phone) + '">Call Dealer</a>' +
+            '<a class="btn btn-gold" href="tel:' + esc(data.landline) + '">Call Us</a>' +
             '<button class="btn btn-ghost" id="shareBtn">Share</button>' +
           '</div>' +
         '</div>' +
