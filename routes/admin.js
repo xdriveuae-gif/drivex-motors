@@ -59,8 +59,8 @@ const ADMIN_SORT_MAP = {
   price_desc: 'v.price DESC',
   mileage_asc: 'v.mileage ASC',
   mileage_desc: 'v.mileage DESC',
-  year_asc: 'v.year ASC',
-  year_desc: 'v.year DESC',
+  year_asc: 'v.year ASC, v.title COLLATE NOCASE ASC',
+  year_desc: 'v.year DESC, v.title COLLATE NOCASE ASC',
   views_desc: 'v.views DESC'
 };
 
