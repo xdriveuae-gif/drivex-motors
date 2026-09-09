@@ -289,8 +289,13 @@ Sitemap: ${site.url}/sitemap.xml
 
 router.get('/sitemap.xml', (_req, res) => {
   const statics = ['/', '/inventory', '/sold', '/about', '/contact', '/sell-your-car'];
+  // Published only — a vehicle hidden from public inventory shouldn't be
+  // invited into search results just because its /vehicle/:id page still
+  // resolves. Both available and sold vehicles are included: sold ones at
+  // a lower priority, since the page is real and reachable (linked from
+  // /sold) but far less worth ranking than a car still for sale.
   const vehicles = db
-    .prepare('SELECT id, updated_at FROM vehicles WHERE is_sold = 0 ORDER BY updated_at DESC')
+    .prepare('SELECT id, is_sold, updated_at FROM vehicles WHERE is_published = 1 ORDER BY updated_at DESC')
     .all();
 
   const urls = [
@@ -298,7 +303,7 @@ router.get('/sitemap.xml', (_req, res) => {
     ...vehicles.map((v) => ({
       loc: `${site.url}/vehicle/${v.id}`,
       lastmod: (v.updated_at || '').slice(0, 10),
-      priority: '0.7'
+      priority: v.is_sold ? '0.3' : '0.7'
     }))
   ];
 
