@@ -25,10 +25,15 @@ const PRIMARY_IMAGE_SQL = `
 const SORT_MAP = {
   newest: 'v.created_at DESC, v.id DESC',
   oldest: 'v.created_at ASC, v.id ASC',
+  title_asc: 'v.title COLLATE NOCASE ASC',
+  title_desc: 'v.title COLLATE NOCASE DESC',
   price_asc: 'v.price ASC',
   price_desc: 'v.price DESC',
   mileage_asc: 'v.mileage ASC',
-  year_desc: 'v.year DESC'
+  mileage_desc: 'v.mileage DESC',
+  year_desc: 'v.year DESC, v.title COLLATE NOCASE ASC',
+  year_asc: 'v.year ASC, v.title COLLATE NOCASE ASC',
+  views_desc: 'v.views DESC'
 };
 
 function clampInt(value, min, max, fallback) {

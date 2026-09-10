@@ -16,13 +16,18 @@
     if (ka !== kb) return ka < kb ? 1 : -1;
     return b.id - a.id;
   }
+  function byTitle(a, b) { return (a.title || '').localeCompare(b.title || '', undefined, { sensitivity: 'base' }); }
   var SORTERS = {
     newest: byNewest,
     oldest: function (a, b) { return -byNewest(a, b); },
+    title_asc: byTitle,
+    title_desc: function (a, b) { return -byTitle(a, b); },
     price_asc: function (a, b) { return a.price - b.price; },
     price_desc: function (a, b) { return b.price - a.price; },
     mileage_asc: function (a, b) { return a.mileage - b.mileage; },
-    year_desc: function (a, b) { return b.year - a.year; }
+    mileage_desc: function (a, b) { return b.mileage - a.mileage; },
+    year_desc: function (a, b) { return b.year - a.year || byTitle(a, b); },
+    year_asc: function (a, b) { return a.year - b.year || byTitle(a, b); }
   };
 
   function query(p) {
