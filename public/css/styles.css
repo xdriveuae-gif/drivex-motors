@@ -398,11 +398,19 @@ h1, h2, h3, h4 { line-height: 1.15; font-weight: 700; color: var(--white); lette
 
 /* ---------- Floating buttons ---------- */
 .fab-whatsapp { position: fixed; right: 20px; bottom: 20px; z-index: 95; width: 58px; height: 58px; border-radius: 50%; background: var(--whatsapp); display: grid; place-items: center; box-shadow: 0 10px 30px rgba(37,211,102,.4); transition: transform .25s; }
+/* Vehicle detail already has a full-width WhatsApp button in its own action
+   row — the floating one was redundant there and, on a phone-height screen,
+   sat directly on top of the price, thumbnails, or description depending on
+   scroll position. */
+body.page-vehicle .fab-whatsapp { display: none; }
 .fab-whatsapp svg { width: 32px; height: 32px; fill: #fff; }
 .fab-whatsapp:hover { transform: scale(1.08); }
 .fab-whatsapp::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--whatsapp); animation: pulse 2s infinite; }
 @keyframes pulse { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.7); opacity: 0; } }
-.back-to-top { position: fixed; right: 22px; bottom: 88px; z-index: 94; width: 46px; height: 46px; border-radius: 50%; background: var(--gray-2); border: 1px solid var(--line-gold); color: var(--gold); display: grid; place-items: center; opacity: 0; pointer-events: none; transform: translateY(10px); transition: opacity .3s, transform .3s, background .2s; }
+/* bottom: 108px, not 88px — the WhatsApp pulse ring above scales up to 1.7x
+   its 58px circle (~20px overflow beyond the base circle each side), so 88px
+   let the ring visually touch/overlap this button. 108px clears it. */
+.back-to-top { position: fixed; right: 22px; bottom: 108px; z-index: 94; width: 46px; height: 46px; border-radius: 50%; background: var(--gray-2); border: 1px solid var(--line-gold); color: var(--gold); display: grid; place-items: center; opacity: 0; pointer-events: none; transform: translateY(10px); transition: opacity .3s, transform .3s, background .2s; }
 .back-to-top svg { width: 22px; height: 22px; fill: currentColor; }
 .back-to-top.show { opacity: 1; pointer-events: auto; transform: none; }
 .back-to-top:hover { background: var(--gold); color: #000; }
@@ -480,6 +488,16 @@ h1, h2, h3, h4 { line-height: 1.15; font-weight: 700; color: var(--white); lette
   .split { grid-template-columns: 1fr; }
   .split-media { order: -1; }
   .contact-layout { grid-template-columns: 1fr; }
+
+  /* Thumbnail strip: a fixed 5-column grid squeezed 10+ photos into tiny,
+     hard-to-tap tiles on a phone-width screen. A horizontal swipe strip is
+     the native mobile pattern for a photo set like this. */
+  .vd-thumbs { display: flex; grid-template-columns: unset; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+  .vd-thumb { flex: 0 0 72px; width: 72px; scroll-snap-align: start; }
+
+  /* Hero logo duplicates the header logo directly above it and, on a short
+     phone screen, pushes the actual headline and CTAs below the fold. */
+  .hero-logo { width: 64px; height: 64px; margin-bottom: 14px; }
 }
 
 @media (max-width: 620px) {
