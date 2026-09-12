@@ -10,6 +10,7 @@ database/*.db-shm
 database/*.db-wal
 database/*.sqlite
 database/*.sqlite3
+database/*.owner.pid
 
 # Uploaded media (keep the folder, ignore its contents)
 uploads/*

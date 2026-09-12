@@ -42,8 +42,32 @@ function clampInt(value, min, max, fallback) {
   return Math.min(Math.max(n, min), max);
 }
 
+// node-sqlite3-wasm's Node VFS takes ONE exclusive lock directory for every
+// access to the database file, read included (see database/db.js). The
+// deploy pipeline's `npm run build` step opens this same file for several
+// seconds on every deploy, so a real visitor's request landing in that
+// window can otherwise throw "database is locked" and surface as a broken
+// page — this is what customers were hitting. Retries with setTimeout (never
+// a blocking sleep) so a retry here never freezes the server for anyone else
+// waiting on a different request while it backs off.
+function sleep(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
+async function withDbRetry(fn, { attempts = 4, delayMs = 150 } = {}) {
+  let lastErr;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return fn();
+    } catch (e) {
+      lastErr = e;
+      if (!/locked|busy/i.test(e.message || '') || i === attempts) throw e;
+      await sleep(delayMs);
+    }
+  }
+  throw lastErr;
+}
+
 /* ───────────── GET /api/vehicles ───────────── */
-router.get('/vehicles', (req, res) => {
+router.get('/vehicles', async (req, res, next) => {
+  try {
   const q = (req.query.q || '').trim();
   const where = [];
   const params = [];
@@ -92,9 +116,9 @@ router.get('/vehicles', (req, res) => {
   const limit = clampInt(req.query.limit, 1, 48, 12);
   const offset = (page - 1) * limit;
 
-  const total = db.prepare(`SELECT COUNT(*) AS n FROM vehicles v ${whereSql}`).get(...params).n;
+  const total = await withDbRetry(() => db.prepare(`SELECT COUNT(*) AS n FROM vehicles v ${whereSql}`).get(...params).n);
 
-  const rows = db
+  const rows = await withDbRetry(() => db
     .prepare(
       `SELECT v.id, v.title, v.make, v.model, v.year, v.price, v.mileage,
               v.engine, v.transmission, v.fuel_type, v.body_type, v.color,
@@ -104,7 +128,7 @@ router.get('/vehicles', (req, res) => {
          ORDER BY ${orderSql}
          LIMIT ? OFFSET ?`
     )
-    .all(...params, limit, offset);
+    .all(...params, limit, offset));
 
   res.json({
     data: rows,
@@ -115,66 +139,70 @@ router.get('/vehicles', (req, res) => {
       totalPages: Math.max(1, Math.ceil(total / limit))
     }
   });
+  } catch (e) { next(e); }
 });
 
 /* ───────────── GET /api/filters ───────────── */
-router.get('/filters', (_req, res) => {
+router.get('/filters', async (_req, res, next) => {
+  try {
   const onlyAvailable = 'WHERE is_sold = 0 AND is_published = 1';
-  const col = (name) =>
-    db
+  const col = (name) => withDbRetry(() => db
       .prepare(`SELECT DISTINCT ${name} AS v FROM vehicles ${onlyAvailable} AND ${name} IS NOT NULL AND ${name} <> '' ORDER BY ${name}`)
       .all()
-      .map((r) => r.v);
+      .map((r) => r.v));
 
-  const makeModelRows = db
+  const makeModelRows = await withDbRetry(() => db
     .prepare(`SELECT DISTINCT make, model FROM vehicles ${onlyAvailable} ORDER BY make, model`)
-    .all();
+    .all());
   const modelsByMake = {};
   for (const { make, model } of makeModelRows) {
     (modelsByMake[make] = modelsByMake[make] || []).push(model);
   }
 
-  const bounds = db
+  const bounds = await withDbRetry(() => db
     .prepare(
       `SELECT MIN(year) AS yearMin, MAX(year) AS yearMax,
               MIN(price) AS priceMin, MAX(price) AS priceMax,
               MAX(mileage) AS mileageMax
          FROM vehicles ${onlyAvailable}`
     )
-    .get();
+    .get());
 
   res.json({
-    makes: col('make'),
+    makes: await col('make'),
     modelsByMake,
-    bodyTypes: col('body_type'),
-    fuelTypes: col('fuel_type'),
-    transmissions: col('transmission'),
+    bodyTypes: await col('body_type'),
+    fuelTypes: await col('fuel_type'),
+    transmissions: await col('transmission'),
     yearMin: bounds.yearMin || 1990,
     yearMax: bounds.yearMax || new Date().getFullYear(),
     priceMin: bounds.priceMin || 0,
     priceMax: bounds.priceMax || 0,
     mileageMax: bounds.mileageMax || 0
   });
+  } catch (e) { next(e); }
 });
 
 /* ───────────── GET /api/vehicles/:id ───────────── */
-router.get('/vehicles/:id', (req, res) => {
+router.get('/vehicles/:id', async (req, res, next) => {
+  try {
   const id = parseInt(req.params.id, 10);
   if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid vehicle id.' });
 
-  const vehicle = db.prepare('SELECT * FROM vehicles WHERE id = ?').get(id);
+  const vehicle = await withDbRetry(() => db.prepare('SELECT * FROM vehicles WHERE id = ?').get(id));
   if (!vehicle) return res.status(404).json({ error: 'Vehicle not found.' });
 
-  // Count a view (best-effort, non-blocking for the response shape).
-  db.prepare('UPDATE vehicles SET views = views + 1 WHERE id = ?').run(id);
+  // Count a view (best-effort, non-blocking for the response shape) — swallow
+  // failure outright rather than retry-then-fail-the-page over a metric.
+  try { db.prepare('UPDATE vehicles SET views = views + 1 WHERE id = ?').run(id); } catch (e) { /* ignore */ }
 
-  const images = db
+  const images = await withDbRetry(() => db
     .prepare(
       `SELECT id, file_path, is_primary, sort_order
          FROM vehicle_images WHERE vehicle_id = ?
         ORDER BY is_primary DESC, sort_order ASC, id ASC`
     )
-    .all(id);
+    .all(id));
 
   res.json({
     ...vehicle,
@@ -183,24 +211,27 @@ router.get('/vehicles/:id', (req, res) => {
       ? images
       : [{ id: 0, file_path: '/images/placeholders/car-a.svg', is_primary: 1, sort_order: 0 }]
   });
+  } catch (e) { next(e); }
 });
 
 /* ─────────── GET /api/vehicles/:id/images (no view count) ─────────── */
 // Used by the vehicle-card hover gallery on Home/Inventory/Sold — deliberately
 // separate from GET /api/vehicles/:id so hovering never inflates listing views.
-router.get('/vehicles/:id/images', (req, res) => {
+router.get('/vehicles/:id/images', async (req, res, next) => {
+  try {
   const id = parseInt(req.params.id, 10);
   if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid vehicle id.' });
 
-  const images = db
+  const images = await withDbRetry(() => db
     .prepare(
       `SELECT file_path FROM vehicle_images
         WHERE vehicle_id = ?
         ORDER BY is_primary DESC, sort_order ASC, id ASC`
     )
-    .all(id);
+    .all(id));
 
   res.json({ images: images.map((r) => r.file_path) });
+  } catch (e) { next(e); }
 });
 
 module.exports = router;
