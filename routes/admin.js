@@ -389,19 +389,23 @@ router.get('/api/vehicles/export', requireAuth, async (req, res) => {
   const { whereSql, params } = buildVehicleWhere(req.query);
   const orderSql = ADMIN_SORT_MAP[req.query.sort] || ADMIN_SORT_MAP.newest;
   const rows = db
-    .prepare(`SELECT year, title, color, price FROM vehicles v ${whereSql} ORDER BY ${orderSql}`)
+    .prepare(`SELECT year, title, color, price, is_sold, is_reserved FROM vehicles v ${whereSql} ORDER BY ${orderSql}`)
     .all(...params);
+
+  // Sold wins over Reserved, matching the public badge's precedence.
+  const statusOf = (v) => (v.is_sold ? 'Sold' : v.is_reserved ? 'Reserved' : 'Available');
 
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet('Vehicles');
   sheet.columns = [
     { header: 'Title', key: 'title', width: 45 },
     { header: 'Colour', key: 'colour', width: 18 },
-    { header: 'Price (AED)', key: 'price', width: 16 }
+    { header: 'Price (AED)', key: 'price', width: 16 },
+    { header: 'Status', key: 'status', width: 14 }
   ];
   sheet.getRow(1).font = { bold: true };
   rows.forEach((v) => {
-    sheet.addRow({ title: `${v.year} ${v.title}`, colour: v.color || '', price: v.price });
+    sheet.addRow({ title: `${v.year} ${v.title}`, colour: v.color || '', price: v.price, status: statusOf(v) });
   });
   sheet.getColumn('price').numFmt = '#,##0';
 
