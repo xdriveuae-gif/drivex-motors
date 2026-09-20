@@ -391,7 +391,7 @@ router.get('/api/vehicles/export', requireAuth, async (req, res) => {
   const orderSql = ADMIN_SORT_MAP[req.query.sort] || ADMIN_SORT_MAP.newest;
   const rows = db
     .prepare(
-      `SELECT id, year, title, make, model, body_type, fuel_type, color, transmission,
+      `SELECT id, year, title, make, model, body_type, fuel_type, engine, color, transmission,
               mileage, price, is_sold, is_reserved
          FROM vehicles v ${whereSql} ORDER BY ${orderSql}`
     )
@@ -408,6 +408,7 @@ router.get('/api/vehicles/export', requireAuth, async (req, res) => {
     { header: 'Model', key: 'model', width: 18 },
     { header: 'Body Type', key: 'body_type', width: 14 },
     { header: 'Fuel Type', key: 'fuel_type', width: 14 },
+    { header: 'Engine', key: 'engine', width: 16 },
     { header: 'Colour', key: 'colour', width: 18 },
     { header: 'Status', key: 'status', width: 12 },
     { header: 'Model Year', key: 'year', width: 12 },
@@ -427,6 +428,7 @@ router.get('/api/vehicles/export', requireAuth, async (req, res) => {
       model: v.model,
       body_type: v.body_type || '',
       fuel_type: v.fuel_type || '',
+      engine: v.engine || '',
       colour: v.color || '',
       status: statusOf(v),
       year: v.year,
