@@ -25,6 +25,7 @@ const ExcelJS = require('exceljs');
 const { validationResult } = require('express-validator');
 
 const db = require('../database/db');
+const site = require('../config/site');
 const { render } = require('../utils/render');
 const { parseFeatures } = require('../utils/helpers');
 const { requireAuth, redirectIfAuthed } = require('../middleware/auth');
@@ -389,7 +390,11 @@ router.get('/api/vehicles/export', requireAuth, async (req, res) => {
   const { whereSql, params } = buildVehicleWhere(req.query);
   const orderSql = ADMIN_SORT_MAP[req.query.sort] || ADMIN_SORT_MAP.newest;
   const rows = db
-    .prepare(`SELECT year, title, color, price, is_sold, is_reserved FROM vehicles v ${whereSql} ORDER BY ${orderSql}`)
+    .prepare(
+      `SELECT id, year, title, make, model, body_type, fuel_type, color, transmission,
+              mileage, price, is_sold, is_reserved
+         FROM vehicles v ${whereSql} ORDER BY ${orderSql}`
+    )
     .all(...params);
 
   // Sold wins over Reserved, matching the public badge's precedence.
@@ -398,16 +403,45 @@ router.get('/api/vehicles/export', requireAuth, async (req, res) => {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet('Vehicles');
   sheet.columns = [
-    { header: 'Title', key: 'title', width: 45 },
+    { header: 'Title', key: 'title', width: 42 },
+    { header: 'Make', key: 'make', width: 16 },
+    { header: 'Model', key: 'model', width: 18 },
+    { header: 'Body Type', key: 'body_type', width: 14 },
+    { header: 'Fuel Type', key: 'fuel_type', width: 14 },
     { header: 'Colour', key: 'colour', width: 18 },
-    { header: 'Price (AED)', key: 'price', width: 16 },
-    { header: 'Status', key: 'status', width: 14 }
+    { header: 'Status', key: 'status', width: 12 },
+    { header: 'Model Year', key: 'year', width: 12 },
+    { header: 'Mileage (km)', key: 'mileage', width: 14 },
+    { header: 'Transmission', key: 'transmission', width: 14 },
+    { header: 'Price (AED)', key: 'price', width: 14 },
+    { header: 'URL', key: 'url', width: 48 }
   ];
   sheet.getRow(1).font = { bold: true };
   rows.forEach((v) => {
-    sheet.addRow({ title: `${v.year} ${v.title}`, colour: v.color || '', price: v.price, status: statusOf(v) });
+    // site.url is SITE_URL (https://drivex-motors.com in production) — the
+    // link points wherever the site is actually configured to live.
+    const url = `${site.url}/vehicle/${v.id}`;
+    sheet.addRow({
+      title: `${v.year} ${v.title}`,
+      make: v.make,
+      model: v.model,
+      body_type: v.body_type || '',
+      fuel_type: v.fuel_type || '',
+      colour: v.color || '',
+      status: statusOf(v),
+      year: v.year,
+      mileage: v.mileage,
+      transmission: v.transmission || '',
+      price: v.price,
+      url: { text: url, hyperlink: url }
+    });
   });
+  sheet.getColumn('mileage').numFmt = '#,##0';
   sheet.getColumn('price').numFmt = '#,##0';
+  // Clickable, and styled like a link so it reads as one.
+  sheet.getColumn('url').eachCell({ includeEmpty: false }, (cell, rowNumber) => {
+    if (rowNumber > 1) cell.font = { color: { argb: 'FF0563C1' }, underline: true };
+  });
 
   // Whitelist rather than reflect req.query.status straight into the
   // filename — it ends up in a response header.
