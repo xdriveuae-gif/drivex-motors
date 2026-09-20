@@ -337,6 +337,11 @@ h1, h2, h3, h4 { line-height: 1.15; font-weight: 700; color: var(--white); lette
 .vd-skel-info .block { height: 160px; border-radius: var(--radius); }
 
 .vd-layout { display: grid; grid-template-columns: 1.25fr 1fr; gap: 34px; align-items: start; }
+/* Grid items default to min-width:auto, i.e. "never narrower than my content".
+   Without this, a scrollable child (the photo strip) widens its whole column
+   to its full content width instead of scrolling inside it - on a phone that
+   made the page ~1000px wide and iOS Safari zoomed everything out. */
+.vd-layout > * { min-width: 0; }
 .vd-gallery { position: sticky; top: calc(var(--header-h) + 16px); }
 .vd-main { position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: #0d0d0d; aspect-ratio: 4/3; }
 .vd-main img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; }
@@ -464,7 +469,7 @@ body.page-vehicle .fab-whatsapp { display: none; }
   .vehicle-grid { grid-template-columns: repeat(2, 1fr); }
   .feature-grid, .benefit-grid, .team-grid { grid-template-columns: repeat(2, 1fr); }
   .footer-grid { grid-template-columns: 1fr 1fr; }
-  .vd-layout { grid-template-columns: 1fr; }
+  .vd-layout { grid-template-columns: minmax(0, 1fr); }
   .vd-gallery { position: static; }
 }
 
