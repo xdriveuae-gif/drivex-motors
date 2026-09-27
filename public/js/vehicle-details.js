@@ -30,7 +30,7 @@
       : vehicle.is_coming_soon ? '<span class="vc-badge coming-soon">Coming Soon</span>' : '';
 
     var reserveHtml = vehicle.is_coming_soon ? '' +
-      '<div class="vd-section vd-reserve">' +
+      '<div class="vd-reserve">' +
         '<h2>Reserve This Car</h2>' +
         '<p class="muted">This vehicle is on its way to our showroom. Leave your details and we\'ll contact you the moment it arrives so you can be first in line.</p>' +
         '<form id="reserveForm" class="reserve-form" novalidate>' +
@@ -73,6 +73,7 @@
             '<a class="btn btn-gold" href="tel:' + esc(data.landline) + '">Call Us</a>' +
             '<button class="btn btn-ghost" id="shareBtn">Share</button>' +
           '</div>' +
+          reserveHtml +
         '</div>' +
       '</div>' +
       (vehicle.description ? '<div class="vd-section"><h2>Description</h2><p class="vd-desc">' + esc(vehicle.description) + '</p></div>' : '') +
@@ -82,8 +83,7 @@
         row('Engine', vehicle.engine) + row('Fuel Type', vehicle.fuel_type) +
         row('Transmission', vehicle.transmission) + row('Body Type', vehicle.body_type) + row('Color', vehicle.color) +
       '</tbody></table></div>' +
-      featuresHtml +
-      reserveHtml;
+      featuresHtml;
 
     document.getElementById('bcTitle').textContent = vehicle.title;
     bindGallery(); bindActions(); bindReserveForm();

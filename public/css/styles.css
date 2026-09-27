@@ -372,14 +372,11 @@ h1, h2, h3, h4 { line-height: 1.15; font-weight: 700; color: var(--white); lette
 .features-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .features-list li { display: flex; align-items: center; gap: 10px; color: var(--text); }
 .features-list li::before { content: "✓"; color: var(--gold); font-weight: 700; }
-.vd-reserve { background: var(--gray); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 24px; }
-.vd-reserve h2 { border-bottom: none; margin-bottom: 6px; padding-bottom: 0; }
-.vd-reserve > p { margin-bottom: 18px; }
-.reserve-form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: end; }
+.vd-reserve { background: var(--gray); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 20px; margin-top: 20px; }
+.vd-reserve h2 { font-size: 1.1rem; border-bottom: none; margin-bottom: 6px; padding-bottom: 0; }
+.vd-reserve > p { margin-bottom: 16px; font-size: .9rem; }
+.reserve-form { display: grid; grid-template-columns: 1fr; gap: 12px; }
 .reserve-form .btn { white-space: nowrap; }
-@media (max-width: 760px) {
-  .reserve-form { grid-template-columns: 1fr; }
-}
 
 /* lightbox */
 .lightbox { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,.94); display: grid; place-items: center; }
