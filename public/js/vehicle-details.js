@@ -23,6 +23,23 @@
     var badges = '';
     if (vehicle.is_sold) badges += '<span class="vc-badge sold">Sold</span>';
     else if (vehicle.is_reserved) badges += '<span class="vc-badge reserved">Reserved</span>';
+    else if (vehicle.is_coming_soon) badges += '<span class="vc-badge coming-soon">Coming Soon</span>';
+
+    var mainBadge = vehicle.is_sold ? '<span class="vc-badge sold">Sold</span>'
+      : vehicle.is_reserved ? '<span class="vc-badge reserved">Reserved</span>'
+      : vehicle.is_coming_soon ? '<span class="vc-badge coming-soon">Coming Soon</span>' : '';
+
+    var reserveHtml = vehicle.is_coming_soon ? '' +
+      '<div class="vd-section vd-reserve">' +
+        '<h2>Reserve This Car</h2>' +
+        '<p class="muted">This vehicle is on its way to our showroom. Leave your details and we\'ll contact you the moment it arrives so you can be first in line.</p>' +
+        '<form id="reserveForm" class="reserve-form" novalidate>' +
+          '<div class="form-field"><label for="reserveName">Name *</label><input type="text" id="reserveName" name="name" maxlength="120" required /><small class="field-error" data-error="name"></small></div>' +
+          '<div class="form-field"><label for="reserveEmail">Email *</label><input type="email" id="reserveEmail" name="email" maxlength="160" required /><small class="field-error" data-error="email"></small></div>' +
+          '<div class="form-field"><label for="reservePhone">Phone</label><input type="tel" id="reservePhone" name="phone" maxlength="40" /><small class="field-error" data-error="phone"></small></div>' +
+          '<button type="submit" class="btn btn-gold btn-lg" id="reserveBtn">Reserve This Car</button>' +
+        '</form>' +
+      '</div>' : '';
 
     var features = (vehicle.features || []);
     var featuresHtml = features.length
@@ -33,7 +50,7 @@
     root.innerHTML =
       '<div class="vd-layout">' +
         '<div class="vd-gallery">' +
-          '<div class="vd-main">' + (vehicle.is_sold ? '<span class="vc-badge sold">Sold</span>' : (vehicle.is_reserved ? '<span class="vc-badge reserved">Reserved</span>' : '')) +
+          '<div class="vd-main">' + mainBadge +
             '<img id="vdMain" src="' + esc(images[0]) + '" alt="' + esc(vehicle.title) + '"></div>' +
           '<div class="vd-thumbs" id="vdThumbs">' + images.map(function (src, i) {
             return '<button class="vd-thumb ' + (i === 0 ? 'active' : '') + '" data-i="' + i + '">' +
@@ -65,10 +82,11 @@
         row('Engine', vehicle.engine) + row('Fuel Type', vehicle.fuel_type) +
         row('Transmission', vehicle.transmission) + row('Body Type', vehicle.body_type) + row('Color', vehicle.color) +
       '</tbody></table></div>' +
-      featuresHtml;
+      featuresHtml +
+      reserveHtml;
 
     document.getElementById('bcTitle').textContent = vehicle.title;
-    bindGallery(); bindActions();
+    bindGallery(); bindActions(); bindReserveForm();
     DX.revealScan(root);
   }
 
@@ -83,6 +101,44 @@
       t.addEventListener('click', function () { setMain(Number(t.getAttribute('data-i'))); });
     });
     document.getElementById('vdMain').addEventListener('click', openLightbox);
+  }
+
+  function bindReserveForm() {
+    var form = document.getElementById('reserveForm');
+    if (!form) return;
+    var btn = document.getElementById('reserveBtn');
+    function clearErrors() {
+      form.querySelectorAll('.field-error').forEach(function (e) { e.textContent = ''; });
+    }
+    function showErrors(errors) {
+      (errors || []).forEach(function (er) {
+        var el = form.querySelector('[data-error="' + er.field + '"]');
+        if (el) el.textContent = er.message;
+      });
+    }
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      clearErrors();
+      var payload = {
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        phone: form.phone.value.trim(),
+        subject: 'Coming Soon Reservation',
+        message: 'I would like to reserve the ' + vehicle.year + ' ' + vehicle.title + ' when it arrives.',
+        vehicle_id: vehicle.id
+      };
+      btn.disabled = true; var label = btn.textContent; btn.textContent = 'Sending…';
+      try {
+        var res = await DX.api.send('/api/contact', 'POST', payload);
+        DX.toast(res.message || 'Reservation request sent!', 'success');
+        form.reset();
+      } catch (err) {
+        if (err.data && err.data.errors) showErrors(err.data.errors);
+        DX.toast(err.message || 'Could not send your reservation.', 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = label;
+      }
+    });
   }
 
   function bindActions() {

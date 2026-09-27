@@ -69,6 +69,7 @@
     var badges = '';
     if (v.is_sold) badges += '<span class="vc-badge sold">Sold</span>';
     else if (v.is_reserved) badges += '<span class="vc-badge reserved">Reserved</span>';
+    else if (v.is_coming_soon) badges += '<span class="vc-badge coming-soon">Coming Soon</span>';
     return '' +
       '<article class="vehicle-card" data-reveal>' +
         '<div class="vc-media" data-id="' + v.id + '" data-primary="' + escapeHtml(img) + '">' +

@@ -34,7 +34,8 @@
   // to that value and hide the dropdown, since the whole page is that view.
   var LOCKED_STATUS = location.pathname === '/admin/vehicles/sold' ? 'sold'
     : location.pathname === '/admin/vehicles/available' ? 'available'
-    : location.pathname === '/admin/vehicles/reserved' ? 'reserved' : '';
+    : location.pathname === '/admin/vehicles/reserved' ? 'reserved'
+    : location.pathname === '/admin/vehicles/coming-soon' ? 'coming_soon' : '';
 
   var state = { page: 1, q: '', status: LOCKED_STATUS, sort: 'newest', limit: savedLimit, make: '', model: '', year: '', color: '', price_min: '', price_max: '', mileage_max: '' };
   var headingEl = document.getElementById('vehiclesHeading');
@@ -42,6 +43,7 @@
   if (headingEl && LOCKED_STATUS === 'sold') headingEl.textContent = 'Sold Vehicles';
   else if (headingEl && LOCKED_STATUS === 'available') headingEl.textContent = 'Available Vehicles';
   else if (headingEl && LOCKED_STATUS === 'reserved') headingEl.textContent = 'Reserved Vehicles';
+  else if (headingEl && LOCKED_STATUS === 'coming_soon') headingEl.textContent = 'Coming Soon Vehicles';
 
   var VIEW = '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
   var EDIT = '<svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4zM14 6l4 4"/></svg>';
@@ -87,7 +89,7 @@
   }
 
   async function load() {
-    tbody.innerHTML = '<tr><td colspan="10" class="muted ta-center">Loading…</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="11" class="muted ta-center">Loading…</td></tr>';
     var p = new URLSearchParams();
     if (state.q) p.set('q', state.q);
     if (state.status) p.set('status', state.status);
@@ -100,14 +102,14 @@
       var res = await DXA.api.get('/admin/api/vehicles?' + p.toString());
       render(res.data, res.pagination);
     } catch (e) {
-      tbody.innerHTML = '<tr><td colspan="10" class="muted ta-center">Failed to load.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="11" class="muted ta-center">Failed to load.</td></tr>';
     }
   }
 
   function render(rows, pagination) {
     if (countEl) countEl.textContent = (pagination.total || 0) + ' listing' + (pagination.total === 1 ? '' : 's');
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="10" class="muted ta-center" style="padding:30px">No vehicles found. <a class="link-btn" href="/admin/vehicles/new">Add one →</a></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="11" class="muted ta-center" style="padding:30px">No vehicles found. <a class="link-btn" href="/admin/vehicles/new">Add one →</a></td></tr>';
       pager.innerHTML = ''; return;
     }
     tbody.innerHTML = rows.map(function (v) {
@@ -120,6 +122,7 @@
         '<td>' + km(v.mileage) + '</td>' +
         '<td class="muted">' + esc(fmtDateTime(v.created_at)) + '</td>' +
         '<td><label class="switch"><input type="checkbox" data-reserved ' + (v.is_reserved ? 'checked' : '') + '></label></td>' +
+        '<td><label class="switch"><input type="checkbox" data-coming-soon ' + (v.is_coming_soon ? 'checked' : '') + '></label></td>' +
         '<td><label class="switch"><input type="checkbox" data-sold ' + (v.is_sold ? 'checked' : '') + '></label></td>' +
         '<td class="muted">' + esc(fmtDateTime(v.sold_at)) + '</td>' +
         '<td><label class="switch"><input type="checkbox" data-published ' + (v.is_published ? 'checked' : '') + '></label></td>' +
@@ -139,6 +142,9 @@
       var id = tr.getAttribute('data-id');
       tr.querySelector('[data-reserved]').addEventListener('change', function () {
         patch(id, { is_reserved: this.checked ? 1 : 0 }, this.checked ? 'Marked as reserved' : 'Reservation removed');
+      });
+      tr.querySelector('[data-coming-soon]').addEventListener('change', function () {
+        patch(id, { is_coming_soon: this.checked ? 1 : 0 }, this.checked ? 'Marked as coming soon' : 'Coming soon removed');
       });
       tr.querySelector('[data-sold]').addEventListener('change', function () {
         patch(id, { is_sold: this.checked ? 1 : 0 }, this.checked ? 'Marked as sold' : 'Marked as available');

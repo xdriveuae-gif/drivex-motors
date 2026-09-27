@@ -111,7 +111,8 @@ function vehiclePayload(body) {
     description: (body.description || '').trim() || null,
     features: JSON.stringify(normalizeFeatures(body.features)),
     is_sold: toBool(body.is_sold) ? 1 : 0,
-    is_reserved: toBool(body.is_reserved) ? 1 : 0
+    is_reserved: toBool(body.is_reserved) ? 1 : 0,
+    is_coming_soon: toBool(body.is_coming_soon) ? 1 : 0
   };
 }
 
@@ -175,6 +176,7 @@ function buildVehicleWhere(query) {
   if (query.status === 'sold') where.push('v.is_sold = 1');
   if (query.status === 'available') where.push('v.is_sold = 0');
   if (query.status === 'reserved') where.push('v.is_reserved = 1');
+  if (query.status === 'coming_soon') where.push('v.is_coming_soon = 1');
 
   const exact = { make: 'v.make', model: 'v.model', year: 'v.year', color: 'v.color' };
   for (const [param, col] of Object.entries(exact)) {
@@ -237,6 +239,10 @@ router.get('/vehicles/available', requireAuth, (req, res) =>
 
 router.get('/vehicles/reserved', requireAuth, (req, res) =>
   render(req, res, 'admin/vehicles', { title: 'Reserved Vehicles', bodyClass: 'admin' })
+);
+
+router.get('/vehicles/coming-soon', requireAuth, (req, res) =>
+  render(req, res, 'admin/vehicles', { title: 'Coming Soon Vehicles', bodyClass: 'admin' })
 );
 
 router.get('/vehicles/new', requireAuth, (req, res) =>
@@ -345,7 +351,7 @@ router.get('/api/vehicles', requireAuth, (req, res) => {
   const rows = db
     .prepare(
       `SELECT v.id, v.title, v.make, v.model, v.year, v.price, v.mileage, v.color,
-              v.fuel_type, v.transmission, v.is_sold, v.sold_at, v.is_reserved, v.is_published, v.views, v.created_at,
+              v.fuel_type, v.transmission, v.is_sold, v.sold_at, v.is_reserved, v.is_coming_soon, v.is_published, v.views, v.created_at,
               ${PRIMARY_IMAGE_SQL},
               (SELECT COUNT(*) FROM vehicle_images WHERE vehicle_id = v.id) AS image_count
          FROM vehicles v ${whereSql}
@@ -392,13 +398,13 @@ router.get('/api/vehicles/export', requireAuth, async (req, res) => {
   const rows = db
     .prepare(
       `SELECT id, year, title, make, model, body_type, fuel_type, engine, color, transmission,
-              mileage, price, is_sold, is_reserved
+              mileage, price, is_sold, is_reserved, is_coming_soon
          FROM vehicles v ${whereSql} ORDER BY ${orderSql}`
     )
     .all(...params);
 
-  // Sold wins over Reserved, matching the public badge's precedence.
-  const statusOf = (v) => (v.is_sold ? 'Sold' : v.is_reserved ? 'Reserved' : 'Available');
+  // Sold wins over Reserved wins over Coming Soon, matching the public badge's precedence.
+  const statusOf = (v) => (v.is_sold ? 'Sold' : v.is_reserved ? 'Reserved' : v.is_coming_soon ? 'Coming Soon' : 'Available');
 
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet('Vehicles');
@@ -447,7 +453,7 @@ router.get('/api/vehicles/export', requireAuth, async (req, res) => {
 
   // Whitelist rather than reflect req.query.status straight into the
   // filename — it ends up in a response header.
-  const statusLabel = { available: 'available', reserved: 'reserved', sold: 'sold' }[req.query.status] || 'all';
+  const statusLabel = { available: 'available', reserved: 'reserved', sold: 'sold', coming_soon: 'coming-soon' }[req.query.status] || 'all';
   const filename = `drivex-vehicles-${statusLabel}-${new Date().toISOString().slice(0, 10)}.xlsx`;
 
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -489,10 +495,10 @@ router.post('/api/vehicles', requireAuth, uploadImages('images'), vehicleValidat
       .prepare(
         `INSERT INTO vehicles
           (title, make, model, year, price, mileage, engine, transmission,
-           fuel_type, body_type, color, vin, description, features, is_sold, sold_at, is_reserved)
+           fuel_type, body_type, color, vin, description, features, is_sold, sold_at, is_reserved, is_coming_soon)
          VALUES
           (@title, @make, @model, @year, @price, @mileage, @engine, @transmission,
-           @fuel_type, @body_type, @color, @vin, @description, @features, @is_sold, ${soldAtSql}, @is_reserved)`
+           @fuel_type, @body_type, @color, @vin, @description, @features, @is_sold, ${soldAtSql}, @is_reserved, @is_coming_soon)`
       )
       .run(p);
     const id = info.lastInsertRowid;
@@ -520,10 +526,10 @@ router.post('/api/vehicles/:id/duplicate', requireAuth, (req, res) => {
       .prepare(
         `INSERT INTO vehicles
           (title, make, model, year, price, mileage, engine, transmission,
-           fuel_type, body_type, color, vin, description, features, is_sold, is_reserved, is_published)
+           fuel_type, body_type, color, vin, description, features, is_sold, is_reserved, is_coming_soon, is_published)
          VALUES
           (@title, @make, @model, @year, @price, @mileage, @engine, @transmission,
-           @fuel_type, @body_type, @color, @vin, @description, @features, 0, 0, 0)`
+           @fuel_type, @body_type, @color, @vin, @description, @features, 0, 0, 0, 0)`
       )
       .run({
         title: `${source.title} (Copy)`,
@@ -565,7 +571,7 @@ router.put('/api/vehicles/:id', requireAuth, vehicleValidators, handleValidation
         title=@title, make=@make, model=@model, year=@year, price=@price, mileage=@mileage,
         engine=@engine, transmission=@transmission, fuel_type=@fuel_type, body_type=@body_type,
         color=@color, vin=@vin, description=@description, features=@features,
-        is_sold=@is_sold, is_reserved=@is_reserved${soldClause ? ', ' + soldClause : ''}, updated_at=datetime('now')
+        is_sold=@is_sold, is_reserved=@is_reserved, is_coming_soon=@is_coming_soon${soldClause ? ', ' + soldClause : ''}, updated_at=datetime('now')
       WHERE id=@id`
   ).run({ ...p, id: vehicle.id });
   res.json({ ok: true, id: vehicle.id });
@@ -588,6 +594,10 @@ router.patch('/api/vehicles/:id', requireAuth, (req, res) => {
     fields.push('is_reserved=@is_reserved');
     params.is_reserved = toBool(req.body.is_reserved) ? 1 : 0;
   }
+  if (req.body.is_coming_soon !== undefined) {
+    fields.push('is_coming_soon=@is_coming_soon');
+    params.is_coming_soon = toBool(req.body.is_coming_soon) ? 1 : 0;
+  }
   if (req.body.is_published !== undefined) {
     fields.push('is_published=@is_published');
     params.is_published = toBool(req.body.is_published) ? 1 : 0;
@@ -597,7 +607,7 @@ router.patch('/api/vehicles/:id', requireAuth, (req, res) => {
     `UPDATE vehicles SET ${fields.join(', ')}, updated_at=datetime('now') WHERE id=@id`
   ).run({ ...params, id: vehicle.id });
   const updated = db
-    .prepare('SELECT id, is_sold, sold_at, is_reserved, is_published FROM vehicles WHERE id = ?')
+    .prepare('SELECT id, is_sold, sold_at, is_reserved, is_coming_soon, is_published FROM vehicles WHERE id = ?')
     .get(vehicle.id);
   res.json({ ok: true, ...updated });
 });

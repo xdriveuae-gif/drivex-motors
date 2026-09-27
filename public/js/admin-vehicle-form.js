@@ -98,6 +98,7 @@
       FIELDS.forEach(function (k) { if (form[k] != null && v[k] != null) form[k].value = v[k]; });
       form.is_sold.checked = !!v.is_sold;
       form.is_reserved.checked = !!v.is_reserved;
+      form.is_coming_soon.checked = !!v.is_coming_soon;
       var soldAtHint = document.getElementById('soldAtHint');
       if (soldAtHint) {
         if (v.sold_at) {
@@ -127,6 +128,7 @@
         payload.features = form.features.value;
         payload.is_sold = form.is_sold.checked ? 1 : 0;
         payload.is_reserved = form.is_reserved.checked ? 1 : 0;
+        payload.is_coming_soon = form.is_coming_soon.checked ? 1 : 0;
         await DXA.api.send('/admin/api/vehicles/' + editId, 'PUT', payload);
         if (selectedFiles.length) {
           var fd = new FormData();
@@ -141,6 +143,7 @@
         form2.append('features', form.features.value);
         form2.append('is_sold', form.is_sold.checked ? '1' : '');
         form2.append('is_reserved', form.is_reserved.checked ? '1' : '');
+        form2.append('is_coming_soon', form.is_coming_soon.checked ? '1' : '');
         selectedFiles.forEach(function (f) { form2.append('images', f); });
         var res = await DXA.api.send('/admin/api/vehicles', 'POST', form2, true);
         statusEl.textContent = '';
