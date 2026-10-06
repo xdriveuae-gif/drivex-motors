@@ -71,7 +71,18 @@
     });
   }
 
+  // Respect "reduce motion": show the poster frame instead of autoplaying.
+  function initVideo() {
+    var v = document.getElementById('heroVideo');
+    if (!v) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      v.removeAttribute('autoplay');
+      v.pause();
+    }
+  }
+
   function init() {
+    initVideo();
     fillGrid('showcaseGrid', '/api/vehicles?limit=6&sort=newest');
     initSearch();
   }

@@ -699,7 +699,8 @@ body.page-vehicle .fab-whatsapp { display: none; }
 .hs-field select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(70,91,219,.25); }
 .hs-field select:disabled { opacity: .6; }
 .hero-photo { width: min(100% - 40px, 1560px); margin-top: 0; }
-.hero-photo img { width: 100%; height: min(56.25vw, max(380px, calc(100vh - var(--header-h) - 110px))); aspect-ratio: 16 / 9; object-fit: cover; object-position: center; border-radius: var(--radius-lg); box-shadow: var(--shadow); }
+.hero-photo video { display: block; background: var(--ink); }
+.hero-photo img, .hero-photo video { width: 100%; height: min(56.25vw, max(380px, calc(100vh - var(--header-h) - 110px))); aspect-ratio: 16 / 9; object-fit: cover; object-position: center; border-radius: var(--radius-lg); box-shadow: var(--shadow); }
 
 /* ---------- Trust strip ---------- */
 .trust-strip { background: var(--surface-1); border-block: 1px solid var(--border); padding: 26px 0; }
@@ -787,7 +788,7 @@ body.page-vehicle .fab-whatsapp { display: none; }
 @media (max-width: 620px) {
   .hero-search { grid-template-columns: 1fr; padding: 14px; }
   .hero-photo { width: 100%; }
-  .hero-photo img { height: auto; aspect-ratio: 16 / 10; border-radius: 0; }
+  .hero-photo img, .hero-photo video { height: auto; aspect-ratio: 16 / 10; border-radius: 0; }
   .trust-grid { grid-template-columns: 1fr; }
   .finance-banner { flex-direction: column; align-items: flex-start; }
   .finance-banner .btn { width: 100%; }
