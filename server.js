@@ -134,6 +134,12 @@ app.use((req, res) => {
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.error('✗ Unhandled error:', err.message);
+  // A malformed file never heals on its own. Exit so the host restarts the app and
+  // the boot-time repair in database/safety.js restores a backup / salvages rows.
+  if (/database disk image is malformed|file is not a database/i.test(err.message || '')) {
+    console.error('✗ Database corruption detected — restarting to self-repair.');
+    setTimeout(() => process.exit(1), 250);
+  }
   if (res.headersSent) return;
   const status = err.status || 500;
   if (wantsJson(req)) {

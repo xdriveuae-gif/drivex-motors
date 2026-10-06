@@ -33,49 +33,18 @@ const DB_PATH = path.resolve(
 // Make sure the containing folder exists (first run on a fresh machine).
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
-// node-sqlite3-wasm guards the database with a "<file>.lock" directory that,
-// once acquired, sits on disk for that process's entire lifetime — it's only
-// removed by that SAME process's own clean close(). A crash leaves it behind
-// as a genuinely stale artifact, safe to clear. But a graceful DEPLOY RESTART
-// is different: Hostinger/LiteSpeed keeps the outgoing worker alive for a few
-// seconds to drain in-flight requests while the new one boots — so at the
-// exact moment this file runs, the lock can belong to a process that is very
-// much still alive and using it. Blindly deleting it there — which this file
-// used to do unconditionally — let the new worker open a second live
-// connection to the same file while the old one was still writing to it,
-// which is exactly how the database was corrupted once already.
-//
-// We track ownership ourselves (node-sqlite3-wasm's lock directory carries no
-// identity) and only force-clear it once we've confirmed the recorded owner
-// is actually dead.
+// node-sqlite3-wasm has no real cross-process locking, so two live processes on
+// one file corrupt it. Hostinger restarts the app on its own (no deploy needed)
+// and leaves the old worker running while the new one boots. See safety.js:
+// the new instance stops the old one (or refuses to start) instead of opening
+// a second connection, repairs a malformed file at boot, and keeps backups.
+const safety = require('./safety');
 const OWNER_PID_PATH = DB_PATH + '.owner.pid';
+const BACKUP_DIR = path.join(path.dirname(DB_PATH), 'backups');
 
-function isPidAlive(pid) {
-  if (!Number.isInteger(pid) || pid <= 0) return false;
-  try {
-    process.kill(pid, 0);
-    return true; // no throw: process exists and is ours/permitted
-  } catch (e) {
-    return e.code === 'EPERM'; // exists but owned by another user; ESRCH = dead
-  }
-}
-
-(function waitForPreviousInstanceToRelease() {
-  let ownerPid;
-  try { ownerPid = parseInt(fs.readFileSync(OWNER_PID_PATH, 'utf8'), 10); } catch (e) { return; }
-  if (ownerPid === process.pid || !isPidAlive(ownerPid)) return;
-
-  console.log(`  Previous instance (pid ${ownerPid}) is still running — waiting for it to release the database...`);
-  const deadline = Date.now() + 10000;
-  while (isPidAlive(ownerPid) && Date.now() < deadline) {
-    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 200);
-  }
-  if (isPidAlive(ownerPid)) {
-    console.warn(`  WARNING: pid ${ownerPid} is still running after 10s — proceeding anyway; it may still be mid-shutdown.`);
-  }
-})();
-
+safety.ensureExclusiveOwnership(OWNER_PID_PATH);
 try { fs.rmSync(DB_PATH + '.lock', { recursive: true, force: true }); } catch (e) {}
+safety.repairIfCorrupt(DB_PATH, BACKUP_DIR, fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8'));
 
 const raw = new Database(DB_PATH);
 try { fs.writeFileSync(OWNER_PID_PATH, String(process.pid)); } catch (e) {}
@@ -107,6 +76,8 @@ ensureColumn('vehicles', 'sold_at', 'TEXT');
 // Apply the schema (CREATE TABLE/INDEX IF NOT EXISTS — safe to re-run).
 const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
 raw.exec(schema);
+
+safety.startBackups(raw, DB_PATH, BACKUP_DIR);
 
 /* ---------- better-sqlite3 compatibility shim ---------- */
 
