@@ -685,10 +685,10 @@ body.page-vehicle .fab-whatsapp { display: none; }
 @media (max-width: 1180px) and (min-width: 861px) { .nav-phone { display: none; } }
 
 /* ---------- Hero + floating search ---------- */
-.hero.hero-home { min-height: 0; display: block; padding: calc(var(--header-h) + 28px) 0 0; overflow: visible; }
+.hero.hero-home { min-height: 0; display: block; padding: calc(var(--header-h) + 14px) 0 0; overflow: visible; }
 .hero-home .hero-inner { padding: 0 0 8px; }
 .hero-home .hero-sub { margin-bottom: 0; }
-.hero-search-wrap { position: relative; z-index: 3; }
+.hero-search-wrap { position: relative; z-index: 3; margin-top: -48px; padding-bottom: clamp(40px, 6vw, 72px); }
 .hero-search {
   display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 14px; align-items: end; text-align: left;
   background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg);
@@ -698,8 +698,8 @@ body.page-vehicle .fab-whatsapp { display: none; }
 .hs-field select { width: 100%; padding: 13px 18px; background: var(--surface-1); border: 1.5px solid var(--border); border-radius: var(--radius-pill); color: var(--text-strong); font-size: .95rem; font-family: inherit; }
 .hs-field select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(70,91,219,.25); }
 .hs-field select:disabled { opacity: .6; }
-.hero-photo { width: min(100% - 40px, 1560px); margin-top: -38px; padding-bottom: clamp(40px, 6vw, 72px); }
-.hero-photo img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: center; border-radius: var(--radius-lg); box-shadow: var(--shadow); }
+.hero-photo { width: min(100% - 40px, 1560px); margin-top: 0; }
+.hero-photo img { width: 100%; height: min(56.25vw, max(380px, calc(100vh - var(--header-h) - 110px))); aspect-ratio: 16 / 9; object-fit: cover; object-position: center; border-radius: var(--radius-lg); box-shadow: var(--shadow); }
 
 /* ---------- Trust strip ---------- */
 .trust-strip { background: var(--surface-1); border-block: 1px solid var(--border); padding: 26px 0; }
@@ -786,9 +786,8 @@ body.page-vehicle .fab-whatsapp { display: none; }
 }
 @media (max-width: 620px) {
   .hero-search { grid-template-columns: 1fr; padding: 14px; }
-  .hero-photo { margin-top: -26px; }
   .hero-photo { width: 100%; }
-  .hero-photo img { aspect-ratio: 16 / 10; border-radius: 0; }
+  .hero-photo img { height: auto; aspect-ratio: 16 / 10; border-radius: 0; }
   .trust-grid { grid-template-columns: 1fr; }
   .finance-banner { flex-direction: column; align-items: flex-start; }
   .finance-banner .btn { width: 100%; }
