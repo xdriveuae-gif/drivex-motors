@@ -14,7 +14,8 @@
     "seed": "node database/seed.js",
     "create-admin": "node database/create-admin.js",
     "init-db": "node database/seed.js",
-    "reset-db": "node database/seed.js --reset"
+    "reset-db": "node database/seed.js --reset",
+    "preview": "node preview.js"
   },
   "keywords": [
     "used-cars",
