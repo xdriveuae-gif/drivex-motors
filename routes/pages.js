@@ -81,6 +81,18 @@ router.get('/sell-your-car', (req, res) => {
   });
 });
 
+// Short alias for the Sell / Trade-in page.
+router.get('/sell', (_req, res) => res.redirect(301, '/sell-your-car'));
+
+router.get('/finance', (req, res) => {
+  render(req, res, 'finance', {
+    title: 'Car Finance in Abu Dhabi',
+    description: `Ask about car finance at ${site.name}, Abu Dhabi. Tell us what you are looking for and our team will contact you on WhatsApp.`,
+    keywords: 'car finance Abu Dhabi, used car finance UAE, car loan Abu Dhabi, DriveX Motors finance',
+    bodyClass: 'page-finance'
+  });
+});
+
 /* ─────────────── Vehicle detail (dynamic SEO) ─────────────── */
 
 function buildVehicleJsonLd(vehicle, imageUrl) {
@@ -288,7 +300,7 @@ Sitemap: ${site.url}/sitemap.xml
 });
 
 router.get('/sitemap.xml', (_req, res) => {
-  const statics = ['/', '/inventory', '/sold', '/about', '/contact', '/sell-your-car'];
+  const statics = ['/', '/inventory', '/sold', '/about', '/contact', '/sell-your-car', '/finance'];
   // Published only — a vehicle hidden from public inventory shouldn't be
   // invited into search results just because its /vehicle/:id page still
   // resolves. Both available and sold vehicles are included: sold ones at

@@ -44,6 +44,26 @@ const site = {
   hours: 'Sat – Thu: 9:00 AM – 1:00 PM & 4:00 PM – 9:00 PM  ·  Fri: 4:00 PM – 9:00 PM',
   currency: 'AED',
 
+  // ── Editable business claims ────────────────────────────────────────
+  // Fill these in to replace the generic wording on the home page, the
+  // Finance page, car cards and car pages. Leave the [PLACEHOLDER] text as
+  // it is and the site shows generic wording with NO specific numbers.
+  business: {
+    warrantyDuration: '[WARRANTY_DURATION]',   // e.g. '6 months'
+    warrantyKmLimit: '[WARRANTY_KM_LIMIT]',    // e.g. '10,000 km'
+    warrantyCoverage: '[WARRANTY_COVERAGE]',   // e.g. 'engine and gearbox'
+    financePartners: '[FINANCE_PARTNERS]',     // e.g. 'Bank A and Bank B'
+    downPaymentText: '[DOWN_PAYMENT_TEXT]',    // e.g. 'Down payments from 20%'
+    maxTenure: '[MAX_TENURE]',                 // e.g. '5 years'
+    sellTimeframe: '[SELL_TIMEFRAME]'          // e.g. '24 hours'
+  },
+
+  // Home page sections that need real data. They stay hidden until the
+  // flag is true AND the list has entries.
+  show: { team: false, reviews: false },
+  team: [],     // [{ name: '', role: '' }]
+  reviews: [],  // [{ name: '', text: '', rating: 5 }]
+
   // Social links (replace with the dealership's real profiles)
   social: {
     facebook: 'https://www.facebook.com/share/1DA6LWnMuv/?mibextid=wwXIfr',

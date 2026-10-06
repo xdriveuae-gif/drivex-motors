@@ -102,6 +102,7 @@ function buildTokens(meta) {
     SITE_MAP_EMBED: site.mapEmbedUrl, SITE_MAP_LINK: site.mapLink,
     SOC_FACEBOOK: site.social.facebook, SOC_INSTAGRAM: site.social.instagram, SOC_X: site.social.x,
     SOC_YOUTUBE: site.social.youtube, SOC_TIKTOK: site.social.tiktok,
+    ...require('./utils/claims').claimTokens(),
     YEAR: String(new Date().getFullYear()), CSRF_TOKEN: '',
     TITLE: escapeHtml(title), META_DESCRIPTION: escapeHtml(description),
     META_KEYWORDS: escapeHtml(meta.keywords || 'used cars Abu Dhabi, pre-owned vehicles UAE, luxury cars, DriveX Motors'),

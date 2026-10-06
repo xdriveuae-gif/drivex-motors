@@ -66,7 +66,8 @@
       data-whatsapp="{{SITE_WHATSAPP}}"
       data-email="{{SITE_EMAIL}}"
       data-currency="{{SITE_CURRENCY}}"
-      data-url="{{SITE_URL}}">
+      data-url="{{SITE_URL}}"
+      data-warranty="{{WARRANTY_BADGE}}">
 
   <a class="skip-link" href="#main">Skip to content</a>
 
@@ -76,11 +77,12 @@
 
       <nav class="main-nav" id="mainNav" aria-label="Primary navigation">
         <a href="/" class="nav-link" data-nav="/">Home</a>
-        <a href="/inventory" class="nav-link" data-nav="/inventory">Inventory</a>
-        <a href="/sold" class="nav-link" data-nav="/sold">Sold</a>
+        <a href="/inventory" class="nav-link" data-nav="/inventory">Buy a Car</a>
+        <a href="/finance" class="nav-link" data-nav="/finance">Finance</a>
         <a href="/about" class="nav-link" data-nav="/about">About</a>
         <a href="/contact" class="nav-link" data-nav="/contact">Contact</a>
-        <a href="/sell-your-car" class="btn btn-gold btn-sm nav-cta" data-nav="/sell-your-car">Sell Your Car</a>
+        <a href="tel:{{SITE_PHONE_RAW}}" class="nav-phone">{{SITE_PHONE}}</a>
+        <a href="/sell-your-car" class="btn btn-gold btn-sm nav-cta" data-nav="/sell-your-car">Sell / Trade-in</a>
       </nav>
 
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainNav">

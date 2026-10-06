@@ -17,6 +17,7 @@ const fs = require('fs');
 const path = require('path');
 const site = require('../config/site');
 const { escapeHtml } = require('./helpers');
+const { claimTokens } = require('./claims');
 
 const VIEWS_DIR = path.join(__dirname, '..', 'views');
 const IS_PROD = process.env.NODE_ENV === 'production';
@@ -78,6 +79,7 @@ function baseTokens(req, res) {
     SOC_INSTAGRAM: site.social.instagram,
     ASSET_VER: ASSET_VER,
     GA_TAG: gaTag(),
+    ...claimTokens(),
     YEAR: String(new Date().getFullYear()),
     CSRF_TOKEN: (res.locals && res.locals.csrfToken) || ''
   };

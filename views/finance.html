@@ -1,0 +1,82 @@
+{{> partials/head }}
+
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow">Car finance</p>
+    <h1 class="page-hero-title">Finance Your <span class="gold">Next Car</span></h1>
+    <p class="page-hero-sub">{{FINANCE_TEXT}}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <p class="eyebrow">How it works</p>
+      <h2 class="section-title">Three simple steps</h2>
+    </div>
+    <ol class="steps" data-reveal>
+      <li class="step"><span class="step-num">1</span><h3>Send your details</h3><p>Fill in the short form below with what you are looking for.</p></li>
+      <li class="step"><span class="step-num">2</span><h3>We get in touch</h3><p>Our team contacts you on WhatsApp to talk through your options.</p></li>
+      <li class="step"><span class="step-num">3</span><h3>Choose your car</h3><p>Pick a car from our stock and we guide you through the next steps.</p></li>
+    </ol>
+    <ul class="finance-facts" data-reveal>{{FINANCE_DETAILS}}</ul>
+  </div>
+</section>
+
+<section class="section section-alt" id="finance-form">
+  <div class="container finance-layout">
+    <div class="contact-form-wrap" data-reveal>
+      <h2 class="section-title">Check your eligibility</h2>
+      <p class="muted">Send us your details and we will continue the conversation on WhatsApp.</p>
+      <form id="financeForm" class="contact-form" novalidate>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="ff-name">Name *</label>
+            <input type="text" id="ff-name" name="name" required maxlength="120" autocomplete="name" />
+            <small class="field-error" data-error="name"></small>
+          </div>
+          <div class="form-field">
+            <label for="ff-phone">Phone *</label>
+            <input type="tel" id="ff-phone" name="phone" required maxlength="40" autocomplete="tel" />
+            <small class="field-error" data-error="phone"></small>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="ff-salary">Monthly salary range</label>
+          <select id="ff-salary" name="salary">
+            <option value="">Prefer not to say</option>
+            <option>Under AED 5,000</option>
+            <option>AED 5,000 – 10,000</option>
+            <option>AED 10,000 – 20,000</option>
+            <option>AED 20,000 – 40,000</option>
+            <option>Above AED 40,000</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="ff-car">Preferred car</label>
+          <input type="text" id="ff-car" name="car" maxlength="160" placeholder="e.g. Toyota Land Cruiser, or any SUV" />
+        </div>
+        <button type="submit" class="btn btn-gold btn-lg" id="financeSubmit">Continue on WhatsApp</button>
+      </form>
+    </div>
+
+    <div class="faq" data-reveal>
+      <h2 class="section-title">Good to know</h2>
+      <details>
+        <summary>Who can apply?</summary>
+        <p>Contact us and we will check your eligibility with you. Just send the form and we will take it from there.</p>
+      </details>
+      <details>
+        <summary>Which documents do I need?</summary>
+        <p>Our team will tell you exactly which documents are needed once you get in touch.</p>
+      </details>
+      <details>
+        <summary>Can I trade in my car at the same time?</summary>
+        <p>Ask us how a trade-in can work together with finance on your next car.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<script src="/js/finance.js?v={{ASSET_VER}}" defer></script>
+{{> partials/footer }}

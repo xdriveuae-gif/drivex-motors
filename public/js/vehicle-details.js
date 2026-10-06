@@ -24,6 +24,7 @@
     if (vehicle.is_sold) badges += '<span class="vc-badge sold">Sold</span>';
     else if (vehicle.is_reserved) badges += '<span class="vc-badge reserved">Reserved</span>';
     else if (vehicle.is_coming_soon) badges += '<span class="vc-badge coming-soon">Coming Soon</span>';
+    if (!vehicle.is_sold) badges += '<span class="vc-badge warranty">✓ ' + esc(data.warranty || 'Warranty') + '</span>';
 
     var mainBadge = vehicle.is_sold ? '<span class="vc-badge sold">Sold</span>'
       : vehicle.is_reserved ? '<span class="vc-badge reserved">Reserved</span>'

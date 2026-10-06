@@ -82,6 +82,7 @@
         '<div class="vc-body">' +
           '<h3 class="vc-title"><a href="/vehicle/' + v.id + '">' + escapeHtml(v.title) + '</a></h3>' +
           '<div class="vc-price">' + fmtPrice(v.price) + '</div>' +
+          (v.is_sold ? '' : '<span class="vc-warranty">✓ ' + escapeHtml(data.warranty || 'Warranty') + '</span>') +
           '<ul class="vc-meta">' +
             '<li>' + ICON.cal + '<span>' + escapeHtml(v.year) + '</span></li>' +
             '<li>' + ICON.road + '<span>' + fmtMileage(v.mileage) + '</span></li>' +

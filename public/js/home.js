@@ -1,17 +1,13 @@
-/* Home page — load the latest vehicles from the API. */
+/* Home page — latest vehicles + hero search bar (uses the existing /api endpoints). */
 (function () {
   'use strict';
 
-  async function fill(gridId, url, fallbackUrl) {
+  async function fillGrid(gridId, url) {
     var grid = document.getElementById(gridId);
     if (!grid) return;
     try {
       var res = await DX.api.get(url);
       var items = res.data || [];
-      if (!items.length && fallbackUrl) {
-        res = await DX.api.get(fallbackUrl);
-        items = res.data || [];
-      }
       if (!items.length) {
         grid.innerHTML = '<p class="muted ta-center" style="grid-column:1/-1">No vehicles available yet. Please check back soon.</p>';
         return;
@@ -23,8 +19,61 @@
     }
   }
 
+  function option(value, label) {
+    var o = document.createElement('option');
+    o.value = value; o.textContent = label;
+    return o;
+  }
+
+  // Round price steps up to the highest listed price, e.g. 100k, 150k, 200k...
+  function priceSteps(max) {
+    var steps = [50000, 100000, 150000, 200000, 300000, 400000, 500000, 750000, 1000000];
+    var out = steps.filter(function (s) { return s < max; });
+    var next = steps.find(function (s) { return s >= max; });
+    if (next) out.push(next);
+    return out;
+  }
+
+  async function initSearch() {
+    var form = document.getElementById('heroSearch');
+    if (!form) return;
+    var makeSel = document.getElementById('hsMake');
+    var modelSel = document.getElementById('hsModel');
+    var priceSel = document.getElementById('hsPrice');
+    var modelsByMake = {};
+
+    try {
+      var f = await DX.api.get('/api/filters');
+      modelsByMake = f.modelsByMake || {};
+      (f.makes || []).forEach(function (m) { makeSel.appendChild(option(m, m)); });
+      if (f.priceMax) {
+        priceSteps(f.priceMax).forEach(function (p) {
+          priceSel.appendChild(option(String(p), 'Up to ' + DX.fmtPrice(p)));
+        });
+      }
+    } catch (e) { /* the form still works with "any" values */ }
+
+    makeSel.addEventListener('change', function () {
+      var models = modelsByMake[makeSel.value] || [];
+      modelSel.innerHTML = '';
+      modelSel.appendChild(option('', 'All models'));
+      models.forEach(function (m) { modelSel.appendChild(option(m, m)); });
+      modelSel.disabled = !makeSel.value || !models.length;
+    });
+
+    // Keep the URL clean: only send the filters the visitor actually chose.
+    form.addEventListener('submit', function () {
+      [makeSel, modelSel, priceSel].forEach(function (sel) { if (!sel.value) sel.disabled = true; });
+    });
+    window.addEventListener('pageshow', function () {
+      makeSel.disabled = false; priceSel.disabled = false;
+      modelSel.disabled = !makeSel.value || modelSel.options.length < 2;
+    });
+  }
+
   function init() {
-    fill('showcaseGrid', '/api/vehicles?limit=6&sort=newest');
+    fillGrid('showcaseGrid', '/api/vehicles?limit=6&sort=newest');
+    initSearch();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
