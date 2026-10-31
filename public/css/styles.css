@@ -192,8 +192,6 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.15; font-weight: 
 .header-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; }
 .brand { display: inline-flex; align-items: center; gap: 12px; margin-left: 20px; }
 .brand-logo { height: 54px; width: auto; }
-/* The logo file has a white background; multiply makes it vanish on light surfaces. */
-.brand-logo, .hero-logo { mix-blend-mode: multiply; }
 /* The new logo already spells the brand name; keep the text for screen readers only. */
 .brand-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .brand-word { font-family: var(--font-head); font-weight: 600; font-size: 1.2rem; color: var(--text-strong); }
@@ -849,8 +847,6 @@ body.page-vehicle .fab-whatsapp { display: none; }
   --grad-soft: linear-gradient(180deg, #20242d, #12151b);
 }
 :root[data-theme="dark"] .section-alt { --card-bg: var(--raise); }
-:root[data-theme="dark"] .brand-logo,
-:root[data-theme="dark"] .hero-logo { mix-blend-mode: normal; background: #fff; border-radius: 14px; padding: 3px 6px; }
 :root[data-theme="dark"] .vc-badge.sold { background: #000; border: 1px solid var(--border-strong); }
 :root[data-theme="dark"] .vc-badge.coming-soon,
 :root[data-theme="dark"] .pagination button.active { color: #111318; }
