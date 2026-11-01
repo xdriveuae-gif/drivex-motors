@@ -1004,33 +1004,17 @@ html[lang="ar"] body { line-height: 1.8; }
   .hero-split-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; width: 100%; max-width: none; margin: 0; }
   .hero-split-grid > * { min-width: 0; }
 
-  /* photo + copy share one cell: the photo is the backdrop, the copy sits on top */
-  .hero-split-grid > .hero-feature,
-  .hero-split-grid > .hero-copy { grid-column: 1; grid-row: 1; }
-
-  .hero-split-grid > .hero-feature {
-    aspect-ratio: auto; min-height: 0; height: auto; align-self: stretch; border-radius: 0 0 36px 36px; box-shadow: none; z-index: 1; background: #0b0d11;
+  /* no photo on mobile: a dark backdrop with an orange glow instead */
+  .hero-split-grid > .hero-feature { display: none; }
+  .hero.hero-split {
+    background: radial-gradient(90% 40% at 100% 0%, rgba(249, 97, 23, .45), transparent 62%), radial-gradient(70% 35% at 0% 70%, rgba(249, 97, 23, .16), transparent 70%), linear-gradient(180deg, #14171d 0%, #0b0d11 100%);
+    border-radius: 0 0 36px 36px; overflow: hidden;
   }
-  .hero-feature > img { position: absolute; inset: 0; transform-origin: 60% 40%; animation: heroZoom 22s ease-in-out infinite alternate; }
-  @keyframes heroZoom { from { transform: scale(1); } to { transform: scale(1.1); } }
-  .hero-feature::before {
-    content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
-    background: radial-gradient(90% 45% at 100% 0%, rgba(249, 97, 23, .55), transparent 62%), radial-gradient(70% 40% at 0% 55%, rgba(249, 97, 23, .18), transparent 70%);
-    mix-blend-mode: screen;
-  }
-  .hero-feature::after {
-    z-index: 2;
-    background: linear-gradient(180deg, rgba(8, 10, 13, .7) 0%, rgba(8, 10, 13, .1) 24%, rgba(8, 10, 13, .25) 42%, rgba(8, 10, 13, .88) 66%, rgba(8, 10, 13, .97) 100%);
-  }
-  .hero-feature .hf-badge { display: none; }
-
-  /* picked-car card is desktop only; on mobile the photo is just the backdrop */
-  .hero-feature .hf-cap { display: none !important; }
 
   /* copy: a real flex column on top of the photo */
   .hero-split-grid > .hero-copy {
     z-index: 3; display: flex; flex-direction: column; pointer-events: none;
-    min-height: max(640px, calc(100svh - var(--header-h)));
+    min-height: 0;
     padding: 14px clamp(14px, 4vw, 40px) 22px;
   }
   .hero-copy > * { pointer-events: auto; min-width: 0; max-width: 100%; }
@@ -1051,7 +1035,7 @@ html[lang="ar"] body { line-height: 1.8; }
   @keyframes ctaPulse { 0% { box-shadow: 0 0 0 0 rgba(17, 19, 24, .55); } 70%, 100% { box-shadow: 0 0 0 12px rgba(17, 19, 24, 0); } }
 
   /* headline */
-  .hero-copy > .hero-head { margin-top: auto; padding: 28px 0 0; color: #fff; animation: heroUp .8s var(--ease) .15s both; }
+  .hero-copy > .hero-head { margin-top: 0; padding: 40px 0 0; color: #fff; animation: heroUp .8s var(--ease) .15s both; }
   .hero-head .hero-eyebrow {
     display: inline-flex; align-items: center; gap: 10px; color: #fff; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 12px;
   }
