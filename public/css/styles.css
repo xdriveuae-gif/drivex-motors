@@ -987,3 +987,13 @@ html[lang="ar"] body { line-height: 1.8; }
 }
 .hf-badge:hover { background: var(--orange-hover); }
 @media (max-width: 560px) { .hero-finance .hf-txt span { display: none; } .hero-finance { padding: 10px 12px; } }
+
+/* Finance eligibility: the first thing in the hero */
+.hero-finance-top { max-width: none; margin: 0 0 clamp(18px, 2.5vw, 26px); background: var(--orange); border-color: var(--orange); box-shadow: var(--shadow-orange); padding: 14px 18px; }
+.hero-finance-top .hf-ico { background: var(--ink); }
+.hero-finance-top .hf-ico svg { stroke: var(--orange); }
+.hero-finance-top .hf-txt strong { color: var(--ink); font-size: 1.02rem; }
+.hero-finance-top .hf-txt span { color: rgba(17, 19, 24, .78); }
+.hero-finance-top .hf-go { background: var(--ink); color: #fff; padding: 10px 18px; border-radius: var(--radius-pill); }
+.hero-finance-top:hover { box-shadow: 0 14px 32px rgba(249, 97, 23, .45); }
+@media (max-width: 560px) { .hero-finance-top { flex-wrap: wrap; } .hero-finance-top .hf-go { width: 100%; text-align: center; } }
