@@ -1001,7 +1001,8 @@ html[lang="ar"] body { line-height: 1.8; }
 /* ---------- Mobile / tablet: full-bleed cinematic hero ---------- */
 @media (max-width: 960px) {
   .hero.hero-split { padding: var(--header-h) 0 0; background: var(--surface); }
-  .hero-split-grid { display: grid; grid-template-columns: 1fr; gap: 0; width: 100%; max-width: none; margin: 0; }
+  .hero-split-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; width: 100%; max-width: none; margin: 0; }
+  .hero-split-grid > * { min-width: 0; }
 
   /* photo + copy share one cell: the photo is the backdrop, the copy sits on top */
   .hero-split-grid > .hero-feature,
@@ -1042,7 +1043,7 @@ html[lang="ar"] body { line-height: 1.8; }
     min-height: max(640px, calc(100svh - var(--header-h)));
     padding: 14px clamp(14px, 4vw, 40px) 22px;
   }
-  .hero-copy > * { pointer-events: auto; }
+  .hero-copy > * { pointer-events: auto; min-width: 0; max-width: 100%; }
 
   /* finance: glowing orange capsule, first thing on screen */
   .hero-copy > .hero-finance-top {
@@ -1110,4 +1111,12 @@ html[lang="ar"] body { line-height: 1.8; }
 @media (max-width: 960px) {
   .fab-whatsapp { transition: transform .25s, opacity .3s; }
   body.home-top .fab-whatsapp { opacity: 0; pointer-events: none; transform: scale(.8); }
+}
+html, body { overflow-x: clip; }
+@media (max-width: 360px) {
+  .hero-copy > .hero-finance-top { padding-inline-start: 14px; gap: 8px; }
+  .hero-finance-top .hf-ico { display: none; }
+  .hero-finance-top .hf-txt strong { font-size: .86rem; overflow: hidden; text-overflow: ellipsis; }
+  .hero-finance-top .hf-go { padding: 10px 12px; font-size: .75rem; }
+  .hero-feature .hf-cap { max-width: 70%; }
 }
