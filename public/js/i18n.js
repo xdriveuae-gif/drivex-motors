@@ -23,6 +23,7 @@
     "DriveX Motors — home": "DriveX Motors — الرئيسية",
     "Switch to dark mode": "التبديل إلى الوضع الداكن", "Switch to light mode": "التبديل إلى الوضع الفاتح",
     "Language": "اللغة",
+    "Skip intro": "تخطي المقدمة", "Pause": "إيقاف مؤقت", "Play": "تشغيل", "Featured cars": "سيارات مميزة",
 
     /* ---- Home: hero + search ---- */
     "Drive Home Your Dream Car — Premium Pre-Owned Vehicles · Abu Dhabi": "قُد سيارة أحلامك إلى بيتك — سيارات مستعملة فاخرة · أبوظبي",
@@ -222,6 +223,8 @@
   var RULES = [
     [/^© (\d{4}) (.+?)\. All rights reserved\.$/, function (m) { return '© ' + m[1] + ' ' + m[2] + '. جميع الحقوق محفوظة.'; }],
     [/^✓ (.+)$/, function (m) { return '✓ ' + (lookup(m[1]) || m[1]); }],
+    [/^(\d+) of (\d+)$/, function (m) { return m[1] + ' من ' + m[2]; }],
+    [/^Slide (\d+)$/, function (m) { return 'الشريحة ' + m[1]; }],
     [/^Up to (.+)$/, function (m) { return 'حتى ' + m[1]; }],
     [/^(.+) km$/, function (m) { return m[1] + ' كم'; }],
     [/^≤ (.+) km$/, function (m) { return '≤ ' + m[1] + ' كم'; }],

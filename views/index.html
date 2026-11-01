@@ -4,11 +4,13 @@
 <section class="hero hero-home">
   <h1 class="sr-only">Drive Home Your Dream Car — {{SITE_TAGLINE}}</h1>
 
-  <div class="container hero-photo" data-reveal>
-    <video id="heroVideo" autoplay muted loop playsinline preload="metadata" poster="/images/hero-poster.webp" width="1600" height="900" aria-hidden="true" tabindex="-1">
+  <div class="container hero-photo hero-stage" id="heroStage" data-reveal>
+    <video id="heroVideo" autoplay muted playsinline preload="metadata" poster="/images/hero-poster.webp" width="1600" height="900" aria-hidden="true" tabindex="-1">
       <source src="/videos/hero-mobile.mp4" type="video/mp4" media="(max-width: 700px)" />
       <source src="/videos/hero.mp4" type="video/mp4" />
     </video>
+    <div class="hero-slider" id="heroSlider" role="region" aria-roledescription="carousel" aria-label="Featured cars"></div>
+    <button type="button" class="hero-skip" id="heroSkip">Skip intro</button>
   </div>
 
   <div class="container hero-search-wrap">
