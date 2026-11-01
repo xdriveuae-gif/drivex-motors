@@ -95,7 +95,14 @@
     } catch (e) { /* keep the brand image */ }
   }
 
+  // On phones the WhatsApp button would sit on the hero search button: hide it until the visitor scrolls.
+  function initFabGuard() {
+    var on = function () { document.body.classList.toggle('home-top', window.scrollY < 160); };
+    on(); window.addEventListener('scroll', on, { passive: true });
+  }
+
   function init() {
+    initFabGuard();
     initFeature();
     fillGrid('showcaseGrid', '/api/vehicles?limit=6&sort=newest');
     initSearch();
