@@ -1024,18 +1024,8 @@ html[lang="ar"] body { line-height: 1.8; }
   }
   .hero-feature .hf-badge { display: none; }
 
-  /* compact "now showing" glass chip on the photo */
-  .hero-feature .hf-cap {
-    inset: auto; inset-block-start: 88px; inset-inline-end: 16px; z-index: 3; max-width: 62%;
-    display: flex; flex-direction: column; gap: 2px; padding: 9px 14px; border-radius: 16px;
-    background: rgba(12, 14, 18, .5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, .18);
-  }
-  .hero-feature .hf-cap .hs-tag { align-self: flex-start; font-size: .66rem; padding: 3px 10px; margin: 0 0 4px; }
-  .hero-feature .hf-title { font-size: .95rem; line-height: 1.2; }
-  .hero-feature .hf-meta { display: none; }
-  .hero-feature .hf-row { margin: 2px 0 0; gap: 8px; }
-  .hero-feature .hf-price { font-size: .95rem; color: var(--orange); }
-  .hero-feature .hf-row .btn { display: none; }
+  /* picked-car card is desktop only; on mobile the photo is just the backdrop */
+  .hero-feature .hf-cap { display: none !important; }
 
   /* copy: a real flex column on top of the photo */
   .hero-split-grid > .hero-copy {
