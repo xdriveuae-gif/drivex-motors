@@ -25,7 +25,7 @@
     "Language": "اللغة",
     "Premium pre-owned cars · Abu Dhabi": "سيارات مستعملة فاخرة · أبوظبي", "Drive Home Your": "قُد إلى بيتك", "Dream Car": "سيارة أحلامك",
     "Hand-picked, inspected cars with finance options and trade-ins welcome.": "سيارات مختارة بعناية ومفحوصة، مع خيارات تمويل ونرحب بالاستبدال.",
-    "Popular": "الأكثر طلباً", "Popular searches": "عمليات بحث شائعة", "Under 100k": "أقل من 100 ألف",
+    "Finance available on our cars": "التمويل متاح على سياراتنا", "Check your eligibility with our team": "تحقق من أهليتك مع فريقنا", "Popular": "الأكثر طلباً", "Popular searches": "عمليات بحث شائعة", "Under 100k": "أقل من 100 ألف",
 
     /* ---- Home: hero + search ---- */
     "Drive Home Your Dream Car — Premium Pre-Owned Vehicles · Abu Dhabi": "قُد سيارة أحلامك إلى بيتك — سيارات مستعملة فاخرة · أبوظبي",
