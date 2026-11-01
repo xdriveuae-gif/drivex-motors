@@ -1112,7 +1112,6 @@ html[lang="ar"] body { line-height: 1.8; }
   .fab-whatsapp { transition: transform .25s, opacity .3s; }
   body.home-top .fab-whatsapp { opacity: 0; pointer-events: none; transform: scale(.8); }
 }
-html, body { overflow-x: clip; }
 @media (max-width: 360px) {
   .hero-copy > .hero-finance-top { padding-inline-start: 14px; gap: 8px; }
   .hero-finance-top .hf-ico { display: none; }
@@ -1120,3 +1119,6 @@ html, body { overflow-x: clip; }
   .hero-finance-top .hf-go { padding: 10px 12px; font-size: .75rem; }
   .hero-feature .hf-cap { max-width: 70%; }
 }
+/* Hard lock: the page itself can never pan sideways (strips like the chips keep their own swipe). */
+html { overflow-x: hidden; overscroll-behavior-x: none; }
+body { overflow-x: clip; width: 100%; max-width: 100%; overscroll-behavior-x: none; touch-action: pan-y pinch-zoom; }
