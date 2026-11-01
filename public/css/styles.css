@@ -1122,3 +1122,10 @@ html[lang="ar"] body { line-height: 1.8; }
 /* Hard lock: the page itself can never pan sideways (strips like the chips keep their own swipe). */
 html { overflow-x: hidden; overscroll-behavior-x: none; }
 body { overflow-x: clip; width: 100%; max-width: 100%; overscroll-behavior-x: none; touch-action: pan-y pinch-zoom; }
+@media (max-width: 560px) {
+  .inventory-toolbar { min-width: 0; }
+  .search-box { min-width: 0; flex: 1 1 100%; }
+  .toolbar-right { flex: 1 1 100%; min-width: 0; }
+  .toolbar-right .sort-field { flex: 1; min-width: 0; }
+  .toolbar-right .sort-field select { width: 100%; min-width: 0; }
+}
