@@ -129,7 +129,7 @@ function render(req, res, view, opts = {}) {
     OG_TYPE: opts.ogType || 'website',
     CANONICAL: escapeHtml(canonical),
     JSON_LD: opts.jsonLd || '',
-    BODY_CLASS: opts.bodyClass || ''
+    BODY_CLASS: [opts.bodyClass, req.admin && `role-${req.admin.role}`].filter(Boolean).join(' ')
   };
 
   const html = getTemplate(view).replace(TOKEN_RE, (_m, key) =>

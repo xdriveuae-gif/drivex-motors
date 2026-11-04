@@ -7,6 +7,8 @@
   var m = location.pathname.match(/\/vehicles\/(\d+)\/edit/);
   var editId = m ? m[1] : null;
   var selectedFiles = [];
+  var existing = [];
+  var saveChain = Promise.resolve();
 
   var heading = document.getElementById('formHeading');
   var saveBtn = document.getElementById('saveBtn');
@@ -31,15 +33,71 @@
     });
   }
 
+  /* ---------- photo order (drag, or arrows on touch screens) ---------- */
+  function moveItem(list, from, to) {
+    if (to < 0 || to >= list.length || from === to) return false;
+    list.splice(to, 0, list.splice(from, 1)[0]);
+    return true;
+  }
+
+  function moveControls(i, total) {
+    return '<div class="tile-move">' +
+      '<button type="button" class="tile-arrow" data-to="' + (i - 1) + '" aria-label="Move earlier"' + (i === 0 ? ' disabled' : '') + '>‹</button>' +
+      '<button type="button" class="tile-arrow" data-to="' + (i + 1) + '" aria-label="Move later"' + (i === total - 1 ? ' disabled' : '') + '>›</button>' +
+    '</div>';
+  }
+
+  function bindReorder(wrap, onMove) {
+    var dragFrom = null;
+    wrap.querySelectorAll('.img-tile').forEach(function (tile) {
+      var i = Number(tile.getAttribute('data-i'));
+      tile.addEventListener('dragstart', function (e) {
+        dragFrom = i;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(i));
+        tile.classList.add('dragging');
+      });
+      tile.addEventListener('dragend', function () { tile.classList.remove('dragging'); });
+      tile.addEventListener('dragover', function (e) {
+        if (dragFrom === null) return;
+        e.preventDefault();
+        tile.classList.add('drag-over');
+      });
+      tile.addEventListener('dragleave', function () { tile.classList.remove('drag-over'); });
+      tile.addEventListener('drop', function (e) {
+        e.preventDefault();
+        tile.classList.remove('drag-over');
+        if (dragFrom !== null) onMove(dragFrom, i);
+        dragFrom = null;
+      });
+      tile.querySelectorAll('[data-to]').forEach(function (b) {
+        b.addEventListener('click', function () { onMove(i, Number(b.getAttribute('data-to'))); });
+      });
+    });
+  }
+
+  function updateToolbar() {
+    document.getElementById('imagesToolbar').hidden = !(existing.length + selectedFiles.length);
+  }
+
   /* ---------- previews (new uploads) ---------- */
   function renderPreviews() {
     previewWrap.innerHTML = selectedFiles.map(function (f, i) {
-      return '<div class="img-tile"><img src="' + URL.createObjectURL(f) + '" alt="preview">' +
+      var isMain = !existing.length && i === 0;
+      return '<div class="img-tile ' + (isMain ? 'primary' : '') + '" draggable="true" data-i="' + i + '">' +
+        (isMain ? '<span class="primary-flag">Main</span>' : '') +
+        '<span class="tile-num">' + (existing.length + i + 1) + '</span>' +
+        '<img src="' + URL.createObjectURL(f) + '" alt="preview" draggable="false">' +
+        moveControls(i, selectedFiles.length) +
         '<div class="tile-actions"><button type="button" class="tile-btn del" data-rm="' + i + '">Remove</button></div></div>';
     }).join('');
     previewWrap.querySelectorAll('[data-rm]').forEach(function (b) {
       b.addEventListener('click', function () { selectedFiles.splice(Number(b.getAttribute('data-rm')), 1); renderPreviews(); });
     });
+    bindReorder(previewWrap, function (from, to) {
+      if (moveItem(selectedFiles, from, to)) renderPreviews();
+    });
+    updateToolbar();
   }
   function addFiles(fileList) {
     Array.prototype.forEach.call(fileList, function (f) { if (f.type.indexOf('image/') === 0) selectedFiles.push(f); });
@@ -57,19 +115,39 @@
   uploadZone.addEventListener('drop', function (e) { if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files); });
 
   /* ---------- existing images (edit mode) ---------- */
+  function saveOrder() {
+    var ids = existing.map(function (img) { return img.id; });
+    saveChain = saveChain.then(function () {
+      return DXA.api.send('/admin/api/vehicles/' + editId + '/images/order', 'PUT', { ids: ids });
+    }).catch(function (e) {
+      DXA.toast(e.message, 'error');
+      return refreshImages();
+    });
+  }
+
   function renderExisting(images) {
+    existing = images || [];
+    renderPreviews();
     if (!editId) { existingWrap.hidden = true; return; }
     existingWrap.hidden = false;
-    if (!images || !images.length) { existingWrap.innerHTML = '<p class="muted">No images yet — upload some below.</p>'; return; }
-    existingWrap.innerHTML = images.map(function (img) {
-      return '<div class="img-tile ' + (img.is_primary ? 'primary' : '') + '">' +
-        (img.is_primary ? '<span class="primary-flag">Primary</span>' : '') +
-        '<img src="' + img.file_path + '" alt="vehicle image">' +
+    if (!existing.length) { existingWrap.innerHTML = '<p class="muted">No images yet — upload some below.</p>'; return; }
+    existingWrap.innerHTML = existing.map(function (img, i) {
+      return '<div class="img-tile ' + (img.is_primary ? 'primary' : '') + '" draggable="true" data-i="' + i + '">' +
+        (img.is_primary ? '<span class="primary-flag">Main</span>' : '') +
+        '<span class="tile-num">' + (i + 1) + '</span>' +
+        '<img src="' + img.file_path + '" alt="vehicle image" draggable="false">' +
+        moveControls(i, existing.length) +
         '<div class="tile-actions">' +
-          (img.is_primary ? '' : '<button type="button" class="tile-btn" data-primary="' + img.id + '">Set primary</button>') +
+          (img.is_primary ? '' : '<button type="button" class="tile-btn" data-primary="' + img.id + '">Set main</button>') +
           '<button type="button" class="tile-btn del" data-delimg="' + img.id + '">Delete</button>' +
         '</div></div>';
     }).join('');
+    bindReorder(existingWrap, function (from, to) {
+      if (!moveItem(existing, from, to)) return;
+      existing.forEach(function (img, i) { img.is_primary = i === 0 ? 1 : 0; });
+      renderExisting(existing);
+      saveOrder();
+    });
     existingWrap.querySelectorAll('[data-primary]').forEach(function (b) {
       b.addEventListener('click', async function () {
         try { await DXA.api.send('/admin/api/vehicles/' + editId + '/images/' + b.getAttribute('data-primary') + '/primary', 'PATCH'); refreshImages(); }
@@ -88,6 +166,24 @@
     var v = await DXA.api.get('/admin/api/vehicles/' + editId);
     renderExisting(v.images);
   }
+
+  document.getElementById('deleteAllImages').addEventListener('click', async function () {
+    var total = existing.length + selectedFiles.length;
+    var msg = existing.length
+      ? 'Delete all ' + total + ' photos? Saved photos are removed from the ad straight away and cannot be recovered.'
+      : 'Remove all ' + total + ' photos?';
+    if (!(await DXA.confirm(msg))) return;
+    try {
+      if (existing.length) {
+        await saveChain;
+        await DXA.api.send('/admin/api/vehicles/' + editId + '/images', 'DELETE');
+        renderExisting([]);
+      }
+      selectedFiles = [];
+      renderPreviews();
+      DXA.toast('All photos deleted', 'success');
+    } catch (e) { DXA.toast(e.message, 'error'); }
+  });
 
   /* ---------- load (edit) ---------- */
   async function loadVehicle() {

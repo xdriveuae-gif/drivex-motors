@@ -28,7 +28,8 @@ const db = require('../database/db');
 const site = require('../config/site');
 const { render } = require('../utils/render');
 const { parseFeatures } = require('../utils/helpers');
-const { requireAuth, redirectIfAuthed } = require('../middleware/auth');
+const { requireAuth, requireEditor, requireAdmin, requireSession, redirectIfAuthed, sessionTag, canEdit } = require('../middleware/auth');
+const totp = require('../utils/totp');
 const {
   vehicleValidators,
   loginValidators,
@@ -245,12 +246,20 @@ router.get('/vehicles/coming-soon', requireAuth, (req, res) =>
   render(req, res, 'admin/vehicles', { title: 'Coming Soon Vehicles', bodyClass: 'admin' })
 );
 
-router.get('/vehicles/new', requireAuth, (req, res) =>
+router.get('/vehicles/new', requireEditor, (req, res) =>
   render(req, res, 'admin/vehicle-form', { title: 'Add Vehicle', bodyClass: 'admin' })
 );
 
-router.get('/vehicles/:id/edit', requireAuth, (req, res) =>
+router.get('/vehicles/:id/edit', requireEditor, (req, res) =>
   render(req, res, 'admin/vehicle-form', { title: 'Edit Vehicle', bodyClass: 'admin' })
+);
+
+router.get('/two-factor', requireSession, (req, res) =>
+  render(req, res, 'admin/two-factor', { title: 'Two-Factor Login', bodyClass: 'admin' })
+);
+
+router.get('/users', requireAdmin, (req, res) =>
+  render(req, res, 'admin/users', { title: 'Users Settings', bodyClass: 'admin' })
 );
 
 router.get('/leads', requireAuth, (req, res) =>
@@ -270,13 +279,85 @@ router.post('/login', loginValidators, handleValidation, (req, res) => {
 
   if (!ok) return res.status(401).json({ error: 'Invalid username or password.' });
 
+  if (admin.totp_enabled) {
+    // Password is right but the login isn't complete until the code is checked.
+    req.session.pending2fa = { id: admin.id, at: Date.now(), tag: sessionTag(admin), next: safeNext(req.body.next) };
+    return res.json({ ok: true, twoFactor: true });
+  }
+  completeLogin(req, res, admin, safeNext(req.body.next));
+});
+
+function completeLogin(req, res, admin, redirect, extra = {}) {
   // Regenerate session to prevent fixation.
   req.session.regenerate((err) => {
     if (err) return res.status(500).json({ error: 'Login failed. Please try again.' });
     req.session.adminId = admin.id;
     req.session.adminUser = admin.username;
-    res.json({ ok: true, redirect: safeNext(req.body.next), user: admin.username });
+    req.session.adminPwTag = sessionTag(admin);
+    res.json({ ok: true, redirect, user: admin.username, ...extra });
   });
+}
+
+/* Wrong-code lockout per account (on top of the per-IP login rate limit). */
+const CODE_MAX_FAILS = 8;
+const CODE_LOCK_MS = 15 * 60 * 1000;
+const codeFails = new Map();
+
+const codeLocked = (id) => {
+  const f = codeFails.get(id);
+  return Boolean(f && f.until > Date.now());
+};
+
+function recordCodeFail(id) {
+  const f = codeFails.get(id) || { count: 0, until: 0 };
+  f.count += 1;
+  if (f.count >= CODE_MAX_FAILS) {
+    f.count = 0;
+    f.until = Date.now() + CODE_LOCK_MS;
+  }
+  codeFails.set(id, f);
+}
+
+/** Checks an authenticator or (optionally) backup code and uses it up. */
+function useSecondFactor(admin, rawCode, { allowBackup = false } = {}) {
+  const code = String(rawCode || '').trim();
+  const step = totp.matchStep(admin.totp_secret, code, admin.totp_last_step);
+  if (step !== null) {
+    db.prepare('UPDATE admins SET totp_last_step = ? WHERE id = ?').run(step, admin.id);
+    return { ok: true };
+  }
+  if (allowBackup && code.length > 6) {
+    const hashes = JSON.parse(admin.totp_backup || '[]');
+    const hash = totp.hashBackupCode(code);
+    if (hashes.includes(hash)) {
+      const left = hashes.filter((h) => h !== hash);
+      db.prepare('UPDATE admins SET totp_backup = ? WHERE id = ?').run(JSON.stringify(left), admin.id);
+      return { ok: true, backupLeft: left.length };
+    }
+  }
+  return { ok: false };
+}
+
+const PENDING_LOGIN_MS = 5 * 60 * 1000;
+
+router.post('/login/verify', (req, res) => {
+  const pending = req.session.pending2fa;
+  const admin = pending && db.prepare('SELECT * FROM admins WHERE id = ?').get(pending.id);
+  if (!admin || Date.now() - pending.at > PENDING_LOGIN_MS || sessionTag(admin) !== pending.tag) {
+    delete req.session.pending2fa;
+    return res.status(401).json({ error: 'Your login expired. Please sign in again.', restart: true });
+  }
+  if (codeLocked(admin.id)) {
+    return res.status(429).json({ error: 'Too many wrong codes. Please try again in 15 minutes.' });
+  }
+  const result = useSecondFactor(admin, req.body.code, { allowBackup: true });
+  if (!result.ok) {
+    recordCodeFail(admin.id);
+    return res.status(401).json({ error: 'That code is not correct.' });
+  }
+  codeFails.delete(admin.id);
+  const extra = result.backupLeft === undefined ? {} : { backupLeft: result.backupLeft };
+  completeLogin(req, res, admin, pending.next, extra);
 });
 
 router.post('/logout', (req, res) => {
@@ -287,8 +368,8 @@ router.post('/logout', (req, res) => {
 });
 
 /** Lightweight "who am I" used by admin pages to show the username. */
-router.get('/api/me', requireAuth, (req, res) =>
-  res.json({ user: req.session.adminUser })
+router.get('/api/me', requireSession, (req, res) =>
+  res.json({ user: req.admin.username, role: req.admin.role })
 );
 
 /* ═════════════════════════ STATS ═════════════════════════ */
@@ -646,6 +727,29 @@ router.post('/api/vehicles/:id/images', requireAuth, uploadImages('images'), (re
   res.status(201).json({ ok: true, images });
 });
 
+// Save a new photo order. The first photo becomes the main one.
+router.put('/api/vehicles/:id/images/order', requireAuth, (req, res) => {
+  const vehicle = getVehicleOr404(req.params.id, res);
+  if (!vehicle) return;
+  const current = db.prepare('SELECT id FROM vehicle_images WHERE vehicle_id = ?').all(vehicle.id).map((r) => r.id);
+  const ids = Array.isArray(req.body.ids) ? req.body.ids.map(Number) : [];
+  const sameSet = ids.length === current.length && new Set(ids).size === ids.length && ids.every((id) => current.includes(id));
+  if (!sameSet) return res.status(422).json({ error: 'The photo list has changed. Please reload the page.' });
+  const update = db.prepare('UPDATE vehicle_images SET sort_order = ?, is_primary = ? WHERE id = ?');
+  db.transaction(() => ids.forEach((id, i) => update.run(i, i === 0 ? 1 : 0, id)))();
+  res.json({ ok: true });
+});
+
+// Delete all of a vehicle's photos
+router.delete('/api/vehicles/:id/images', requireAuth, (req, res) => {
+  const vehicle = getVehicleOr404(req.params.id, res);
+  if (!vehicle) return;
+  const images = db.prepare('SELECT file_path FROM vehicle_images WHERE vehicle_id = ?').all(vehicle.id);
+  db.prepare('DELETE FROM vehicle_images WHERE vehicle_id = ?').run(vehicle.id);
+  images.forEach((img) => deleteUploadByWebPath(img.file_path));
+  res.json({ ok: true, deleted: images.length });
+});
+
 // Delete an image
 router.delete('/api/vehicles/:id/images/:imageId', requireAuth, (req, res) => {
   const vehicleId = parseInt(req.params.id, 10);
@@ -818,6 +922,194 @@ router.delete('/api/submissions/:id', requireAuth, (req, res) => {
   const images = db.prepare('SELECT image_path FROM submission_images WHERE submission_id = ?').all(id);
   db.prepare('DELETE FROM vehicle_submissions WHERE id = ?').run(id); // cascades image rows
   images.forEach((img) => deleteSubmissionByWebPath(img.image_path));
+  res.json({ ok: true });
+});
+
+/* ═══════════════════════ USERS SETTINGS API ═══════════════════════ */
+
+const ROLES = ['admin', 'editor', 'viewer'];
+const USERNAME_RE = /^[A-Za-z0-9._-]{3,40}$/;
+// ensureDefaultAdmin() recreates this account at every boot, so it has to stay.
+const builtInUsername = () => process.env.ADMIN_USERNAME || 'admin';
+const passwordIsManagedByEnv = () => process.env.ADMIN_RESET_PASSWORD === '1';
+
+function passwordProblem(password) {
+  if (typeof password !== 'string' || password.length < 10) return 'Password must be at least 10 characters.';
+  if (Buffer.byteLength(password) > 72) return 'Password must be at most 72 characters.'; // bcrypt ignores the rest
+  return null;
+}
+
+function getUserOr404(id, res) {
+  const user = db.prepare('SELECT id, username, role FROM admins WHERE id = ?').get(parseInt(id, 10));
+  if (!user) res.status(404).json({ error: 'User not found.' });
+  return user;
+}
+
+const adminCount = () => db.prepare("SELECT COUNT(*) AS n FROM admins WHERE role = 'admin'").get().n;
+
+router.get('/api/users', requireAdmin, (req, res) => {
+  const rows = db.prepare('SELECT id, username, role, created_at, totp_enabled FROM admins ORDER BY id').all();
+  res.json({
+    data: rows.map(({ totp_enabled: on, ...u }) => ({
+      ...u,
+      twoFactor: Boolean(on),
+      isSelf: u.id === req.admin.id,
+      isBuiltIn: u.username === builtInUsername()
+    })),
+    builtInPasswordLocked: passwordIsManagedByEnv(),
+    twoFactorResetOn: process.env.ADMIN_RESET_2FA === '1'
+  });
+});
+
+router.post('/api/users', requireAdmin, (req, res) => {
+  const username = String(req.body.username || '').trim();
+  const { password, role } = req.body;
+  if (!USERNAME_RE.test(username)) {
+    return res.status(422).json({ error: 'Username must be 3-40 letters, numbers, dots, dashes or underscores.' });
+  }
+  if (!ROLES.includes(role)) return res.status(422).json({ error: 'Choose a valid privilege.' });
+  const problem = passwordProblem(password);
+  if (problem) return res.status(422).json({ error: problem });
+  if (db.prepare('SELECT id FROM admins WHERE username = ? COLLATE NOCASE').get(username)) {
+    return res.status(409).json({ error: 'That username is already taken.' });
+  }
+  const info = db
+    .prepare('INSERT INTO admins (username, password_hash, role) VALUES (?, ?, ?)')
+    .run(username, bcrypt.hashSync(password, 12), role);
+  res.status(201).json({ ok: true, id: info.lastInsertRowid });
+});
+
+router.patch('/api/users/:id/role', requireAdmin, (req, res) => {
+  const user = getUserOr404(req.params.id, res);
+  if (!user) return;
+  const { role } = req.body;
+  if (!ROLES.includes(role)) return res.status(422).json({ error: 'Choose a valid privilege.' });
+  if (role !== 'admin' && user.role === 'admin') {
+    if (user.id === req.admin.id) return res.status(409).json({ error: 'You cannot remove your own admin access.' });
+    if (user.username === builtInUsername()) return res.status(409).json({ error: 'The built-in admin account must stay an admin.' });
+    if (adminCount() <= 1) return res.status(409).json({ error: 'At least one admin is required.' });
+  }
+  db.prepare('UPDATE admins SET role = ? WHERE id = ?').run(role, user.id);
+  res.json({ ok: true, role });
+});
+
+router.patch('/api/users/:id/password', requireAdmin, (req, res) => {
+  const user = getUserOr404(req.params.id, res);
+  if (!user) return;
+  if (user.username === builtInUsername() && passwordIsManagedByEnv()) {
+    return res.status(409).json({
+      error: 'This password is reset from the server settings at every restart. Set ADMIN_RESET_PASSWORD to 0 in hPanel first.'
+    });
+  }
+  const problem = passwordProblem(req.body.password);
+  if (problem) return res.status(422).json({ error: problem });
+  const hash = bcrypt.hashSync(req.body.password, 12);
+  db.prepare('UPDATE admins SET password_hash = ? WHERE id = ?').run(hash, user.id);
+  // Everyone logged in as this user is signed out; keep the person changing their own password signed in.
+  if (user.id === req.admin.id) refreshSessionTag(req);
+  res.json({ ok: true });
+});
+
+// Admin resets someone's authenticator (e.g. new phone). Signs that user out.
+router.delete('/api/users/:id/two-factor', requireAdmin, (req, res) => {
+  const user = getUserOr404(req.params.id, res);
+  if (!user) return;
+  if (user.id === req.admin.id) return res.status(409).json({ error: 'Use the Two-Factor Login page for your own account.' });
+  clearTwoFactor(user.id);
+  res.json({ ok: true });
+});
+
+router.delete('/api/users/:id', requireAdmin, (req, res) => {
+  const user = getUserOr404(req.params.id, res);
+  if (!user) return;
+  if (user.id === req.admin.id) return res.status(409).json({ error: 'You cannot delete your own account.' });
+  if (user.username === builtInUsername()) return res.status(409).json({ error: 'The built-in admin account cannot be deleted.' });
+  if (user.role === 'admin' && adminCount() <= 1) return res.status(409).json({ error: 'At least one admin is required.' });
+  db.prepare('DELETE FROM admins WHERE id = ?').run(user.id);
+  res.json({ ok: true });
+});
+
+/* ═══════════════════════ TWO-FACTOR (OWN ACCOUNT) ═══════════════════════ */
+
+const SETUP_MS = 15 * 60 * 1000;
+
+function refreshSessionTag(req) {
+  req.session.adminPwTag = sessionTag(db.prepare('SELECT * FROM admins WHERE id = ?').get(req.admin.id));
+}
+
+function clearTwoFactor(id) {
+  db.prepare('UPDATE admins SET totp_enabled = 0, totp_secret = NULL, totp_backup = NULL, totp_last_step = 0 WHERE id = ?').run(id);
+  codeFails.delete(id);
+}
+
+function newBackupCodes(id) {
+  const codes = totp.generateBackupCodes();
+  db.prepare('UPDATE admins SET totp_backup = ? WHERE id = ?').run(JSON.stringify(codes.map(totp.hashBackupCode)), id);
+  return codes;
+}
+
+/** Sensitive changes need a current app code, not just a logged-in browser. */
+function requireCurrentCode(req, res) {
+  const admin = db.prepare('SELECT * FROM admins WHERE id = ?').get(req.admin.id);
+  if (!admin.totp_enabled) {
+    res.status(409).json({ error: 'Two-factor login is not on for this account.' });
+    return null;
+  }
+  if (codeLocked(admin.id)) {
+    res.status(429).json({ error: 'Too many wrong codes. Please try again in 15 minutes.' });
+    return null;
+  }
+  if (!useSecondFactor(admin, req.body.code).ok) {
+    recordCodeFail(admin.id);
+    res.status(422).json({ error: 'Enter the current code from your authenticator app.' });
+    return null;
+  }
+  codeFails.delete(admin.id);
+  return admin;
+}
+
+router.get('/api/two-factor', requireSession, (req, res) => {
+  const row = db.prepare('SELECT totp_enabled, totp_backup FROM admins WHERE id = ?').get(req.admin.id);
+  res.json({
+    enabled: Boolean(row.totp_enabled),
+    required: canEdit(req.admin),
+    backupLeft: JSON.parse(row.totp_backup || '[]').length
+  });
+});
+
+router.post('/api/two-factor/setup', requireSession, (req, res) => {
+  if (req.admin.totpEnabled) return res.status(409).json({ error: 'Two-factor login is already on.' });
+  const secret = totp.generateSecret();
+  req.session.totpSetup = { secret, at: Date.now() };
+  res.json({ secret, qr: totp.qrDataUrl(totp.otpauthUrl(secret, req.admin.username, site.name)) });
+});
+
+router.post('/api/two-factor/confirm', requireSession, (req, res) => {
+  const setup = req.session.totpSetup;
+  if (req.admin.totpEnabled) return res.status(409).json({ error: 'Two-factor login is already on.' });
+  if (!setup || Date.now() - setup.at > SETUP_MS) {
+    return res.status(409).json({ error: 'Setup expired. Please start again.' });
+  }
+  const step = totp.matchStep(setup.secret, String(req.body.code || '').trim());
+  if (step === null) return res.status(422).json({ error: 'That code is not correct. Check the app and try again.' });
+  db.prepare('UPDATE admins SET totp_secret = ?, totp_enabled = 1, totp_last_step = ? WHERE id = ?').run(setup.secret, step, req.admin.id);
+  const backupCodes = newBackupCodes(req.admin.id);
+  delete req.session.totpSetup;
+  refreshSessionTag(req);
+  res.json({ ok: true, backupCodes });
+});
+
+router.post('/api/two-factor/backup-codes', requireSession, (req, res) => {
+  const admin = requireCurrentCode(req, res);
+  if (!admin) return;
+  res.json({ ok: true, backupCodes: newBackupCodes(admin.id) });
+});
+
+router.post('/api/two-factor/disable', requireSession, (req, res) => {
+  const admin = requireCurrentCode(req, res);
+  if (!admin) return;
+  clearTwoFactor(admin.id);
+  refreshSessionTag(req);
   res.json({ ok: true });
 });
 
