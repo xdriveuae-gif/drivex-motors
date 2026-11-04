@@ -57,7 +57,7 @@ function createAdmin(username, password, { force = false } = {}) {
     return { created: false, reset: true, username, id: existing.id };
   }
 
-  const info = db.prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)').run(username, hash);
+  const info = db.prepare("INSERT INTO admins (username, password_hash, role) VALUES (?, ?, 'admin')").run(username, hash);
   return { created: true, username, id: info.lastInsertRowid };
 }
 

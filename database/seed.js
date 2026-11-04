@@ -25,13 +25,13 @@ function ensureDefaultAdmin() {
 
   if (!existing) {
     const hash = bcrypt.hashSync(password, 12);
-    db.prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)').run(username, hash);
+    db.prepare("INSERT INTO admins (username, password_hash, role) VALUES (?, ?, 'admin')").run(username, hash);
     return { created: true, username };
   }
 
   if (force) {
     const hash = bcrypt.hashSync(password, 12);
-    db.prepare('UPDATE admins SET password_hash = ? WHERE id = ?').run(hash, existing.id);
+    db.prepare("UPDATE admins SET password_hash = ?, role = 'admin' WHERE id = ?").run(hash, existing.id);
     return { created: false, reset: true, username };
   }
 

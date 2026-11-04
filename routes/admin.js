@@ -28,7 +28,7 @@ const db = require('../database/db');
 const site = require('../config/site');
 const { render } = require('../utils/render');
 const { parseFeatures } = require('../utils/helpers');
-const { requireAuth, redirectIfAuthed } = require('../middleware/auth');
+const { requireAuth, requireAdmin, redirectIfAuthed, passwordTag } = require('../middleware/auth');
 const {
   vehicleValidators,
   loginValidators,
@@ -245,12 +245,16 @@ router.get('/vehicles/coming-soon', requireAuth, (req, res) =>
   render(req, res, 'admin/vehicles', { title: 'Coming Soon Vehicles', bodyClass: 'admin' })
 );
 
-router.get('/vehicles/new', requireAuth, (req, res) =>
+router.get('/vehicles/new', requireAdmin, (req, res) =>
   render(req, res, 'admin/vehicle-form', { title: 'Add Vehicle', bodyClass: 'admin' })
 );
 
-router.get('/vehicles/:id/edit', requireAuth, (req, res) =>
+router.get('/vehicles/:id/edit', requireAdmin, (req, res) =>
   render(req, res, 'admin/vehicle-form', { title: 'Edit Vehicle', bodyClass: 'admin' })
+);
+
+router.get('/users', requireAdmin, (req, res) =>
+  render(req, res, 'admin/users', { title: 'Users Settings', bodyClass: 'admin' })
 );
 
 router.get('/leads', requireAuth, (req, res) =>
@@ -275,6 +279,7 @@ router.post('/login', loginValidators, handleValidation, (req, res) => {
     if (err) return res.status(500).json({ error: 'Login failed. Please try again.' });
     req.session.adminId = admin.id;
     req.session.adminUser = admin.username;
+    req.session.adminPwTag = passwordTag(admin.password_hash);
     res.json({ ok: true, redirect: safeNext(req.body.next), user: admin.username });
   });
 });
@@ -288,7 +293,7 @@ router.post('/logout', (req, res) => {
 
 /** Lightweight "who am I" used by admin pages to show the username. */
 router.get('/api/me', requireAuth, (req, res) =>
-  res.json({ user: req.session.adminUser })
+  res.json({ user: req.admin.username, role: req.admin.role })
 );
 
 /* ═════════════════════════ STATS ═════════════════════════ */
@@ -818,6 +823,95 @@ router.delete('/api/submissions/:id', requireAuth, (req, res) => {
   const images = db.prepare('SELECT image_path FROM submission_images WHERE submission_id = ?').all(id);
   db.prepare('DELETE FROM vehicle_submissions WHERE id = ?').run(id); // cascades image rows
   images.forEach((img) => deleteSubmissionByWebPath(img.image_path));
+  res.json({ ok: true });
+});
+
+/* ═══════════════════════ USERS SETTINGS API ═══════════════════════ */
+
+const ROLES = ['admin', 'viewer'];
+const USERNAME_RE = /^[A-Za-z0-9._-]{3,40}$/;
+// ensureDefaultAdmin() recreates this account at every boot, so it has to stay.
+const builtInUsername = () => process.env.ADMIN_USERNAME || 'admin';
+const passwordIsManagedByEnv = () => process.env.ADMIN_RESET_PASSWORD === '1';
+
+function passwordProblem(password) {
+  if (typeof password !== 'string' || password.length < 10) return 'Password must be at least 10 characters.';
+  if (Buffer.byteLength(password) > 72) return 'Password must be at most 72 characters.'; // bcrypt ignores the rest
+  return null;
+}
+
+function getUserOr404(id, res) {
+  const user = db.prepare('SELECT id, username, role FROM admins WHERE id = ?').get(parseInt(id, 10));
+  if (!user) res.status(404).json({ error: 'User not found.' });
+  return user;
+}
+
+const adminCount = () => db.prepare("SELECT COUNT(*) AS n FROM admins WHERE role = 'admin'").get().n;
+
+router.get('/api/users', requireAdmin, (req, res) => {
+  const rows = db.prepare('SELECT id, username, role, created_at FROM admins ORDER BY id').all();
+  res.json({
+    data: rows.map((u) => ({ ...u, isSelf: u.id === req.admin.id, isBuiltIn: u.username === builtInUsername() })),
+    builtInPasswordLocked: passwordIsManagedByEnv()
+  });
+});
+
+router.post('/api/users', requireAdmin, (req, res) => {
+  const username = String(req.body.username || '').trim();
+  const { password, role } = req.body;
+  if (!USERNAME_RE.test(username)) {
+    return res.status(422).json({ error: 'Username must be 3-40 letters, numbers, dots, dashes or underscores.' });
+  }
+  if (!ROLES.includes(role)) return res.status(422).json({ error: 'Choose a valid privilege.' });
+  const problem = passwordProblem(password);
+  if (problem) return res.status(422).json({ error: problem });
+  if (db.prepare('SELECT id FROM admins WHERE username = ? COLLATE NOCASE').get(username)) {
+    return res.status(409).json({ error: 'That username is already taken.' });
+  }
+  const info = db
+    .prepare('INSERT INTO admins (username, password_hash, role) VALUES (?, ?, ?)')
+    .run(username, bcrypt.hashSync(password, 12), role);
+  res.status(201).json({ ok: true, id: info.lastInsertRowid });
+});
+
+router.patch('/api/users/:id/role', requireAdmin, (req, res) => {
+  const user = getUserOr404(req.params.id, res);
+  if (!user) return;
+  const { role } = req.body;
+  if (!ROLES.includes(role)) return res.status(422).json({ error: 'Choose a valid privilege.' });
+  if (role !== 'admin' && user.role === 'admin') {
+    if (user.id === req.admin.id) return res.status(409).json({ error: 'You cannot remove your own admin access.' });
+    if (user.username === builtInUsername()) return res.status(409).json({ error: 'The built-in admin account must stay an admin.' });
+    if (adminCount() <= 1) return res.status(409).json({ error: 'At least one admin is required.' });
+  }
+  db.prepare('UPDATE admins SET role = ? WHERE id = ?').run(role, user.id);
+  res.json({ ok: true, role });
+});
+
+router.patch('/api/users/:id/password', requireAdmin, (req, res) => {
+  const user = getUserOr404(req.params.id, res);
+  if (!user) return;
+  if (user.username === builtInUsername() && passwordIsManagedByEnv()) {
+    return res.status(409).json({
+      error: 'This password is reset from the server settings at every restart. Set ADMIN_RESET_PASSWORD to 0 in hPanel first.'
+    });
+  }
+  const problem = passwordProblem(req.body.password);
+  if (problem) return res.status(422).json({ error: problem });
+  const hash = bcrypt.hashSync(req.body.password, 12);
+  db.prepare('UPDATE admins SET password_hash = ? WHERE id = ?').run(hash, user.id);
+  // Everyone logged in as this user is signed out; keep the person changing their own password signed in.
+  if (user.id === req.admin.id) req.session.adminPwTag = passwordTag(hash);
+  res.json({ ok: true });
+});
+
+router.delete('/api/users/:id', requireAdmin, (req, res) => {
+  const user = getUserOr404(req.params.id, res);
+  if (!user) return;
+  if (user.id === req.admin.id) return res.status(409).json({ error: 'You cannot delete your own account.' });
+  if (user.username === builtInUsername()) return res.status(409).json({ error: 'The built-in admin account cannot be deleted.' });
+  if (user.role === 'admin' && adminCount() <= 1) return res.status(409).json({ error: 'At least one admin is required.' });
+  db.prepare('DELETE FROM admins WHERE id = ?').run(user.id);
   res.json({ ok: true });
 });
 

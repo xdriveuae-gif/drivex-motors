@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS admins (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   username      TEXT    NOT NULL UNIQUE,
   password_hash TEXT    NOT NULL,
+  role          TEXT    NOT NULL DEFAULT 'viewer',  -- admin (full access) | viewer (read-only)
   created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 

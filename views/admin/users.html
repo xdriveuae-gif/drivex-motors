@@ -1,0 +1,78 @@
+{{> partials/admin-head }}
+
+<section class="admin-panel">
+  <div class="panel-head"><h2>Add a User</h2></div>
+  <form id="userForm" class="users-create" novalidate>
+    <div class="form-field">
+      <label for="u-name">Username</label>
+      <input type="text" id="u-name" maxlength="40" autocomplete="off" required />
+    </div>
+    <div class="form-field">
+      <label for="u-pass">Password <span class="hint">(at least 10 characters)</span></label>
+      <input type="password" id="u-pass" maxlength="72" autocomplete="new-password" required />
+    </div>
+    <div class="form-field">
+      <label for="u-role">Privilege</label>
+      <select id="u-role">
+        <option value="viewer">Viewer</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-gold" id="userCreate">Create User</button>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="panel-head">
+    <div class="ph-heading"><h2>Users</h2><span class="muted" id="usersCount"></span></div>
+  </div>
+  <p class="users-notice" id="lockedNotice" hidden>
+    The password of the built-in admin account can't be changed here yet: it is reset from the server settings at every restart.
+    Set <strong>ADMIN_RESET_PASSWORD</strong> to <strong>0</strong> in hPanel to unlock it.
+  </p>
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr><th>Username</th><th>Privilege</th><th>Created</th><th class="ta-right">Actions</th></tr>
+      </thead>
+      <tbody id="usersTbody">
+        <tr><td colspan="4" class="muted ta-center">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="admin-panel">
+  <div class="panel-head"><h2>What Each Privilege Can Do</h2></div>
+  <div class="table-wrap">
+    <table class="admin-table perm-table">
+      <thead><tr><th>Action</th><th>Admin</th><th>Viewer</th></tr></thead>
+      <tbody>
+        <tr><td>View the dashboard, vehicles, messages and purchase leads</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td></tr>
+        <tr><td>Export vehicles to Excel</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td></tr>
+        <tr><td>Add, edit, duplicate or delete vehicles and photos</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
+        <tr><td>Change vehicle status (reserved, coming soon, sold, published)</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
+        <tr><td>Update or delete messages and purchase leads</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
+        <tr><td>Manage users: create, delete, change privileges and passwords</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<dialog class="pw-dialog" id="pwDialog">
+  <form id="pwForm" novalidate>
+    <h3>Change password for <span id="pwUser"></span></h3>
+    <div class="form-field">
+      <label for="pw-new">New password <span class="hint">(at least 10 characters)</span></label>
+      <input type="password" id="pw-new" maxlength="72" autocomplete="new-password" required />
+    </div>
+    <label class="pw-show"><input type="checkbox" id="pwShow" /> Show password</label>
+    <div class="pw-buttons">
+      <button type="button" class="btn btn-outline btn-sm" id="pwCancel">Cancel</button>
+      <button type="submit" class="btn btn-gold btn-sm" id="pwSave">Save Password</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="/js/admin-users.js?v={{ASSET_VER}}" defer></script>
+{{> partials/admin-footer }}
