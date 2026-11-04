@@ -1,16 +1,14 @@
 /* Theme + language bootstrap. Loaded in <head> WITHOUT defer so the right
    theme/direction is on <html> before first paint (no white flash, no LTR flash).
    Preferences live in localStorage ("dx-theme": light|dark, "dx-lang": en|ar).
-   With no saved choice the theme follows the visitor's system setting. */
+   With no saved choice the site is white (light); dark only if the visitor taps the toggle. */
 (function () {
   var root = document.documentElement;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } }
 
   var theme = get('dx-theme');
-  if (theme !== 'light' && theme !== 'dark') {
-    theme = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-  }
+  if (theme !== 'light' && theme !== 'dark') theme = 'light'; // always white by default, even if the phone is in dark mode
   var lang = new URLSearchParams(location.search).get('lang');
   if (lang === 'ar' || lang === 'en') set('dx-lang', lang); else lang = get('dx-lang');
   if (lang !== 'ar') lang = 'en';
