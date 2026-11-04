@@ -1,32 +1,58 @@
 {{> partials/head }}
 
-<!-- ░░ HERO + SEARCH ░░ -->
-<section class="hero hero-home">
-  <h1 class="sr-only">Drive Home Your Dream Car — {{SITE_TAGLINE}}</h1>
+<!-- ░░ HERO: headline + search + chips, featured car on the right ░░ -->
+<section class="hero hero-home hero-split">
+  <div class="container hero-split-grid">
+    <div class="hero-copy">
+      <a class="hero-finance hero-finance-top" href="/finance">
+        <span class="hf-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h3"/></svg></span>
+        <span class="hf-txt"><strong>Finance available<span class="fa-more"> on our cars</span></strong><span>Check your eligibility with our team</span></span>
+        <span class="hf-go">Check Eligibility <span class="hf-arrow" aria-hidden="true">&rarr;</span></span>
+      </a>
+      <div class="hero-head">
+      <p class="hero-eyebrow">Premium pre-owned cars · Abu Dhabi</p>
+      <h1 class="hero-title">Drive Home Your <span class="gold">Dream Car</span></h1>
+      </div>
+      <p class="hero-sub">Hand-picked, inspected cars with finance options and trade-ins welcome.</p>
 
-  <div class="container hero-photo" data-reveal>
-    <video id="heroVideo" autoplay muted loop playsinline preload="metadata" poster="/images/hero-poster.webp" width="1600" height="900" aria-hidden="true" tabindex="-1">
-      <source src="/videos/hero-mobile.mp4" type="video/mp4" media="(max-width: 700px)" />
-      <source src="/videos/hero.mp4" type="video/mp4" />
-    </video>
-  </div>
+      <div class="quick-chips" aria-label="Popular searches">
+        <span class="qc-label">Popular</span>
+        <a class="qc" href="/inventory?body_type=SUV">SUV</a>
+        <a class="qc" href="/inventory?body_type=Sedan">Sedan</a>
+        <a class="qc" href="/inventory?body_type=Coupe">Coupe</a>
+        <a class="qc" href="/inventory?price_max=100000">Under 100k</a>
+      </div>
 
-  <div class="container hero-search-wrap">
-    <form class="hero-search" id="heroSearch" action="/inventory" method="get" aria-label="Search cars">
-      <div class="hs-field">
-        <label for="hsMake">Brand</label>
-        <select id="hsMake" name="make"><option value="">All brands</option></select>
+      <form class="hero-search" id="heroSearch" action="/inventory" method="get" aria-label="Search cars">
+        <div class="hs-field">
+          <label for="hsMake">Brand</label>
+          <select id="hsMake" name="make"><option value="">All brands</option></select>
+        </div>
+        <div class="hs-field">
+          <label for="hsModel">Model</label>
+          <select id="hsModel" name="model" disabled><option value="">All models</option></select>
+        </div>
+        <div class="hs-field">
+          <label for="hsPrice">Max price</label>
+          <select id="hsPrice" name="price_max"><option value="">Any price</option></select>
+        </div>
+        <button type="submit" class="btn btn-gold btn-lg hs-submit">Show All Cars</button>
+      </form>
+    </div>
+
+    <div class="hero-feature" id="heroFeature">
+      <a class="hf-badge" href="/finance">Finance available</a>
+      <img id="hfImg" src="/images/hero-poster.webp" alt="" width="1200" height="900" fetchpriority="high" />
+      <div class="hf-cap" id="hfCap" hidden>
+        <span class="hs-tag" id="hfTag">Just arrived</span>
+        <h2 class="hf-title" id="hfTitle"></h2>
+        <p class="hf-meta" id="hfMeta"></p>
+        <div class="hf-row">
+          <div class="hf-price" id="hfPrice"></div>
+          <a class="btn btn-gold btn-sm" id="hfLink" href="/inventory">View Details</a>
+        </div>
       </div>
-      <div class="hs-field">
-        <label for="hsModel">Model</label>
-        <select id="hsModel" name="model" disabled><option value="">All models</option></select>
-      </div>
-      <div class="hs-field">
-        <label for="hsPrice">Max price</label>
-        <select id="hsPrice" name="price_max"><option value="">Any price</option></select>
-      </div>
-      <button type="submit" class="btn btn-gold btn-lg hs-submit">Show All Cars</button>
-    </form>
+    </div>
   </div>
 </section>
 

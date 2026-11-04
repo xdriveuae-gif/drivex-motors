@@ -71,18 +71,39 @@
     });
   }
 
-  // Respect "reduce motion": show the poster frame instead of autoplaying.
-  function initVideo() {
-    var v = document.getElementById('heroVideo');
-    if (!v) return;
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      v.removeAttribute('autoplay');
-      v.pause();
-    }
+  /* ---------- Hero: featured car on the right (newest available car) ---------- */
+  async function initFeature() {
+    var img = document.getElementById('hfImg');
+    var cap = document.getElementById('hfCap');
+    if (!img || !cap) return;
+    try {
+      var res = await DX.api.get('/api/vehicles?limit=5&sort=newest');
+      var cars = (res.data || []).filter(function (c) { return !c.is_sold; });
+      var v = cars.find(function (c) { return !c.is_coming_soon; }) || cars[0];
+      if (!v) return; // no cars yet: keep the brand image
+      img.src = v.primary_image || '/images/placeholders/car-a.svg';
+      img.alt = v.title;
+      document.getElementById('hfTag').textContent = v.is_reserved ? 'Reserved' : (v.is_coming_soon ? 'Coming Soon' : 'Just arrived');
+      document.getElementById('hfTitle').textContent = v.title;
+      var meta = document.getElementById('hfMeta');
+      meta.innerHTML = [v.year, DX.fmtMileage(v.mileage), v.fuel_type].filter(Boolean).map(function (m) {
+        return '<span>' + DX.escapeHtml(m) + '</span>';
+      }).join('');
+      document.getElementById('hfPrice').textContent = DX.fmtPrice(v.price);
+      document.getElementById('hfLink').href = '/vehicle/' + v.id;
+      cap.hidden = false;
+    } catch (e) { /* keep the brand image */ }
+  }
+
+  // On phones the WhatsApp button would sit on the hero search button: hide it until the visitor scrolls.
+  function initFabGuard() {
+    var on = function () { document.body.classList.toggle('home-top', window.scrollY < 160); };
+    on(); window.addEventListener('scroll', on, { passive: true });
   }
 
   function init() {
-    initVideo();
+    initFabGuard();
+    initFeature();
     fillGrid('showcaseGrid', '/api/vehicles?limit=6&sort=newest');
     initSearch();
   }
