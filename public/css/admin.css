@@ -363,3 +363,15 @@ body.role-viewer .switch input { opacity: .55; }
 .tf-code-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 20px; margin: 0 0 18px; font-family: Consolas, Menlo, monospace; color: var(--white); max-width: 480px; }
 .tf-panel .btn-outline:not(:hover), .tf-panel .btn-danger:not(:hover), .users-actions .btn-outline:not(:hover) { background: transparent; }
 @media (max-width: 520px) { .tf-code-list { grid-template-columns: 1fr; } }
+
+/* ---------- Photo order + delete all ---------- */
+.images-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.images-toolbar .btn-danger:not(:hover) { background: transparent; }
+.img-tile[draggable="true"] { cursor: grab; }
+.img-tile.dragging { opacity: .4; }
+.img-tile.drag-over { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+.tile-num { position: absolute; top: 6px; right: 6px; min-width: 22px; height: 22px; padding: 0 5px; display: grid; place-items: center; border-radius: 100px; background: rgba(0,0,0,.72); color: #fff; font-size: .74rem; font-weight: 700; }
+.tile-move { position: absolute; left: 6px; right: 6px; top: 50%; transform: translateY(-50%); display: flex; justify-content: space-between; pointer-events: none; }
+.tile-arrow { pointer-events: auto; width: 32px; height: 32px; border: 0; border-radius: 50%; background: rgba(0,0,0,.72); color: #fff; font-size: 1.25rem; line-height: 1; cursor: pointer; }
+.tile-arrow:hover:not(:disabled) { background: var(--gold); color: #000; }
+.tile-arrow:disabled { visibility: hidden; }

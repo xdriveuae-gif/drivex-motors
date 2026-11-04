@@ -727,6 +727,29 @@ router.post('/api/vehicles/:id/images', requireAuth, uploadImages('images'), (re
   res.status(201).json({ ok: true, images });
 });
 
+// Save a new photo order. The first photo becomes the main one.
+router.put('/api/vehicles/:id/images/order', requireAuth, (req, res) => {
+  const vehicle = getVehicleOr404(req.params.id, res);
+  if (!vehicle) return;
+  const current = db.prepare('SELECT id FROM vehicle_images WHERE vehicle_id = ?').all(vehicle.id).map((r) => r.id);
+  const ids = Array.isArray(req.body.ids) ? req.body.ids.map(Number) : [];
+  const sameSet = ids.length === current.length && new Set(ids).size === ids.length && ids.every((id) => current.includes(id));
+  if (!sameSet) return res.status(422).json({ error: 'The photo list has changed. Please reload the page.' });
+  const update = db.prepare('UPDATE vehicle_images SET sort_order = ?, is_primary = ? WHERE id = ?');
+  db.transaction(() => ids.forEach((id, i) => update.run(i, i === 0 ? 1 : 0, id)))();
+  res.json({ ok: true });
+});
+
+// Delete all of a vehicle's photos
+router.delete('/api/vehicles/:id/images', requireAuth, (req, res) => {
+  const vehicle = getVehicleOr404(req.params.id, res);
+  if (!vehicle) return;
+  const images = db.prepare('SELECT file_path FROM vehicle_images WHERE vehicle_id = ?').all(vehicle.id);
+  db.prepare('DELETE FROM vehicle_images WHERE vehicle_id = ?').run(vehicle.id);
+  images.forEach((img) => deleteUploadByWebPath(img.file_path));
+  res.json({ ok: true, deleted: images.length });
+});
+
 // Delete an image
 router.delete('/api/vehicles/:id/images/:imageId', requireAuth, (req, res) => {
   const vehicleId = parseInt(req.params.id, 10);
