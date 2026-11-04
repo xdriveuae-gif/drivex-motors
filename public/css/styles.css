@@ -881,7 +881,13 @@ body.page-vehicle .fab-whatsapp { display: none; }
 .theme-toggle .i-sun { display: none; }
 :root[data-theme="dark"] .theme-toggle .i-sun { display: block; }
 :root[data-theme="dark"] .theme-toggle .i-moon { display: none; }
-@media (max-width: 860px) { .nav-tools { justify-content: flex-start; padding: 12px 0 4px; margin-inline-start: 0; } }
+/* Mobile: theme + language sit in the header bar, just before the menu button (theme.js moves them) */
+@media (max-width: 860px) {
+  .header-inner > .nav-tools { margin-inline: auto 2px; padding: 0; gap: 6px; }
+  .header-inner > .nav-tools .icon-btn, .header-inner > .nav-tools .lang-btn { height: 36px; }
+  .header-inner > .nav-tools .icon-btn { width: 36px; }
+  .header-inner > .nav-tools .lang-btn { padding: 0 12px; font-size: .85rem; }
+}
 
 /* Hide the page for a split second on Arabic loads so English never flashes. */
 html.i18n-pending body { visibility: hidden; }

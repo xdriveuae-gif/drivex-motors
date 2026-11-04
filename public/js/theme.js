@@ -42,6 +42,19 @@
   document.addEventListener('DOMContentLoaded', function () {
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', root.getAttribute('data-theme') === 'dark' ? '#0e1014' : '#ffffff');
+    // Phones: show the theme + language buttons in the header bar next to the menu button.
+    var tools = document.querySelector('.nav-tools');
+    var nav = document.getElementById('mainNav');
+    var burger = document.getElementById('navToggle');
+    if (tools && nav && burger && window.matchMedia) {
+      var mq = window.matchMedia('(max-width: 860px)');
+      var place = function () {
+        if (mq.matches) burger.parentNode.insertBefore(tools, burger);
+        else nav.insertBefore(tools, nav.querySelector('.nav-cta'));
+      };
+      place();
+      if (mq.addEventListener) mq.addEventListener('change', place); else mq.addListener(place);
+    }
     var tb = document.getElementById('themeToggle');
     if (tb) {
       var label = function () {
