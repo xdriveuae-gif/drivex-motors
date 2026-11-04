@@ -5,6 +5,10 @@
   if (!form) return;
   var data = document.body.dataset;
 
+  // Coming from a car page: prefill the preferred car.
+  var preCar = new URLSearchParams(location.search).get('car');
+  if (preCar && form.car && !form.car.value) form.car.value = preCar.slice(0, 160);
+
   function setError(field, msg) {
     var el = form.querySelector('[data-error="' + field + '"]');
     if (!el) return;

@@ -433,6 +433,13 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.15; font-weight: 
 .vd-info h1 { font-size: clamp(1.7rem, 3.6vw, 2.5rem); font-weight: 800; }
 .vd-sub { color: var(--text-muted); margin: 6px 0 16px; }
 .vd-price { font-family: var(--font-head); font-size: 2.1rem; font-weight: 800; color: var(--text-strong); margin-bottom: 6px; }
+.vd-finance { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 14px 0 4px; padding: 16px 18px; background: var(--orange-tint); border: 1px solid var(--orange-border); border-radius: var(--radius-md); }
+.vdf-cap { flex: 1 1 100%; color: var(--text-muted); font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.vdf-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.vdf-amt { font-family: var(--font-head); font-size: 1.7rem; font-weight: 800; color: var(--orange-text); direction: ltr; unicode-bidi: isolate; }
+.vdf-unit, .vdf-dp { color: var(--text-strong); font-weight: 600; direction: ltr; unicode-bidi: isolate; }
+.vdf-btn { padding: 9px 16px; font-size: .9rem; }
+[dir="rtl"] .vdf-unit, [dir="rtl"] .vdf-dp { direction: rtl; }
 .vd-badges { display: flex; gap: 8px; margin: 12px 0 18px; flex-wrap: wrap; }
 .vd-key { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 18px 0; }
 .vd-key li { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; }
