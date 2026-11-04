@@ -8,7 +8,7 @@
   <meta name="csrf-token" content="{{CSRF_TOKEN}}" />
   <meta name="showroom-whatsapp" content="{{SITE_WHATSAPP}}" />
   <meta name="personal-whatsapp" content="{{PERSONAL_WHATSAPP}}" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon.svg?v={{ASSET_VER}}" type="image/svg+xml" />
   <link rel="stylesheet" href="/css/admin.css?v={{ASSET_VER}}" />
   <script src="/js/admin-common.js?v={{ASSET_VER}}" defer></script>
 </head>
@@ -16,7 +16,7 @@
   <div class="admin-shell">
     <aside class="admin-sidebar" id="adminSidebar">
       <div class="admin-brand">
-        <img src="/images/logo.png" alt="{{SITE_NAME}}" width="40" height="40" />
+        <img src="/images/logo.png?v={{ASSET_VER}}" alt="{{SITE_NAME}}" width="40" height="40" />
         <span><strong>Drive</strong><em>X</em></span>
       </div>
       <nav class="admin-nav" aria-label="Admin navigation">
