@@ -28,7 +28,7 @@ const db = require('../database/db');
 const site = require('../config/site');
 const { render } = require('../utils/render');
 const { parseFeatures } = require('../utils/helpers');
-const { requireAuth, requireAdmin, requireSession, redirectIfAuthed, sessionTag } = require('../middleware/auth');
+const { requireAuth, requireEditor, requireAdmin, requireSession, redirectIfAuthed, sessionTag, canEdit } = require('../middleware/auth');
 const totp = require('../utils/totp');
 const {
   vehicleValidators,
@@ -246,11 +246,11 @@ router.get('/vehicles/coming-soon', requireAuth, (req, res) =>
   render(req, res, 'admin/vehicles', { title: 'Coming Soon Vehicles', bodyClass: 'admin' })
 );
 
-router.get('/vehicles/new', requireAdmin, (req, res) =>
+router.get('/vehicles/new', requireEditor, (req, res) =>
   render(req, res, 'admin/vehicle-form', { title: 'Add Vehicle', bodyClass: 'admin' })
 );
 
-router.get('/vehicles/:id/edit', requireAdmin, (req, res) =>
+router.get('/vehicles/:id/edit', requireEditor, (req, res) =>
   render(req, res, 'admin/vehicle-form', { title: 'Edit Vehicle', bodyClass: 'admin' })
 );
 
@@ -904,7 +904,7 @@ router.delete('/api/submissions/:id', requireAuth, (req, res) => {
 
 /* ═══════════════════════ USERS SETTINGS API ═══════════════════════ */
 
-const ROLES = ['admin', 'viewer'];
+const ROLES = ['admin', 'editor', 'viewer'];
 const USERNAME_RE = /^[A-Za-z0-9._-]{3,40}$/;
 // ensureDefaultAdmin() recreates this account at every boot, so it has to stay.
 const builtInUsername = () => process.env.ADMIN_USERNAME || 'admin';
@@ -1049,7 +1049,7 @@ router.get('/api/two-factor', requireSession, (req, res) => {
   const row = db.prepare('SELECT totp_enabled, totp_backup FROM admins WHERE id = ?').get(req.admin.id);
   res.json({
     enabled: Boolean(row.totp_enabled),
-    required: req.admin.role === 'admin',
+    required: canEdit(req.admin),
     backupLeft: JSON.parse(row.totp_backup || '[]').length
   });
 });

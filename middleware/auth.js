@@ -6,6 +6,10 @@ const crypto = require('crypto');
 const db = require('../database/db');
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+// Roles that can change data. They must use an authenticator; anything else is read-only.
+const EDIT_ROLES = new Set(['admin', 'editor']);
+const canEdit = (admin) => EDIT_ROLES.has(admin.role);
+const mustEnroll = (admin) => canEdit(admin) && !admin.totpEnabled;
 
 function wantsJson(req) {
   return (
@@ -45,7 +49,7 @@ function rejectUnauthenticated(req, res) {
   return res.redirect(`/admin/login?next=${next_}`);
 }
 
-/** Admins must finish authenticator setup before they can use anything else. */
+/** Admins and editors must finish authenticator setup before they can use anything else. */
 function blockUntilEnrolled(req, res) {
   if (wantsJson(req)) {
     return res.status(403).json({ error: 'Set up two-factor login first.', twoFactorRequired: true });
@@ -70,19 +74,30 @@ function requireAuth(req, res, next) {
   const admin = loadAdmin(req);
   if (!admin) return rejectUnauthenticated(req, res);
   req.admin = admin;
-  if (admin.role === 'admin' && !admin.totpEnabled) return blockUntilEnrolled(req, res);
-  if (admin.role !== 'admin' && !SAFE_METHODS.has(req.method)) {
+  if (mustEnroll(admin)) return blockUntilEnrolled(req, res);
+  if (!canEdit(admin) && !SAFE_METHODS.has(req.method)) {
     return res.status(403).json({ error: 'Your account is view-only.' });
   }
   return next();
 }
 
-/** Admin-only pages and data. */
+/** Pages for adding and editing content: admins and editors. */
+function requireEditor(req, res, next) {
+  const admin = loadAdmin(req);
+  if (!admin) return rejectUnauthenticated(req, res);
+  req.admin = admin;
+  if (mustEnroll(admin)) return blockUntilEnrolled(req, res);
+  if (canEdit(admin)) return next();
+  if (wantsJson(req)) return res.status(403).json({ error: 'Your account is view-only.' });
+  return res.redirect('/admin/dashboard');
+}
+
+/** Admin-only pages and data, such as Users Settings. */
 function requireAdmin(req, res, next) {
   const admin = loadAdmin(req);
   if (!admin) return rejectUnauthenticated(req, res);
   req.admin = admin;
-  if (admin.role === 'admin' && !admin.totpEnabled) return blockUntilEnrolled(req, res);
+  if (mustEnroll(admin)) return blockUntilEnrolled(req, res);
   if (admin.role === 'admin') return next();
   if (wantsJson(req)) return res.status(403).json({ error: 'Admin access required.' });
   return res.redirect('/admin/dashboard');
@@ -94,4 +109,4 @@ function redirectIfAuthed(req, res, next) {
   return next();
 }
 
-module.exports = { requireAuth, requireAdmin, requireSession, redirectIfAuthed, wantsJson, sessionTag };
+module.exports = { requireAuth, requireEditor, requireAdmin, requireSession, redirectIfAuthed, wantsJson, sessionTag, canEdit };

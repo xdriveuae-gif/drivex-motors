@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS admins (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   username      TEXT    NOT NULL UNIQUE,
   password_hash TEXT    NOT NULL,
-  role          TEXT    NOT NULL DEFAULT 'viewer',  -- admin (full access) | viewer (read-only)
+  role          TEXT    NOT NULL DEFAULT 'viewer',  -- admin (full access) | editor (all but users) | viewer (read-only)
   totp_secret   TEXT,                               -- authenticator app key (base32)
   totp_enabled  INTEGER NOT NULL DEFAULT 0,
   totp_last_step INTEGER NOT NULL DEFAULT 0,        -- last accepted time step, blocks code reuse

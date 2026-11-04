@@ -38,9 +38,10 @@
         '<td><strong>' + esc(u.username) + '</strong>' + (u.isSelf ? '<span class="users-you">(you)</span>' : '') + '</td>' +
         '<td><select class="users-role" aria-label="Privilege for ' + esc(u.username) + '"' + (roleLocked ? ' disabled' : '') + '>' +
           '<option value="admin"' + (u.role === 'admin' ? ' selected' : '') + '>Admin</option>' +
+          '<option value="editor"' + (u.role === 'editor' ? ' selected' : '') + '>Editor</option>' +
           '<option value="viewer"' + (u.role === 'viewer' ? ' selected' : '') + '>Viewer</option>' +
         '</select></td>' +
-        '<td>' + (u.twoFactor ? '<span class="badge-live">On</span>' : '<span class="muted">' + (u.role === 'admin' ? 'Pending' : 'Off') + '</span>') + '</td>' +
+        '<td>' + (u.twoFactor ? '<span class="badge-live">On</span>' : '<span class="muted">' + (u.role === 'viewer' ? 'Off' : 'Pending') + '</span>') + '</td>' +
         '<td class="muted">' + esc(fmtDate(u.created_at)) + '</td>' +
         '<td><div class="users-actions">' +
           '<button class="btn btn-outline btn-sm" data-pw' + (pwLocked ? ' disabled' : '') + '>Change Password</button>' +
@@ -55,7 +56,7 @@
       tr.querySelector('.users-role').addEventListener('change', async function () {
         try {
           await DXA.api.send('/admin/api/users/' + id + '/role', 'PATCH', { role: this.value });
-          DXA.toast(name + ' is now ' + (this.value === 'admin' ? 'an admin' : 'a viewer'), 'success');
+          DXA.toast(name + ' is now ' + (this.value === 'admin' ? 'an admin' : 'a ' + this.value), 'success');
         } catch (e) { DXA.toast(e.message, 'error'); }
         load();
       });

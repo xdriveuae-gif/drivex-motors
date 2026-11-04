@@ -15,6 +15,7 @@
       <label for="u-role">Privilege</label>
       <select id="u-role">
         <option value="viewer">Viewer</option>
+        <option value="editor">Editor</option>
         <option value="admin">Admin</option>
       </select>
     </div>
@@ -49,15 +50,15 @@
   <div class="panel-head"><h2>What Each Privilege Can Do</h2></div>
   <div class="table-wrap">
     <table class="admin-table perm-table">
-      <thead><tr><th>Action</th><th>Admin</th><th>Viewer</th></tr></thead>
+      <thead><tr><th>Action</th><th>Admin</th><th>Editor</th><th>Viewer</th></tr></thead>
       <tbody>
-        <tr><td>View the dashboard, vehicles, messages and purchase leads</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td></tr>
-        <tr><td>Export vehicles to Excel</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td></tr>
-        <tr><td>Add, edit, duplicate or delete vehicles and photos</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
-        <tr><td>Change vehicle status (reserved, coming soon, sold, published)</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
-        <tr><td>Update or delete messages and purchase leads</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
-        <tr><td>Use an authenticator app at login</td><td class="perm-yes">Required</td><td class="perm-yes">Optional</td></tr>
-        <tr><td>Manage users: create, delete, change privileges and passwords</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
+        <tr><td>View the dashboard, vehicles, messages and purchase leads</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td></tr>
+        <tr><td>Export vehicles to Excel</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td></tr>
+        <tr><td>Add, edit, duplicate or delete vehicles and photos</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
+        <tr><td>Change vehicle status (reserved, coming soon, sold, published)</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
+        <tr><td>Update or delete messages and purchase leads</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
+        <tr><td>Use an authenticator app at login</td><td class="perm-yes">Required</td><td class="perm-yes">Required</td><td class="perm-no">Optional</td></tr>
+        <tr><td>Manage users: create, delete, change privileges and passwords</td><td class="perm-yes">Yes</td><td class="perm-no">No</td><td class="perm-no">No</td></tr>
       </tbody>
     </table>
   </div>
