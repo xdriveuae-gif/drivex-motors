@@ -192,6 +192,8 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.15; font-weight: 
 .header-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; }
 .brand { display: inline-flex; align-items: center; gap: 12px; margin-left: 20px; }
 .brand-logo { height: 54px; width: auto; }
+/* Dark mode: white lettering and a see-through oval instead of the white logo plate. */
+[data-theme="dark"] .brand-logo { content: url("/images/logo-dark.png"); }
 /* The new logo already spells the brand name; keep the text for screen readers only. */
 .brand-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .brand-word { font-family: var(--font-head); font-weight: 600; font-size: 1.2rem; color: var(--text-strong); }
