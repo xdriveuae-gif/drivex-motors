@@ -30,13 +30,16 @@
     The password of the built-in admin account can't be changed here yet: it is reset from the server settings at every restart.
     Set <strong>ADMIN_RESET_PASSWORD</strong> to <strong>0</strong> in hPanel to unlock it.
   </p>
+  <p class="users-notice" id="resetNotice" hidden>
+    <strong>ADMIN_RESET_2FA</strong> is on, so two-factor login is removed from the built-in admin at every restart. Set it back to <strong>0</strong> in hPanel.
+  </p>
   <div class="table-wrap">
     <table class="admin-table">
       <thead>
-        <tr><th>Username</th><th>Privilege</th><th>Created</th><th class="ta-right">Actions</th></tr>
+        <tr><th>Username</th><th>Privilege</th><th>Two-Factor</th><th>Created</th><th class="ta-right">Actions</th></tr>
       </thead>
       <tbody id="usersTbody">
-        <tr><td colspan="4" class="muted ta-center">Loading…</td></tr>
+        <tr><td colspan="5" class="muted ta-center">Loading…</td></tr>
       </tbody>
     </table>
   </div>
@@ -53,6 +56,7 @@
         <tr><td>Add, edit, duplicate or delete vehicles and photos</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
         <tr><td>Change vehicle status (reserved, coming soon, sold, published)</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
         <tr><td>Update or delete messages and purchase leads</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
+        <tr><td>Use an authenticator app at login</td><td class="perm-yes">Required</td><td class="perm-yes">Optional</td></tr>
         <tr><td>Manage users: create, delete, change privileges and passwords</td><td class="perm-yes">Yes</td><td class="perm-no">No</td></tr>
       </tbody>
     </table>

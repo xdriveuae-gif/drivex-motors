@@ -29,6 +29,11 @@ function ensureDefaultAdmin() {
     return { created: true, username };
   }
 
+  if (process.env.ADMIN_RESET_2FA === '1') {
+    db.prepare('UPDATE admins SET totp_enabled = 0, totp_secret = NULL, totp_backup = NULL, totp_last_step = 0 WHERE id = ?').run(existing.id);
+    console.warn(`  ADMIN_RESET_2FA is on: two-factor login was removed from "${username}". Set it back to 0.`);
+  }
+
   if (force) {
     const hash = bcrypt.hashSync(password, 12);
     db.prepare("UPDATE admins SET password_hash = ?, role = 'admin' WHERE id = ?").run(hash, existing.id);

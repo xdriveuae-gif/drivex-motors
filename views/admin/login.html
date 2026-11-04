@@ -33,6 +33,22 @@
       <button type="submit" class="btn btn-gold btn-block btn-lg" id="loginBtn">Sign In</button>
       <a href="/" class="login-back">← Back to website</a>
     </form>
+
+    <form class="login-card" id="codeForm" novalidate hidden>
+      <h1>Enter Your Code</h1>
+      <p class="login-sub">Open your authenticator app and enter the 6-digit code.</p>
+
+      <div class="login-error" id="codeError" hidden></div>
+
+      <div class="form-field">
+        <label for="code">Authentication code</label>
+        <input type="text" id="code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="19" required />
+        <small class="hint">Lost your phone? Enter a backup code instead.</small>
+      </div>
+
+      <button type="submit" class="btn btn-gold btn-block btn-lg" id="codeBtn">Verify</button>
+      <a href="/admin/login" class="login-back">← Start over</a>
+    </form>
   </main>
 </body>
 </html>

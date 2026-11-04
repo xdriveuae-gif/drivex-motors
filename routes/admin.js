@@ -28,7 +28,8 @@ const db = require('../database/db');
 const site = require('../config/site');
 const { render } = require('../utils/render');
 const { parseFeatures } = require('../utils/helpers');
-const { requireAuth, requireAdmin, redirectIfAuthed, passwordTag } = require('../middleware/auth');
+const { requireAuth, requireAdmin, requireSession, redirectIfAuthed, sessionTag } = require('../middleware/auth');
+const totp = require('../utils/totp');
 const {
   vehicleValidators,
   loginValidators,
@@ -253,6 +254,10 @@ router.get('/vehicles/:id/edit', requireAdmin, (req, res) =>
   render(req, res, 'admin/vehicle-form', { title: 'Edit Vehicle', bodyClass: 'admin' })
 );
 
+router.get('/two-factor', requireSession, (req, res) =>
+  render(req, res, 'admin/two-factor', { title: 'Two-Factor Login', bodyClass: 'admin' })
+);
+
 router.get('/users', requireAdmin, (req, res) =>
   render(req, res, 'admin/users', { title: 'Users Settings', bodyClass: 'admin' })
 );
@@ -274,14 +279,85 @@ router.post('/login', loginValidators, handleValidation, (req, res) => {
 
   if (!ok) return res.status(401).json({ error: 'Invalid username or password.' });
 
+  if (admin.totp_enabled) {
+    // Password is right but the login isn't complete until the code is checked.
+    req.session.pending2fa = { id: admin.id, at: Date.now(), tag: sessionTag(admin), next: safeNext(req.body.next) };
+    return res.json({ ok: true, twoFactor: true });
+  }
+  completeLogin(req, res, admin, safeNext(req.body.next));
+});
+
+function completeLogin(req, res, admin, redirect, extra = {}) {
   // Regenerate session to prevent fixation.
   req.session.regenerate((err) => {
     if (err) return res.status(500).json({ error: 'Login failed. Please try again.' });
     req.session.adminId = admin.id;
     req.session.adminUser = admin.username;
-    req.session.adminPwTag = passwordTag(admin.password_hash);
-    res.json({ ok: true, redirect: safeNext(req.body.next), user: admin.username });
+    req.session.adminPwTag = sessionTag(admin);
+    res.json({ ok: true, redirect, user: admin.username, ...extra });
   });
+}
+
+/* Wrong-code lockout per account (on top of the per-IP login rate limit). */
+const CODE_MAX_FAILS = 8;
+const CODE_LOCK_MS = 15 * 60 * 1000;
+const codeFails = new Map();
+
+const codeLocked = (id) => {
+  const f = codeFails.get(id);
+  return Boolean(f && f.until > Date.now());
+};
+
+function recordCodeFail(id) {
+  const f = codeFails.get(id) || { count: 0, until: 0 };
+  f.count += 1;
+  if (f.count >= CODE_MAX_FAILS) {
+    f.count = 0;
+    f.until = Date.now() + CODE_LOCK_MS;
+  }
+  codeFails.set(id, f);
+}
+
+/** Checks an authenticator or (optionally) backup code and uses it up. */
+function useSecondFactor(admin, rawCode, { allowBackup = false } = {}) {
+  const code = String(rawCode || '').trim();
+  const step = totp.matchStep(admin.totp_secret, code, admin.totp_last_step);
+  if (step !== null) {
+    db.prepare('UPDATE admins SET totp_last_step = ? WHERE id = ?').run(step, admin.id);
+    return { ok: true };
+  }
+  if (allowBackup && code.length > 6) {
+    const hashes = JSON.parse(admin.totp_backup || '[]');
+    const hash = totp.hashBackupCode(code);
+    if (hashes.includes(hash)) {
+      const left = hashes.filter((h) => h !== hash);
+      db.prepare('UPDATE admins SET totp_backup = ? WHERE id = ?').run(JSON.stringify(left), admin.id);
+      return { ok: true, backupLeft: left.length };
+    }
+  }
+  return { ok: false };
+}
+
+const PENDING_LOGIN_MS = 5 * 60 * 1000;
+
+router.post('/login/verify', (req, res) => {
+  const pending = req.session.pending2fa;
+  const admin = pending && db.prepare('SELECT * FROM admins WHERE id = ?').get(pending.id);
+  if (!admin || Date.now() - pending.at > PENDING_LOGIN_MS || sessionTag(admin) !== pending.tag) {
+    delete req.session.pending2fa;
+    return res.status(401).json({ error: 'Your login expired. Please sign in again.', restart: true });
+  }
+  if (codeLocked(admin.id)) {
+    return res.status(429).json({ error: 'Too many wrong codes. Please try again in 15 minutes.' });
+  }
+  const result = useSecondFactor(admin, req.body.code, { allowBackup: true });
+  if (!result.ok) {
+    recordCodeFail(admin.id);
+    return res.status(401).json({ error: 'That code is not correct.' });
+  }
+  codeFails.delete(admin.id);
+  const extra = result.backupLeft === undefined ? {} : { backupLeft: result.backupLeft };
+  completeLogin(req, res, admin, pending.next, extra);
 });
 
 router.post('/logout', (req, res) => {
@@ -292,7 +368,7 @@ router.post('/logout', (req, res) => {
 });
 
 /** Lightweight "who am I" used by admin pages to show the username. */
-router.get('/api/me', requireAuth, (req, res) =>
+router.get('/api/me', requireSession, (req, res) =>
   res.json({ user: req.admin.username, role: req.admin.role })
 );
 
@@ -849,10 +925,16 @@ function getUserOr404(id, res) {
 const adminCount = () => db.prepare("SELECT COUNT(*) AS n FROM admins WHERE role = 'admin'").get().n;
 
 router.get('/api/users', requireAdmin, (req, res) => {
-  const rows = db.prepare('SELECT id, username, role, created_at FROM admins ORDER BY id').all();
+  const rows = db.prepare('SELECT id, username, role, created_at, totp_enabled FROM admins ORDER BY id').all();
   res.json({
-    data: rows.map((u) => ({ ...u, isSelf: u.id === req.admin.id, isBuiltIn: u.username === builtInUsername() })),
-    builtInPasswordLocked: passwordIsManagedByEnv()
+    data: rows.map(({ totp_enabled: on, ...u }) => ({
+      ...u,
+      twoFactor: Boolean(on),
+      isSelf: u.id === req.admin.id,
+      isBuiltIn: u.username === builtInUsername()
+    })),
+    builtInPasswordLocked: passwordIsManagedByEnv(),
+    twoFactorResetOn: process.env.ADMIN_RESET_2FA === '1'
   });
 });
 
@@ -901,7 +983,16 @@ router.patch('/api/users/:id/password', requireAdmin, (req, res) => {
   const hash = bcrypt.hashSync(req.body.password, 12);
   db.prepare('UPDATE admins SET password_hash = ? WHERE id = ?').run(hash, user.id);
   // Everyone logged in as this user is signed out; keep the person changing their own password signed in.
-  if (user.id === req.admin.id) req.session.adminPwTag = passwordTag(hash);
+  if (user.id === req.admin.id) refreshSessionTag(req);
+  res.json({ ok: true });
+});
+
+// Admin resets someone's authenticator (e.g. new phone). Signs that user out.
+router.delete('/api/users/:id/two-factor', requireAdmin, (req, res) => {
+  const user = getUserOr404(req.params.id, res);
+  if (!user) return;
+  if (user.id === req.admin.id) return res.status(409).json({ error: 'Use the Two-Factor Login page for your own account.' });
+  clearTwoFactor(user.id);
   res.json({ ok: true });
 });
 
@@ -912,6 +1003,90 @@ router.delete('/api/users/:id', requireAdmin, (req, res) => {
   if (user.username === builtInUsername()) return res.status(409).json({ error: 'The built-in admin account cannot be deleted.' });
   if (user.role === 'admin' && adminCount() <= 1) return res.status(409).json({ error: 'At least one admin is required.' });
   db.prepare('DELETE FROM admins WHERE id = ?').run(user.id);
+  res.json({ ok: true });
+});
+
+/* ═══════════════════════ TWO-FACTOR (OWN ACCOUNT) ═══════════════════════ */
+
+const SETUP_MS = 15 * 60 * 1000;
+
+function refreshSessionTag(req) {
+  req.session.adminPwTag = sessionTag(db.prepare('SELECT * FROM admins WHERE id = ?').get(req.admin.id));
+}
+
+function clearTwoFactor(id) {
+  db.prepare('UPDATE admins SET totp_enabled = 0, totp_secret = NULL, totp_backup = NULL, totp_last_step = 0 WHERE id = ?').run(id);
+  codeFails.delete(id);
+}
+
+function newBackupCodes(id) {
+  const codes = totp.generateBackupCodes();
+  db.prepare('UPDATE admins SET totp_backup = ? WHERE id = ?').run(JSON.stringify(codes.map(totp.hashBackupCode)), id);
+  return codes;
+}
+
+/** Sensitive changes need a current app code, not just a logged-in browser. */
+function requireCurrentCode(req, res) {
+  const admin = db.prepare('SELECT * FROM admins WHERE id = ?').get(req.admin.id);
+  if (!admin.totp_enabled) {
+    res.status(409).json({ error: 'Two-factor login is not on for this account.' });
+    return null;
+  }
+  if (codeLocked(admin.id)) {
+    res.status(429).json({ error: 'Too many wrong codes. Please try again in 15 minutes.' });
+    return null;
+  }
+  if (!useSecondFactor(admin, req.body.code).ok) {
+    recordCodeFail(admin.id);
+    res.status(422).json({ error: 'Enter the current code from your authenticator app.' });
+    return null;
+  }
+  codeFails.delete(admin.id);
+  return admin;
+}
+
+router.get('/api/two-factor', requireSession, (req, res) => {
+  const row = db.prepare('SELECT totp_enabled, totp_backup FROM admins WHERE id = ?').get(req.admin.id);
+  res.json({
+    enabled: Boolean(row.totp_enabled),
+    required: req.admin.role === 'admin',
+    backupLeft: JSON.parse(row.totp_backup || '[]').length
+  });
+});
+
+router.post('/api/two-factor/setup', requireSession, (req, res) => {
+  if (req.admin.totpEnabled) return res.status(409).json({ error: 'Two-factor login is already on.' });
+  const secret = totp.generateSecret();
+  req.session.totpSetup = { secret, at: Date.now() };
+  res.json({ secret, qr: totp.qrDataUrl(totp.otpauthUrl(secret, req.admin.username, site.name)) });
+});
+
+router.post('/api/two-factor/confirm', requireSession, (req, res) => {
+  const setup = req.session.totpSetup;
+  if (req.admin.totpEnabled) return res.status(409).json({ error: 'Two-factor login is already on.' });
+  if (!setup || Date.now() - setup.at > SETUP_MS) {
+    return res.status(409).json({ error: 'Setup expired. Please start again.' });
+  }
+  const step = totp.matchStep(setup.secret, String(req.body.code || '').trim());
+  if (step === null) return res.status(422).json({ error: 'That code is not correct. Check the app and try again.' });
+  db.prepare('UPDATE admins SET totp_secret = ?, totp_enabled = 1, totp_last_step = ? WHERE id = ?').run(setup.secret, step, req.admin.id);
+  const backupCodes = newBackupCodes(req.admin.id);
+  delete req.session.totpSetup;
+  refreshSessionTag(req);
+  res.json({ ok: true, backupCodes });
+});
+
+router.post('/api/two-factor/backup-codes', requireSession, (req, res) => {
+  const admin = requireCurrentCode(req, res);
+  if (!admin) return;
+  res.json({ ok: true, backupCodes: newBackupCodes(admin.id) });
+});
+
+router.post('/api/two-factor/disable', requireSession, (req, res) => {
+  const admin = requireCurrentCode(req, res);
+  if (!admin) return;
+  clearTwoFactor(admin.id);
+  refreshSessionTag(req);
   res.json({ ok: true });
 });
 

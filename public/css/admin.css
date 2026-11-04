@@ -349,3 +349,17 @@ body.role-viewer .switch input { opacity: .55; }
 .pw-buttons { display: flex; justify-content: flex-end; gap: 10px; }
 @media (max-width: 820px) { .users-create { grid-template-columns: 1fr; } }
 .users-actions .btn:not(:hover), .pw-buttons .btn-outline:not(:hover) { background: transparent; }
+
+/* ---------- Two-factor login ---------- */
+.tf-panel h3 { margin-bottom: 8px; }
+.tf-lead { margin-bottom: 18px; }
+.tf-steps { padding-left: 20px; margin-bottom: 18px; display: grid; gap: 14px; }
+.tf-qr { display: block; margin: 12px 0; max-width: 100%; border-radius: var(--radius-sm); background: #fff; }
+.tf-manual { font-size: .88rem; color: var(--muted); }
+.tf-manual summary { cursor: pointer; }
+.tf-manual code { display: block; margin-top: 8px; color: var(--white); font-size: 1rem; letter-spacing: .04em; word-break: break-all; }
+.tf-code-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.tf-code-row .form-field input { width: 180px; font-size: 1.1rem; letter-spacing: .15em; }
+.tf-code-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 20px; margin: 0 0 18px; font-family: Consolas, Menlo, monospace; color: var(--white); max-width: 480px; }
+.tf-panel .btn-outline:not(:hover), .tf-panel .btn-danger:not(:hover), .users-actions .btn-outline:not(:hover) { background: transparent; }
+@media (max-width: 520px) { .tf-code-list { grid-template-columns: 1fr; } }

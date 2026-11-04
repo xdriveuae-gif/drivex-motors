@@ -21,8 +21,9 @@
     try {
       var res = await DXA.api.get('/admin/api/users');
       render(res.data, res.builtInPasswordLocked);
+      document.getElementById('resetNotice').hidden = !res.twoFactorResetOn;
     } catch (e) {
-      tbody.innerHTML = '<tr><td colspan="4" class="muted ta-center">Failed to load users.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="muted ta-center">Failed to load users.</td></tr>';
     }
   }
 
@@ -39,9 +40,11 @@
           '<option value="admin"' + (u.role === 'admin' ? ' selected' : '') + '>Admin</option>' +
           '<option value="viewer"' + (u.role === 'viewer' ? ' selected' : '') + '>Viewer</option>' +
         '</select></td>' +
+        '<td>' + (u.twoFactor ? '<span class="badge-live">On</span>' : '<span class="muted">' + (u.role === 'admin' ? 'Pending' : 'Off') + '</span>') + '</td>' +
         '<td class="muted">' + esc(fmtDate(u.created_at)) + '</td>' +
         '<td><div class="users-actions">' +
           '<button class="btn btn-outline btn-sm" data-pw' + (pwLocked ? ' disabled' : '') + '>Change Password</button>' +
+          (u.twoFactor && !u.isSelf ? '<button class="btn btn-outline btn-sm" data-reset2fa>Reset Two-Factor</button>' : '') +
           (canDelete ? '<button class="btn btn-danger btn-sm" data-remove>Delete</button>' : '') +
         '</div></td></tr>';
     }).join('');
@@ -57,6 +60,13 @@
         load();
       });
       tr.querySelector('[data-pw]').addEventListener('click', function () { openPw(id, name); });
+      var reset = tr.querySelector('[data-reset2fa]');
+      if (reset) reset.addEventListener('click', async function () {
+        if (!(await DXA.confirm('Reset two-factor login for "' + name + '"? They will be signed out and must set it up again.'))) return;
+        try { await DXA.api.send('/admin/api/users/' + id + '/two-factor', 'DELETE'); DXA.toast('Two-factor login reset', 'success'); }
+        catch (e) { DXA.toast(e.message, 'error'); }
+        load();
+      });
       var del = tr.querySelector('[data-remove]');
       if (del) del.addEventListener('click', async function () {
         if (!(await DXA.confirm('Delete the user "' + name + '"? They will be signed out immediately.'))) return;

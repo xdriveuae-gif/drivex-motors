@@ -1,0 +1,62 @@
+{{> partials/admin-head }}
+
+<section class="admin-panel form-panel tf-panel">
+  <div class="panel-head"><h2>Two-Factor Login</h2></div>
+  <p class="users-notice" id="tfRequired" hidden>Admin accounts must use an authenticator app. Set it up now to continue.</p>
+  <p class="muted" id="tfLoading">Loading…</p>
+
+  <!-- Not set up yet -->
+  <div id="tfOff" hidden>
+    <p class="tf-lead">Protect your account with a 6-digit code from an authenticator app such as Google Authenticator, in addition to your password.</p>
+    <button type="button" class="btn btn-gold" id="tfStart">Set Up Authenticator</button>
+  </div>
+
+  <!-- Scan and confirm -->
+  <div id="tfSetup" hidden>
+    <ol class="tf-steps">
+      <li>Open Google Authenticator on your phone and tap <strong>+</strong>, then <strong>Scan a QR code</strong>.</li>
+      <li>Scan this code:
+        <img class="tf-qr" id="tfQr" alt="QR code for your authenticator app" />
+        <details class="tf-manual">
+          <summary>Can't scan it? Enter this key by hand</summary>
+          <code id="tfSecret"></code>
+        </details>
+      </li>
+      <li>Enter the 6-digit code the app shows:</li>
+    </ol>
+    <form id="tfConfirmForm" class="tf-code-row" novalidate>
+      <div class="form-field">
+        <label for="tfConfirmCode">6-digit code</label>
+        <input type="text" id="tfConfirmCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required />
+      </div>
+      <button type="submit" class="btn btn-gold" id="tfConfirm">Turn On</button>
+    </form>
+  </div>
+
+  <!-- Backup codes, shown once -->
+  <div id="tfCodes" hidden>
+    <h3>Save your backup codes</h3>
+    <p class="tf-lead">If you lose your phone, each of these codes can be used once instead of the app. <strong>They won't be shown again.</strong> Keep them somewhere safe, away from your phone.</p>
+    <ul class="tf-code-list" id="tfCodeList"></ul>
+    <div class="form-actions">
+      <button type="button" class="btn btn-outline" id="tfCopy">Copy Codes</button>
+      <button type="button" class="btn btn-gold" id="tfDone">I've Saved Them</button>
+    </div>
+  </div>
+
+  <!-- Already on -->
+  <div id="tfOn" hidden>
+    <p class="tf-lead"><span class="badge-live">On</span> Your account asks for an authenticator code at login. <span id="tfBackupLeft"></span></p>
+    <form id="tfManageForm" class="tf-code-row" novalidate>
+      <div class="form-field">
+        <label for="tfManageCode">Code from your app</label>
+        <input type="text" id="tfManageCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required />
+      </div>
+      <button type="button" class="btn btn-outline" id="tfNewCodes">New Backup Codes</button>
+      <button type="button" class="btn btn-danger" id="tfDisable"></button>
+    </form>
+  </div>
+</section>
+
+<script src="/js/admin-two-factor.js?v={{ASSET_VER}}" defer></script>
+{{> partials/admin-footer }}
