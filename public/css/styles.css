@@ -967,6 +967,7 @@ html[lang="ar"] body { line-height: 1.8; }
   align-items: end; background: var(--raise);
 }
 .hero-split .hs-submit { grid-column: auto; width: 100%; align-self: end; }
+.hero-split .hs-sell { grid-column: 1 / -1; width: 100%; text-align: center; }
 
 .hero-feature { position: relative; border-radius: 36px; overflow: hidden; box-shadow: var(--shadow); aspect-ratio: 4 / 3.4; background: var(--surface-3); }
 .hero-feature > img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -1090,6 +1091,8 @@ html[lang="ar"] body { line-height: 1.8; }
   .hero-search .hs-field select option { background: #1a1e26; color: #fff; }
   .hero-search .hs-field select:disabled { color: rgba(255, 255, 255, .6); }
   .hero-search .hs-submit { grid-column: auto; box-shadow: var(--shadow-orange); }
+  .hero-search .hs-sell { border-color: rgba(255, 255, 255, .55); color: #fff; }
+  .hero-search .hs-sell:hover { background: #fff; border-color: #fff; color: var(--ink); }
 }
 @media (max-width: 960px) {
   .hero-copy > .hero-finance-top { flex-wrap: nowrap; }

@@ -18,7 +18,7 @@
     /* ---- Navigation / chrome ---- */
     "Skip to content": "انتقل إلى المحتوى",
     "Home": "الرئيسية", "Buy a Car": "اشترِ سيارة", "Finance": "التمويل", "About": "من نحن",
-    "Contact": "اتصل بنا", "Sell / Trade-in": "بيع / استبدال",
+    "Contact": "اتصل بنا", "Sell / Trade-in": "بيع / استبدال", "Sell / Trade Your Car": "بيع / استبدال سيارتك",
     "Primary navigation": "التنقل الرئيسي", "Toggle menu": "فتح القائمة",
     "DriveX Motors — home": "DriveX Motors — الرئيسية",
     "Switch to dark mode": "التبديل إلى الوضع الداكن", "Switch to light mode": "التبديل إلى الوضع الفاتح",
