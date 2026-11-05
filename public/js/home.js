@@ -2,20 +2,49 @@
 (function () {
   'use strict';
 
-  async function fillGrid(gridId, url) {
-    var grid = document.getElementById(gridId);
-    if (!grid) return;
+  var DEAL_COUNT = 8, STOCK_COUNT = 6;
+
+  function dealCard(v) {
+    var est = DX.financeEstimate(v.price, v.year);
+    return '' +
+      '<a class="deal-card" href="/vehicle/' + v.id + '">' +
+        '<div class="deal-media">' +
+          '<img src="' + DX.escapeHtml(v.primary_image) + '" alt="' + DX.escapeHtml(v.title) + '" loading="lazy">' +
+          '<span class="vc-badge gold">Featured</span>' +
+        '</div>' +
+        '<div class="deal-body">' +
+          '<div class="deal-row deal-top"><h3 class="deal-name">' + DX.escapeHtml(v.title) + '</h3><span class="deal-year">' + DX.escapeHtml(v.year) + '</span></div>' +
+          '<div class="deal-row">' +
+            '<div>' + (est ? '<span class="deal-lbl">Starts from</span><span class="deal-monthly"><span>' + DX.fmtPrice(est.monthly) + '</span><span>/month</span></span>' : '') + '</div>' +
+            '<div class="deal-end"><span class="deal-lbl">Full Price</span><span class="deal-price">' + DX.fmtPrice(v.price) + '</span></div>' +
+          '</div>' +
+          '<div class="deal-row deal-odo"><span class="deal-lbl">Mileage</span><span>' + DX.fmtMileage(v.mileage) + '</span></div>' +
+        '</div>' +
+      '</a>';
+  }
+
+  function isDeal(v) { return !v.is_sold && !v.is_reserved && !v.is_coming_soon && v.primary_image; }
+
+  // One list feeds both sections, so the same car never appears twice on the page.
+  async function initCars() {
+    var section = document.getElementById('deals');
+    var track = document.getElementById('dealsTrack');
+    var grid = document.getElementById('showcaseGrid');
+    var note = function (t) { grid.innerHTML = '<p class="muted ta-center" style="grid-column:1/-1">' + t + '</p>'; };
+    track.innerHTML = DX.skeletons(3);
     try {
-      var res = await DX.api.get(url);
+      var res = await DX.api.get('/api/vehicles?limit=' + (DEAL_COUNT + STOCK_COUNT) + '&sort=newest');
       var items = res.data || [];
-      if (!items.length) {
-        grid.innerHTML = '<p class="muted ta-center" style="grid-column:1/-1">No vehicles available yet. Please check back soon.</p>';
-        return;
-      }
-      grid.innerHTML = items.map(DX.vehicleCard).join('');
-      DX.revealScan(grid);
+      var deals = items.filter(isDeal).slice(0, DEAL_COUNT);
+      var rest = items.filter(function (v) { return deals.indexOf(v) < 0; }).slice(0, STOCK_COUNT);
+      if (deals.length) track.innerHTML = deals.map(dealCard).join('');
+      else section.hidden = true;
+      if (rest.length) { grid.innerHTML = rest.map(DX.vehicleCard).join(''); DX.revealScan(grid); }
+      else if (deals.length) document.getElementById('showcase').hidden = true;
+      else note('No vehicles available yet. Please check back soon.');
     } catch (e) {
-      grid.innerHTML = '<p class="muted ta-center" style="grid-column:1/-1">Unable to load vehicles right now.</p>';
+      section.hidden = true;
+      note('Unable to load vehicles right now.');
     }
   }
 
@@ -104,7 +133,7 @@
   function init() {
     initFabGuard();
     initFeature();
-    fillGrid('showcaseGrid', '/api/vehicles?limit=6&sort=newest');
+    initCars();
     initSearch();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

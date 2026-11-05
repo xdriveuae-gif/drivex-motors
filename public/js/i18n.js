@@ -41,6 +41,7 @@
     "Quality": "الجودة", "Hand-picked and inspected before they reach our showroom.": "تُختار بعناية وتُفحص قبل وصولها إلى معرضنا.",
     "Our cars come with a warranty. Ask our team for the full details.": "سياراتنا تأتي مع ضمان. اسأل فريقنا للحصول على التفاصيل الكاملة.",
     "Financing": "التمويل", "Finance options are available on our cars. Contact us to check your eligibility.": "خيارات التمويل متاحة على سياراتنا. تواصل معنا للتحقق من أهليتك.",
+    "Special Car Deals": "عروض السيارات المميزة", "Featured": "مميزة", "Starts from": "يبدأ من", "Full Price": "السعر الكامل", "/month": "/شهرياً", "Monthly estimate with 20% down payment, subject to bank approval.": "القسط الشهري تقديري بدفعة أولى 20%، ويخضع لموافقة البنك.",
     "Just arrived": "وصل حديثاً", "New Stock": "أحدث السيارات", "See All →": "عرض الكل ←",
     "Sell or trade in": "بيع أو استبدال", "Your car, your way": "سيارتك، بطريقتك",
     "Tell us about your car and our team will get back to you with an offer.": "أخبرنا عن سيارتك وسيعود إليك فريقنا بعرض.",

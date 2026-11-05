@@ -1023,6 +1023,39 @@ html[lang="ar"] body { line-height: 1.8; }
 .hero-finance-top:hover { box-shadow: 0 14px 32px rgba(249, 97, 23, .45); }
 @media (max-width: 560px) { .hero-finance-top { flex-wrap: wrap; } .hero-finance-top .hf-go { width: 100%; text-align: center; } }
 
+/* ---------- Special Car Deals: swipeable cards under the hero ---------- */
+.deals { padding: clamp(26px, 4vw, 44px) 0 clamp(14px, 2vw, 22px); background: var(--surface); }
+.deals[hidden] { display: none; }
+.deals-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.deals-title { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: clamp(1.3rem, 3vw, 1.75rem); font-weight: 800; line-height: 1.2; }
+.deals-title svg { flex: none; width: 23px; height: 30px; fill: var(--orange); }
+.deals-all { flex: none; padding: 9px 16px; border-radius: var(--radius-pill); background: var(--raise); border: 1px solid var(--border); color: var(--text-hi); font-weight: 700; font-size: .88rem; transition: background .2s, border-color .2s, color .2s; }
+.deals-all:hover { background: var(--orange); border-color: var(--orange); color: var(--ink); }
+.deals-track { display: flex; gap: 14px; overflow-x: auto; padding-block: 4px 16px; scroll-snap-type: x proximity; overscroll-behavior-x: contain; touch-action: pan-x pan-y; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+.deals-track > * { flex: 0 0 min(84%, 320px); min-width: 0; scroll-snap-align: start; }
+.deal-card { display: flex; flex-direction: column; padding: 8px; background: var(--raise); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--shadow-sm); color: inherit; transition: border-color .2s; }
+.deal-card:hover { border-color: var(--orange); }
+.deal-media { position: relative; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden; background: var(--surface-3); }
+.deal-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.deal-media .vc-badge { position: absolute; top: 10px; inset-inline-start: 10px; }
+.deal-body { display: flex; flex-direction: column; gap: 12px; padding: 14px 10px 8px; flex: 1; }
+.deal-row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 12px; }
+.deal-top { flex-wrap: nowrap; align-items: baseline; }
+.deal-name { min-width: 0; font-size: 1.05rem; font-weight: 700; line-height: 1.3; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.deal-year { flex: none; font-weight: 700; color: var(--text-strong); }
+.deal-lbl { display: block; font-size: .8rem; color: var(--text-muted); margin-bottom: 2px; }
+.deal-end { margin-inline-start: auto; text-align: end; }
+.deal-monthly { font-weight: 700; color: var(--orange-text); font-size: .9rem; white-space: nowrap; }
+.deal-price { font-weight: 700; color: var(--text-strong); font-size: .9rem; white-space: nowrap; }
+.deal-odo { align-items: center; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); font-size: .92rem; font-weight: 600; }
+.deal-odo .deal-lbl { margin: 0; }
+.deals-note { font-size: .78rem; color: var(--text-muted); }
+@media (max-width: 960px) {
+  /* cards run to the screen edge; touch screens swipe, so no scrollbar */
+  .deals-track { margin-inline: calc(50% - 50vw); padding-inline: calc(50vw - 50%); scroll-padding-inline: 16px; scrollbar-width: none; }
+  .deals-track::-webkit-scrollbar { display: none; }
+}
+
 /* ---------- Mobile / tablet: full-bleed cinematic hero ---------- */
 @media (max-width: 960px) {
   .hero.hero-split { padding: var(--header-h) 0 0; background: var(--surface); }

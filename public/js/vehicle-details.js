@@ -9,20 +9,13 @@
   var m = location.pathname.match(/\/vehicle\/(\d+)/);
   var id = m ? m[1] : null;
 
-  // Monthly-payment estimate: flat rate on the financed amount, term set by model year.
-  // 2015 and older: no financing; 2016: 1 year ... 2019: 4 years; 2020 and newer: 5 years.
-  var FINANCE = { ratePct: 3.5, downPct: 20 };
-  function financeYears(year) { year = Number(year) || 0; return year >= 2020 ? 5 : year >= 2016 ? year - 2015 : 0; }
   function financeHtml() {
-    var price = Number(vehicle.price) || 0, years = financeYears(vehicle.year);
-    if (vehicle.is_sold || price <= 0 || !years) return '';
-    var financed = price * (1 - FINANCE.downPct / 100);
-    var months = years * 12;
-    var monthly = Math.round((financed + financed * FINANCE.ratePct / 100 * years) / months);
+    var est = vehicle.is_sold ? null : DX.financeEstimate(vehicle.price, vehicle.year);
+    if (!est) return '';
     return '<div class="vd-finance">' +
       '<span class="vdf-cap">Est. monthly payment</span>' +
-      '<div class="vdf-line"><span class="vdf-amt">~' + monthly.toLocaleString('en-US') + '</span>' +
-        '<span class="vdf-unit">AED x ' + months + '</span><span class="vdf-dp">• ' + FINANCE.downPct + '% DP</span></div>' +
+      '<div class="vdf-line"><span class="vdf-amt">~' + est.monthly.toLocaleString('en-US') + '</span>' +
+        '<span class="vdf-unit">AED x ' + est.months + '</span><span class="vdf-dp">• ' + est.downPct + '% DP</span></div>' +
       '<a class="btn btn-ghost vdf-btn" href="/finance?car=' + encodeURIComponent(vehicle.year + ' ' + vehicle.title) + '#finance-form">Check finance eligibility</a>' +
     '</div>';
   }

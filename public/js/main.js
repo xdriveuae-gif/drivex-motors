@@ -63,6 +63,23 @@
     gear: '<svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 100 8 4 4 0 000-8zm9 4l-2-1.5.3-2.5-2.4-.8L15 5l-2.3 1L10.4 5 9 7.2l-2.4.8.3 2.5L5 12l2 1.5-.3 2.5 2.4.8L11 19l1-1 1 1 1.6-1.4 2.4-.8-.3-2.5L19 12z"/></svg>'
   };
 
+  /* ---------- monthly-payment estimate (shared by home + vehicle details) ---------- */
+  // Flat rate on the financed amount, term set by model year.
+  // 2015 and older: no financing; 2016: 1 year ... 2019: 4 years; 2020 and newer: 5 years.
+  var FINANCE = { ratePct: 3.5, downPct: 20 };
+  function financeEstimate(price, year) {
+    price = Number(price) || 0; year = Number(year) || 0;
+    var years = year >= 2020 ? 5 : year >= 2016 ? year - 2015 : 0;
+    if (price <= 0 || !years) return null;
+    var financed = price * (1 - FINANCE.downPct / 100);
+    var months = years * 12;
+    return {
+      monthly: Math.round((financed + financed * FINANCE.ratePct / 100 * years) / months),
+      months: months,
+      downPct: FINANCE.downPct
+    };
+  }
+
   /* ---------- vehicle card (shared by home + inventory) ---------- */
   function vehicleCard(v) {
     var img = v.primary_image || '/images/placeholders/car-a.svg';
@@ -321,7 +338,7 @@
   window.DX = {
     escapeHtml: escapeHtml, fmtPrice: fmtPrice, fmtMileage: fmtMileage, debounce: debounce,
     toast: toast, api: { get: apiGet, send: apiSend }, csrf: CSRF,
-    vehicleCard: vehicleCard, skeletons: skeletons, revealScan: revealScan, ICON: ICON
+    vehicleCard: vehicleCard, financeEstimate: financeEstimate, skeletons: skeletons, revealScan: revealScan, ICON: ICON
   };
 
   function init() {
