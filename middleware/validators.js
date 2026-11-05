@@ -65,7 +65,7 @@ const submissionValidators = [
   body('trim').optional({ checkFalsy: true }).trim().isLength({ max: 80 }),
   body('mileage').notEmpty().withMessage('Mileage is required.').bail()
     .toInt().isInt({ min: 0 }).withMessage('Mileage must be a positive number.'),
-  body('specification').isIn(['GCC', 'US', 'Japanese']).withMessage('Please choose the specifications.'),
+  body('specification').isIn(['GCC', 'US', 'Japanese', 'Chinese', 'European', 'Canadian']).withMessage('Please choose the specifications.'),
   body('trade_in').isIn(['Yes', 'No']).withMessage('Please choose yes or no.'),
   body('engine_size').optional({ checkFalsy: true }).trim().isLength({ max: 60 }),
   body('fuel_type').optional({ checkFalsy: true }).trim().isLength({ max: 40 }),

@@ -215,7 +215,7 @@
     "Mechanical issues": "أعطال ميكانيكية", "Notes": "ملاحظات", "Asking price": "السعر المطلوب",
     "Free valuation requested": "تم طلب تقييم مجاني",
     "Your Contact Details": "بيانات التواصل", "Car Details": "تفاصيل السيارة", "Email Address": "البريد الإلكتروني",
-    "Mileage (km) *": "المسافة (كم) *", "Specifications *": "المواصفات *", "GCC": "خليجية", "US": "أمريكية", "Japanese": "يابانية",
+    "Mileage (km) *": "المسافة (كم) *", "Specifications *": "المواصفات *", "GCC": "خليجية", "US": "أمريكية", "Japanese": "يابانية", "Chinese": "صينية", "European": "أوروبية", "Canadian": "كندية",
     "Are you looking for a trade-in? *": "هل ترغب في استبدال سيارتك؟ *",
     "Mileage is required.": "المسافة مطلوبة.", "Enter a valid mileage.": "أدخل مسافة صحيحة.",
     "Please choose the specifications.": "يرجى اختيار المواصفات.", "Please choose yes or no.": "يرجى اختيار نعم أو لا.",

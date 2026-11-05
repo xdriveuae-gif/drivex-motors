@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS vehicle_submissions (
   year              INTEGER NOT NULL,
   trim              TEXT,
   mileage           INTEGER,
-  specification     TEXT,                              -- GCC | US | Japanese
+  specification     TEXT,                              -- GCC | US | Japanese | Chinese | European | Canadian
   trade_in          TEXT,                              -- Yes | No
   engine_size       TEXT,
   fuel_type         TEXT,
