@@ -1072,24 +1072,13 @@ html[lang="ar"] body { line-height: 1.8; }
   /* mobile: headline only, no eyebrow or sub-line */
   .hero-head .hero-eyebrow, .hero-copy > .hero-sub { display: none; }
 
-  /* chips: one horizontal glass strip */
-  .hero-copy > .quick-chips {
-    flex-wrap: wrap; gap: 8px; margin: 16px 0 12px; padding: 0; animation: heroUp .8s var(--ease) .42s both;
-  }
-  .quick-chips .qc-label { display: none; }
-  .quick-chips .qc { flex: 1 1 auto; text-align: center; padding: 8px 12px; font-size: .88rem; background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .3); color: #fff; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-  .quick-chips .qc:hover { background: var(--orange); border-color: var(--orange); color: var(--ink); }
+  /* phones and tablets: no chips or finder, just the two main buttons */
+  .hero-copy > .quick-chips, .hero-search .hs-field { display: none; }
 
-  /* search: dark glass panel, same in light and dark theme */
   .hero-copy > .hero-search {
-    max-width: none; padding: 14px; border-radius: 26px; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); animation: heroUp .8s var(--ease) .55s both;
-    background: rgba(14, 16, 21, .62); backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2);
-    border: 1px solid rgba(255, 255, 255, .2); box-shadow: 0 18px 50px rgba(0, 0, 0, .5);
+    max-width: none; margin-top: 24px; padding: 0; gap: 12px; grid-template-columns: minmax(0, 1fr); animation: heroUp .8s var(--ease) .42s both;
+    background: none; border: 0; box-shadow: none;
   }
-  .hero-search .hs-field label { color: rgba(255, 255, 255, .75); }
-  .hero-search .hs-field select { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .22); color: #fff; }
-  .hero-search .hs-field select option { background: #1a1e26; color: #fff; }
-  .hero-search .hs-field select:disabled { color: rgba(255, 255, 255, .6); }
   .hero-search .hs-submit { grid-column: auto; box-shadow: var(--shadow-orange); }
   .hero-search .hs-sell { border-color: rgba(255, 255, 255, .55); color: #fff; }
   .hero-search .hs-sell:hover { background: #fff; border-color: #fff; color: var(--ink); }
@@ -1098,11 +1087,6 @@ html[lang="ar"] body { line-height: 1.8; }
   .hero-copy > .hero-finance-top { flex-wrap: nowrap; }
   .hero-finance-top .hf-go { width: auto; text-align: start; flex: none; }
   .hero-finance-top .hf-txt { flex: 1; min-width: 0; }
-}
-@media (max-width: 560px) {
-  .hero-copy > .hero-search { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hero-search .hs-field select { padding-inline: 14px 8px; text-overflow: ellipsis; }
-  .hero-search .hs-field:nth-child(3), .hero-search .hs-submit { grid-column: auto; }
 }
 @media (max-width: 380px) {
   .hero-finance-top .hf-txt span { display: none; }
