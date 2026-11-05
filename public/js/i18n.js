@@ -217,6 +217,7 @@
     "Your Contact Details": "بيانات التواصل", "Car Details": "تفاصيل السيارة", "Email Address": "البريد الإلكتروني",
     "Mileage (km) *": "المسافة (كم) *", "Specifications *": "المواصفات *", "GCC": "خليجية", "US": "أمريكية", "Japanese": "يابانية", "Chinese": "صينية", "European": "أوروبية", "Canadian": "كندية",
     "Are you looking for a trade-in? *": "هل ترغب في استبدال سيارتك؟ *",
+    "Your session expired. Please refresh the page and try again.": "انتهت جلستك. يرجى تحديث الصفحة والمحاولة مرة أخرى.",
     "Mileage is required.": "المسافة مطلوبة.", "Enter a valid mileage.": "أدخل مسافة صحيحة.",
     "Please choose the specifications.": "يرجى اختيار المواصفات.", "Please choose yes or no.": "يرجى اختيار نعم أو لا.",
     "Please add at least 4 photos of your car.": "يرجى إضافة 4 صور على الأقل لسيارتك.",

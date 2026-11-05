@@ -11,6 +11,7 @@ database/*.db-wal
 database/*.sqlite
 database/*.sqlite3
 database/*.owner.pid
+database/sessions.json*
 
 # Uploaded media (keep the folder, ignore its contents)
 uploads/*

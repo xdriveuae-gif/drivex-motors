@@ -139,6 +139,7 @@ function render(req, res, view, opts = {}) {
   res
     .status(opts.status || 200)
     .set('Content-Type', 'text/html; charset=utf-8')
+    .set('Cache-Control', 'private, no-cache') // pages carry a per-visitor token: never share or reuse unchecked
     .send(html);
 }
 

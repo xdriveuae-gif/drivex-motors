@@ -49,7 +49,8 @@ function csrf(req, res, next) {
   if (constantTimeEqual(sent, req.session.csrfToken)) return next();
 
   return res.status(403).json({
-    error: 'Invalid or missing CSRF token. Please refresh the page and try again.'
+    code: 'CSRF_INVALID', // public/js/csrf-retry.js recovers from this by itself
+    error: 'Your session expired. Please refresh the page and try again.'
   });
 }
 

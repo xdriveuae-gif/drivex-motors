@@ -20,6 +20,7 @@ const { render } = require('./utils/render');
 const { ensureDefaultAdmin } = require('./database/seed');
 const { wantsJson } = require('./middleware/auth');
 const csrf = require('./middleware/csrf');
+const FileSessionStore = require('./middleware/session-store');
 const { UPLOAD_DIR } = require('./middleware/upload');
 
 const pagesRouter = require('./routes/pages');
@@ -75,6 +76,7 @@ if (IS_PROD && (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length
 app.use(
   session({
     name: 'drivex.sid',
+    store: new FileSessionStore(path.join(path.dirname(db.DB_PATH), 'sessions.json')),
     secret: process.env.SESSION_SECRET || 'drivex-dev-secret-change-me',
     resave: false,
     saveUninitialized: false,
@@ -93,6 +95,13 @@ app.use(
 
 // CSRF (after session + body parsers)
 app.use(csrf);
+
+// A current token for pages whose own has gone out of date (see public/js/csrf-retry.js).
+// Other sites can't read this: no CORS headers are sent.
+app.get('/api/csrf-token', (_req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({ token: res.locals.csrfToken });
+});
 
 /* ───────────────────────── Rate limiting ───────────────────────── */
 const onlyPost = (limiter) => (req, res, next) =>
