@@ -1,4 +1,5 @@
-/* Recovers from an out-of-date security token without bothering the visitor.
+/* Recovers from an out-of-date security token without bothering the visitor,
+   for browsers too old to report where a request came from (see middleware/csrf.js).
    A page keeps the token it was given when it opened. That token stops working
    if the session behind it ends: the tab sat open past the 8-hour limit, or the
    admin logged in or out in another tab. When the server refuses a request for
@@ -10,14 +11,22 @@
   if (!realFetch) return;
   var HEADER = 'X-CSRF-Token';
   var current = null;
+  var pending = null; // requests refused together share one new token
 
   function isSameSite(url) { return typeof url === 'string' && url.charAt(0) === '/' && url.charAt(1) !== '/'; }
 
-  async function freshToken() {
+  async function requestToken() {
     var r = await realFetch.call(window, '/api/csrf-token', { headers: { Accept: 'application/json' } });
     if (!r.ok) return null;
     var d = await r.json();
     return d.token || null;
+  }
+
+  function freshToken() {
+    if (!pending) {
+      pending = requestToken().catch(function () { return null; }).then(function (t) { pending = null; return t; });
+    }
+    return pending;
   }
 
   window.fetch = async function (url, init) {
@@ -31,7 +40,7 @@
     var body = await res.clone().json().catch(function () { return null; });
     if (!body || body.code !== 'CSRF_INVALID') return res;
 
-    var token = await freshToken().catch(function () { return null; });
+    var token = await freshToken();
     if (!token) return res;
     current = token;
     return realFetch.call(window, url, Object.assign({}, init, { headers: Object.assign({}, init.headers, { 'X-CSRF-Token': token }) }));

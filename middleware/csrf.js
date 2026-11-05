@@ -11,6 +11,12 @@
  *   the `X-CSRF-Token` header (used by all our fetch() calls — works for
  *   multipart uploads too) or a `_csrf` body field.
  * - Comparison is constant-time.
+ * - A request is also accepted when the browser itself reports that it came
+ *   from one of this site's own pages (Sec-Fetch-Site: same-origin). Web pages
+ *   can't set or fake that header, and other sites' requests are labelled
+ *   cross-site, so this keeps the protection while sparing real visitors a
+ *   refusal when their token is out of date or their cookies are blocked.
+ *   Logging in is still required separately for anything in the admin.
  *
  * Must be mounted AFTER express-session and the body parsers.
  */
@@ -47,6 +53,7 @@ function csrf(req, res, next) {
     '';
 
   if (constantTimeEqual(sent, req.session.csrfToken)) return next();
+  if (req.get('sec-fetch-site') === 'same-origin') return next();
 
   return res.status(403).json({
     code: 'CSRF_INVALID', // public/js/csrf-retry.js recovers from this by itself
