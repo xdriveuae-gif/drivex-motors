@@ -66,13 +66,16 @@ async function notifyNewSubmission(sub, imageCount) {
       '',
       `Vehicle:   ${sub.year} ${sub.make} ${sub.model} ${sub.trim || ''}`.trim(),
       `Mileage:   ${sub.mileage != null ? sub.mileage + ' km' : '—'}`,
+      `Specs:     ${sub.specification || '—'}`,
+      `Trade-in:  ${sub.trade_in || '—'}`,
       `Asking:    ${sub.asking_price != null ? site.currency + ' ' + Number(sub.asking_price).toLocaleString('en-US') : '—'}`,
       `Photos:    ${imageCount || 0}`,
+      `Notes:     ${sub.additional_notes || '—'}`,
       '',
       `Name:      ${sub.full_name}`,
       `Phone:     ${sub.phone}`,
       `WhatsApp:  ${sub.whatsapp || '—'}`,
-      `Email:     ${sub.email}`,
+      `Email:     ${sub.email || '—'}`,
       `City:      ${sub.city || '—'}`,
       '',
       `Open in admin: ${adminUrl}`
@@ -88,11 +91,14 @@ async function notifyNewSubmission(sub, imageCount) {
           ${row('Year', sub.year)}
           ${row('Trim', sub.trim)}
           ${row('Mileage', sub.mileage != null ? `${Number(sub.mileage).toLocaleString('en-US')} km` : '')}
+          ${row('Specifications', sub.specification)}
+          ${row('Trade-in', sub.trade_in)}
           ${row('Engine', sub.engine_size)}
           ${row('Fuel', sub.fuel_type)}
           ${row('Transmission', sub.transmission)}
           ${row('Colour', sub.color)}
           ${row('Asking price', sub.asking_price != null ? `${site.currency} ${Number(sub.asking_price).toLocaleString('en-US')}${sub.negotiable === 'Yes' ? ' (negotiable)' : ''}` : '')}
+          ${row('Notes', sub.additional_notes)}
         </table>
         <h3 style="margin:18px 0 6px;">Customer</h3>
         <table style="font-size:14px;border-collapse:collapse;">

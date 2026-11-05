@@ -77,6 +77,8 @@ ensureColumn('admins', 'totp_secret', 'TEXT');
 ensureColumn('admins', 'totp_enabled', 'INTEGER NOT NULL DEFAULT 0');
 ensureColumn('admins', 'totp_last_step', 'INTEGER NOT NULL DEFAULT 0');
 ensureColumn('admins', 'totp_backup', 'TEXT');
+ensureColumn('vehicle_submissions', 'specification', 'TEXT');
+ensureColumn('vehicle_submissions', 'trade_in', 'TEXT');
 
 // Apply the schema (CREATE TABLE/INDEX IF NOT EXISTS — safe to re-run).
 const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');

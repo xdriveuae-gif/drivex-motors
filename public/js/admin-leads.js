@@ -29,7 +29,7 @@
       'Customer: ' + s.full_name,
       'Phone: ' + s.phone,
       (s.whatsapp ? 'WhatsApp: ' + s.whatsapp : ''),
-      'Email: ' + s.email,
+      (s.email ? 'Email: ' + s.email : ''),
       (s.city ? 'City: ' + s.city : '')
     ].filter(Boolean);
     // wa.me can't attach images — add tappable photo links instead.

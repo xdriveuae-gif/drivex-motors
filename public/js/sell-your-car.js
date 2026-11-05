@@ -4,7 +4,7 @@
   var form = document.getElementById('sellForm');
   if (!form) return;
 
-  var TOTAL = 6;
+  var TOTAL = 3;
   var MIN_PHOTOS = 4;
   var MAX_PHOTOS = 20;
   var MAX_BYTES = 10 * 1024 * 1024;
@@ -21,17 +21,13 @@
   var submitBtn = document.getElementById('wizSubmit');
   var photoInput = document.getElementById('photoInput');
   var photoGrid = document.getElementById('photoGrid');
-  var summaryBox = document.getElementById('reviewSummary');
 
   var FIELD_STEP = {
-    make: 1, model: 1, year: 1, trim: 1, mileage: 1, engine_size: 1, fuel_type: 1, transmission: 1, color: 1, vin: 1,
-    owners_count: 2, service_history: 2, accident_history: 2, paintwork: 2, mechanical_issues: 2, additional_notes: 2,
-    full_name: 3, phone: 3, whatsapp: 3, email: 3, city: 3,
-    images: 4,
-    asking_price: 5, negotiable: 5
+    full_name: 1, phone: 1, email: 1,
+    make: 2, model: 2, year: 2, mileage: 2, specification: 2, trade_in: 2, asking_price: 2, additional_notes: 2,
+    images: 3
   };
 
-  function esc(v) { return (v == null ? '' : String(v)).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   function toast(msg, type) { if (window.DX && DX.toast) DX.toast(msg, type); }
 
   function val(name) { var el = form.elements[name]; return el ? String(el.value || '').trim() : ''; }
@@ -48,23 +44,26 @@
   function validateStep(step) {
     var errs = [];
     if (step === 1) {
+      if (!val('full_name')) errs.push(['full_name', 'Please enter your full name.']);
+      if (!val('phone')) errs.push(['phone', 'Please enter your phone number.']);
+      var email = val('email');
+      if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errs.push(['email', 'Enter a valid email address.']);
+    } else if (step === 2) {
       if (!val('make')) errs.push(['make', 'Make is required.']);
       if (!val('model')) errs.push(['model', 'Model is required.']);
       var y = parseInt(val('year'), 10);
       if (!val('year')) errs.push(['year', 'Year is required.']);
       else if (isNaN(y) || y < 1950 || y > 2027) errs.push(['year', 'Enter a valid year.']);
-    } else if (step === 3) {
-      if (!val('full_name')) errs.push(['full_name', 'Please enter your full name.']);
-      if (!val('phone')) errs.push(['phone', 'Please enter your phone number.']);
-      var email = val('email');
-      if (!email) errs.push(['email', 'Please enter your email.']);
-      else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errs.push(['email', 'Enter a valid email address.']);
-    } else if (step === 4) {
-      if (files.length < MIN_PHOTOS) errs.push(['images', 'Please add at least ' + MIN_PHOTOS + ' photos of your car.']);
-    } else if (step === 5) {
+      var km = val('mileage');
+      if (!km) errs.push(['mileage', 'Mileage is required.']);
+      else if (isNaN(parseInt(km, 10)) || parseInt(km, 10) < 0) errs.push(['mileage', 'Enter a valid mileage.']);
+      if (!val('specification')) errs.push(['specification', 'Please choose the specifications.']);
+      if (!val('trade_in')) errs.push(['trade_in', 'Please choose yes or no.']);
       var price = val('asking_price');
       if (!price) errs.push(['asking_price', 'Asking price is required.']);
       else if (isNaN(parseInt(price, 10)) || parseInt(price, 10) < 0) errs.push(['asking_price', 'Enter a valid asking price.']);
+    } else if (step === 3) {
+      if (files.length < MIN_PHOTOS) errs.push(['images', 'Please add at least ' + MIN_PHOTOS + ' photos of your car.']);
     }
     if (errs.length) { errs.forEach(function (e) { setError(e[0], e[1]); }); return false; }
     return true;
@@ -84,7 +83,6 @@
     prevBtn.hidden = step === 1;
     nextBtn.hidden = step === TOTAL;
     submitBtn.hidden = step !== TOTAL;
-    if (step === TOTAL) buildSummary();
     var top = document.querySelector('.sell-wrap');
     if (top) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -113,35 +111,6 @@
   }
   photoInput.addEventListener('change', function () { addFiles(photoInput.files); photoInput.value = ''; });
 
-  /* ---- review summary ---- */
-  function row(label, value) {
-    if (!value) return '';
-    return '<div class="rs-row"><span>' + esc(label) + '</span><strong>' + esc(value) + '</strong></div>';
-  }
-  function buildSummary() {
-    var highlights = [];
-    form.querySelectorAll('input[name="highlights"]:checked').forEach(function (c) { highlights.push(c.value); });
-    var html = '';
-    html += '<div class="rs-group"><h3>Vehicle</h3>' +
-      row('Make / Model', (val('make') + ' ' + val('model')).trim()) +
-      row('Year', val('year')) + row('Trim', val('trim')) +
-      row('Mileage', val('mileage') ? Number(val('mileage')).toLocaleString('en-US') + ' km' : '') +
-      row('Engine', val('engine_size')) + row('Fuel', val('fuel_type')) +
-      row('Transmission', val('transmission')) + row('Colour', val('color')) + row('VIN', val('vin')) + '</div>';
-    html += '<div class="rs-group"><h3>Condition</h3>' +
-      row('Owners', val('owners_count')) + row('Service history', val('service_history')) +
-      row('Accident history', val('accident_history')) + row('Paintwork done', val('paintwork')) +
-      row('Mechanical issues', val('mechanical_issues')) + row('Notes', val('additional_notes')) +
-      (highlights.length ? row('Highlights', highlights.join(', ')) : '') + '</div>';
-    html += '<div class="rs-group"><h3>Your Details</h3>' +
-      row('Name', val('full_name')) + row('Phone', val('phone')) + row('WhatsApp', val('whatsapp')) +
-      row('Email', val('email')) + row('City', val('city')) + '</div>';
-    html += '<div class="rs-group"><h3>Pricing &amp; Photos</h3>' +
-      row('Asking price', val('asking_price') ? 'AED ' + Number(val('asking_price')).toLocaleString('en-US') : 'Free valuation requested') +
-      row('Negotiable', val('negotiable')) + row('Photos', files.length + ' uploaded') + '</div>';
-    summaryBox.innerHTML = html;
-  }
-
   /* ---- navigation ---- */
   nextBtn.addEventListener('click', function () { clearErrors(); if (validateStep(current)) show(Math.min(TOTAL, current + 1)); });
   prevBtn.addEventListener('click', function () { clearErrors(); show(Math.max(1, current - 1)); });
@@ -158,7 +127,7 @@
     clearErrors();
     // validate the gated steps
     var bad = 0;
-    [1, 3, 4].forEach(function (s) { if (!validateStep(s)) bad++; });
+    [1, 2, 3].forEach(function (s) { if (!validateStep(s)) bad++; });
     if (bad) {
       var firstErr = form.querySelector('.form-field.invalid, .field-error:not(:empty)');
       var stepEl = firstErr && firstErr.closest('.wizard-step');
@@ -167,7 +136,7 @@
       return;
     }
 
-    var fd = new FormData(form);          // text/select/textarea + checked highlights
+    var fd = new FormData(form);
     files.forEach(function (f) { fd.append('images', f); });
 
     submitBtn.disabled = true; var label = submitBtn.textContent; submitBtn.textContent = 'Submitting…';

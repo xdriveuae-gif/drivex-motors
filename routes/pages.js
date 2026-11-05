@@ -225,6 +225,8 @@ router.post('/api/sell-your-car', submissionUploadMw, submissionValidators, (req
     year: parseInt(b.year, 10),
     trim: (b.trim || '').trim() || null,
     mileage: b.mileage !== undefined && b.mileage !== '' ? parseInt(b.mileage, 10) : null,
+    specification: b.specification,
+    trade_in: b.trade_in,
     engine_size: (b.engine_size || '').trim() || null,
     fuel_type: (b.fuel_type || '').trim() || null,
     transmission: (b.transmission || '').trim() || null,
@@ -245,12 +247,12 @@ router.post('/api/sell-your-car', submissionUploadMw, submissionValidators, (req
     const info = db
       .prepare(
         `INSERT INTO vehicle_submissions
-          (full_name, phone, whatsapp, email, city, make, model, year, trim, mileage,
+          (full_name, phone, whatsapp, email, city, make, model, year, trim, mileage, specification, trade_in,
            engine_size, fuel_type, transmission, color, vin, owners_count, service_history,
            accident_history, paintwork, mechanical_issues, additional_notes, highlights,
            asking_price, negotiable)
          VALUES
-          (@full_name, @phone, @whatsapp, @email, @city, @make, @model, @year, @trim, @mileage,
+          (@full_name, @phone, @whatsapp, @email, @city, @make, @model, @year, @trim, @mileage, @specification, @trade_in,
            @engine_size, @fuel_type, @transmission, @color, @vin, @owners_count, @service_history,
            @accident_history, @paintwork, @mechanical_issues, @additional_notes, @highlights,
            @asking_price, @negotiable)`

@@ -25,6 +25,8 @@
       'New car submission — ' + (sub.submission_number || ('#' + sub.id)),
       sub.year + ' ' + sub.make + ' ' + sub.model + (sub.trim ? ' ' + sub.trim : ''),
       (sub.mileage != null ? 'Mileage: ' + Number(sub.mileage).toLocaleString('en-US') + ' km' : ''),
+      (sub.specification ? 'Specifications: ' + sub.specification : ''),
+      (sub.trade_in ? 'Trade-in: ' + sub.trade_in : ''),
       (sub.engine_size ? 'Engine: ' + sub.engine_size : ''),
       (sub.fuel_type ? 'Fuel: ' + sub.fuel_type : ''),
       (sub.transmission ? 'Transmission: ' + sub.transmission : ''),
@@ -34,8 +36,9 @@
       'Customer: ' + sub.full_name,
       'Phone: ' + sub.phone,
       (sub.whatsapp ? 'WhatsApp: ' + sub.whatsapp : ''),
-      'Email: ' + sub.email,
+      (sub.email ? 'Email: ' + sub.email : ''),
       (sub.city ? 'City: ' + sub.city : ''),
+      (sub.additional_notes ? 'Notes: ' + sub.additional_notes : ''),
       'Photos: ' + ((sub.images || []).length)
     ].filter(Boolean);
     // wa.me links can't attach images — include tappable links to each photo instead.
@@ -74,6 +77,7 @@
           '<div class="panel-head"><h2>Vehicle</h2></div>' +
           row('Make / Model', sub.make + ' ' + sub.model) + row('Year', sub.year) + row('Trim', sub.trim) +
           row('Mileage', sub.mileage != null ? Number(sub.mileage).toLocaleString('en-US') + ' km' : '') +
+          row('Specifications', sub.specification) + row('Trade-in', sub.trade_in) +
           row('Engine', sub.engine_size) + row('Fuel', sub.fuel_type) + row('Transmission', sub.transmission) +
           row('Colour', sub.color) + row('VIN', sub.vin) +
         '</section>' +
@@ -83,7 +87,7 @@
           row('Name', sub.full_name) +
           row('Phone', '<a href="tel:' + esc(sub.phone) + '">' + esc(sub.phone) + '</a>', true) +
           row('WhatsApp', sub.whatsapp ? '<a href="https://wa.me/' + esc(String(sub.whatsapp).replace(/[^\d]/g, '')) + '" target="_blank" rel="noopener">' + esc(sub.whatsapp) + '</a>' : '', true) +
-          row('Email', '<a href="mailto:' + esc(sub.email) + '">' + esc(sub.email) + '</a>', true) +
+          (sub.email ? row('Email', '<a href="mailto:' + esc(sub.email) + '">' + esc(sub.email) + '</a>', true) : '') +
           row('City', sub.city) +
           (waShowroom ? '<a class="btn btn-gold btn-sm lead-wa" href="' + esc(waShowroom) + '" target="_blank" rel="noopener">Send this lead to showroom WhatsApp</a>' : '') +
           (waPersonal ? '<a class="btn btn-outline btn-sm lead-wa" href="' + esc(waPersonal) + '" target="_blank" rel="noopener" style="margin-top:8px">Send this lead to personal WhatsApp</a>' : '') +

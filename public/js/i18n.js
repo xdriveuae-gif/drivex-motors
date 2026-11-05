@@ -214,6 +214,12 @@
     "Service history": "سجل الصيانة", "Accident history": "سجل الحوادث", "Paintwork done": "إعادة الطلاء",
     "Mechanical issues": "أعطال ميكانيكية", "Notes": "ملاحظات", "Asking price": "السعر المطلوب",
     "Free valuation requested": "تم طلب تقييم مجاني",
+    "Your Contact Details": "بيانات التواصل", "Car Details": "تفاصيل السيارة", "Email Address": "البريد الإلكتروني",
+    "Mileage (km) *": "المسافة (كم) *", "Specifications *": "المواصفات *", "GCC": "خليجية", "US": "أمريكية", "Japanese": "يابانية",
+    "Are you looking for a trade-in? *": "هل ترغب في استبدال سيارتك؟ *",
+    "Mileage is required.": "المسافة مطلوبة.", "Enter a valid mileage.": "أدخل مسافة صحيحة.",
+    "Please choose the specifications.": "يرجى اختيار المواصفات.", "Please choose yes or no.": "يرجى اختيار نعم أو لا.",
+    "Please add at least 4 photos of your car.": "يرجى إضافة 4 صور على الأقل لسيارتك.",
 
     /* ---- 404 ---- */
     "Page Not Found": "الصفحة غير موجودة", "The page you’re looking for may have been moved, sold, or never existed.": "ربما نُقلت الصفحة التي تبحث عنها أو بيعت أو لم تكن موجودة.",

@@ -54,8 +54,8 @@ const submissionValidators = [
   body('full_name').trim().notEmpty().withMessage('Please enter your full name.').isLength({ max: 120 }),
   body('phone').trim().notEmpty().withMessage('Please enter your phone number.').isLength({ max: 40 }),
   body('whatsapp').optional({ checkFalsy: true }).trim().isLength({ max: 40 }),
-  body('email').trim().notEmpty().withMessage('Please enter your email.')
-    .bail().isEmail().withMessage('Please enter a valid email address.').isLength({ max: 160 }),
+  body('email').optional({ checkFalsy: true }).trim()
+    .isEmail().withMessage('Please enter a valid email address.').isLength({ max: 160 }),
   body('city').optional({ checkFalsy: true }).trim().isLength({ max: 80 }),
   // Vehicle
   body('make').trim().notEmpty().withMessage('Make is required.').isLength({ max: 60 }),
@@ -63,7 +63,10 @@ const submissionValidators = [
   body('year').notEmpty().withMessage('Year is required.').bail().toInt()
     .isInt({ min: 1950, max: currentYear + 1 }).withMessage(`Year must be between 1950 and ${currentYear + 1}.`),
   body('trim').optional({ checkFalsy: true }).trim().isLength({ max: 80 }),
-  body('mileage').optional({ checkFalsy: true }).toInt().isInt({ min: 0 }).withMessage('Mileage must be a positive number.'),
+  body('mileage').notEmpty().withMessage('Mileage is required.').bail()
+    .toInt().isInt({ min: 0 }).withMessage('Mileage must be a positive number.'),
+  body('specification').isIn(['GCC', 'US', 'Japanese']).withMessage('Please choose the specifications.'),
+  body('trade_in').isIn(['Yes', 'No']).withMessage('Please choose yes or no.'),
   body('engine_size').optional({ checkFalsy: true }).trim().isLength({ max: 60 }),
   body('fuel_type').optional({ checkFalsy: true }).trim().isLength({ max: 40 }),
   body('transmission').optional({ checkFalsy: true }).trim().isLength({ max: 40 }),

@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS vehicle_submissions (
   full_name         TEXT    NOT NULL,
   phone             TEXT    NOT NULL,
   whatsapp          TEXT,
-  email             TEXT    NOT NULL,
+  email             TEXT    NOT NULL,                  -- '' when the customer leaves it blank
   city              TEXT,
   -- Vehicle
   make              TEXT    NOT NULL,
@@ -102,6 +102,8 @@ CREATE TABLE IF NOT EXISTS vehicle_submissions (
   year              INTEGER NOT NULL,
   trim              TEXT,
   mileage           INTEGER,
+  specification     TEXT,                              -- GCC | US | Japanese
+  trade_in          TEXT,                              -- Yes | No
   engine_size       TEXT,
   fuel_type         TEXT,
   transmission      TEXT,
