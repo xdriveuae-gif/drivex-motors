@@ -59,7 +59,7 @@
     "Email": "البريد الإلكتروني", "Address": "العنوان", "Hours": "ساعات العمل", "Get directions": "احصل على الاتجاهات",
     "WhatsApp Us": "راسلنا عبر واتساب",
     "Industrial City - ICAD V - Abu Dhabi, Abu Dhabi, United Arab Emirates": "المدينة الصناعية - ICAD V - أبوظبي، أبوظبي، الإمارات العربية المتحدة",
-    "Sat – Thu: 9:00 AM – 1:00 PM & 4:00 PM – 9:00 PM · Fri: 4:00 PM – 9:00 PM": "السبت – الخميس: 9:00 ص – 1:00 م و 4:00 م – 9:00 م · الجمعة: 4:00 م – 9:00 م",
+    "Sat – Thu: 10:00 AM – 9:00 PM · Fri: 4:00 PM – 9:00 PM": "السبت – الخميس: 10:00 ص – 9:00 م · الجمعة: 4:00 م – 9:00 م",
     "Questions": "أسئلة", "Frequently Asked Questions": "الأسئلة الشائعة",
     "Can I finance a car?": "هل يمكنني تمويل سيارة؟",
     "Finance options are available on our cars. Contact us to check your eligibility. You can start on our": "خيارات التمويل متاحة على سياراتنا. تواصل معنا للتحقق من أهليتك. يمكنك البدء عبر",
