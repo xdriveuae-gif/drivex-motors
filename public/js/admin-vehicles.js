@@ -47,6 +47,7 @@
 
   var VIEW = '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
   var EDIT = '<svg viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4zM14 6l4 4"/></svg>';
+  var AD = '<svg viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 001 1h2l5 4V6L6 10H4a1 1 0 00-1 1zm13-3a5 5 0 010 8m3-11a9 9 0 010 14"/></svg>';
   var DEL = '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0l1 13h8l1-13"/></svg>';
   var DUP = '<svg viewBox="0 0 24 24"><path d="M8 8V5a2 2 0 012-2h9a2 2 0 012 2v9a2 2 0 01-2 2h-3M8 8H5a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3M8 8h5a2 2 0 012 2v5"/></svg>';
 
@@ -129,6 +130,7 @@
         '<td><div class="row-actions">' +
           '<a class="icon-btn" href="/vehicle/' + v.id + '" target="_blank" rel="noopener" title="View on website">' + VIEW + '</a>' +
           '<a class="icon-btn" href="/admin/vehicles/' + v.id + '/edit" title="Edit">' + EDIT + '</a>' +
+          '<a class="icon-btn" href="/admin/ad-builder?vehicle=' + v.id + '" title="Make ad" aria-label="Make ad">' + AD + '</a>' +
           '<button class="icon-btn" data-dup="' + v.id + '" title="Duplicate">' + DUP + '</button>' +
           '<button class="icon-btn danger" data-del="' + v.id + '" title="Delete">' + DEL + '</button>' +
         '</div></td></tr>';

@@ -254,6 +254,10 @@ router.get('/vehicles/:id/edit', requireEditor, (req, res) =>
   render(req, res, 'admin/vehicle-form', { title: 'Edit Vehicle', bodyClass: 'admin' })
 );
 
+router.get('/ad-builder', requireAuth, (req, res) =>
+  render(req, res, 'admin/ad-builder', { title: 'Ad Builder', bodyClass: 'admin' })
+);
+
 router.get('/two-factor', requireSession, (req, res) =>
   render(req, res, 'admin/two-factor', { title: 'Two-Factor Login', bodyClass: 'admin' })
 );

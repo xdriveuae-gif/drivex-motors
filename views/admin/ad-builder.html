@@ -1,0 +1,168 @@
+{{> partials/admin-head }}
+
+<link rel="stylesheet" href="/css/admin-ad-builder.css?v={{ASSET_VER}}" />
+<div class="adb">
+  <p class="sub">Fill in the car, check the preview, copy the ad. Tip: use the ad button next to any car in Manage Vehicles to start from that car.</p>
+  <div class="from-car" id="fromCar" aria-live="polite"></div>
+
+  <div class="app">
+    <div class="col">
+      <section class="card">
+        <h2>Load a car from a text file</h2>
+        <div class="drop" id="drop">
+          <div class="row">
+            <button type="button" class="primary" id="pick">Choose .txt file(s)</button>
+            <button type="button" id="copyTpl">Copy blank template</button>
+            <span class="hint">or drop them here. Several files at once are saved as separate cars.</span>
+          </div>
+          <input id="file" type="file" accept=".txt,text/plain" multiple hidden>
+        </div>
+        <p id="status" class="status" aria-live="polite"></p>
+        <div class="row" id="dlrow" hidden>
+          <button type="button" class="primary" id="dlBatch">Download Dubizzle ads</button>
+          <button type="button" id="dlAll">Download all saved cars</button>
+        </div>
+        <p id="dlmsg" class="status" aria-live="polite"></p>
+                <details class="fmt">
+          <summary>Paste text instead, or see the file format</summary>
+          <div class="body">
+            <p class="hint">One car per file. The first line is the year and model. Field order doesn't matter, and lines you leave out stay empty. An existing Dubizzle ad pasted here also works.</p>
+            <pre class="sample" id="sample"></pre>
+            <div class="row"><button type="button" id="copySample">Copy this sample</button></div>
+            <label class="f"><span>Paste car text</span><textarea id="paste" rows="6" placeholder="2023 Toyota Camry&#10;Price: 78000&#10;Mileage: 41000"></textarea></label>
+            <div class="row"><button type="button" id="fillPaste">Fill from text</button></div>
+          </div>
+        </details>
+      </section>
+
+      <section class="card">
+        <h2>Saved cars <small>kept in this browser</small></h2>
+        <div id="cars" class="chips"></div>
+        <div class="row">
+          <button type="button" id="saveCar">Save this car</button>
+          <button type="button" id="blankCar">Start blank</button>
+          <button type="button" id="clearCars">Clear all saved cars</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Vehicle</h2>
+        <div class="grid">
+          <label class="f"><span>Model year</span><input id="year" data-k="year" type="number" inputmode="numeric" min="1990" max="2030" class="num"></label>
+          <label class="f"><span>Make &amp; model</span><input id="name" data-k="name" type="text" placeholder="Opel Zafira Life"></label>
+          <label class="f"><span>Price (AED)</span><input id="price" data-k="price" type="number" inputmode="numeric" min="0" step="500" class="num"></label>
+          <label class="f"><span>Specs</span><input id="specs" data-k="specs" type="text" list="specsList"></label>
+          <label class="f"><span>Mileage (KM)</span><input id="mileage" data-k="mileage" type="number" inputmode="numeric" min="0" class="num"></label>
+          <label class="f"><span>Fuel type</span><input id="fuel" data-k="fuel" type="text" list="fuelList"></label>
+        </div>
+        <datalist id="specsList"><option>GCC</option><option>American</option><option>Canadian</option><option>European</option><option>Japanese</option><option>Korean</option></datalist>
+        <datalist id="fuelList"><option>Petrol</option><option>Diesel</option><option>Hybrid</option><option>Electric</option></datalist>
+      </section>
+
+      <section class="card">
+        <h2>Performance &amp; engineering</h2>
+        <div class="grid">
+          <label class="f wide"><span>Engine</span><input id="engine" data-k="engine" type="text"></label>
+          <label class="f"><span>Horsepower</span><input id="hp" data-k="hp" type="number" inputmode="numeric" min="0" class="num"></label>
+          <label class="f"><span>0–100 KM/H (seconds)</span><input id="accel" data-k="accel" type="text" inputmode="decimal" class="num"></label>
+          <label class="f"><span>Transmission</span><input id="trans" data-k="trans" type="text" list="transList"></label>
+          <label class="f"><span>Drivetrain</span><input id="drive" data-k="drive" type="text" list="driveList"></label>
+        </div>
+        <datalist id="transList"><option>6-Speed Automatic</option><option>7-Speed Automatic</option><option>8-Speed Automatic</option><option>9-Speed Automatic</option><option>CVT</option><option>6-Speed Manual</option></datalist>
+        <datalist id="driveList"><option>Front-Wheel Drive (FWD)</option><option>Rear-Wheel Drive (RWD)</option><option>All-Wheel Drive (AWD)</option><option>Four-Wheel Drive (4WD)</option></datalist>
+      </section>
+
+      <section class="card">
+        <h2>Colors</h2>
+        <div class="grid">
+          <label class="f"><span>Exterior color</span><input id="ext" data-k="ext" type="text"></label>
+          <label class="f"><span>Interior color</span><input id="int" data-k="int" type="text"></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Features &amp; history</h2>
+        <div class="grid g2">
+          <div class="fld"><div class="hd"><span>Service history</span><label class="tg"><input type="checkbox" data-t="svcOn" aria-label="Show service history in ads"><em>Show</em></label></div><input id="service" data-k="service" type="text" list="serviceList"></div>
+          <div class="fld"><div class="hd"><span>Service contract</span><label class="tg"><input type="checkbox" data-t="contractOn" aria-label="Show service contract in ads"><em>Show</em></label></div><input id="scontract" data-k="scontract" type="text" placeholder="e.g. 2 Years / 40,000 KM"></div>
+          <div class="fld"><div class="hd"><span>Warranty</span><label class="tg"><input type="checkbox" data-t="warrOn" aria-label="Show warranty in ads"><em>Show</em></label></div><input id="warranty" data-k="warranty" type="text"></div>
+          <div class="fld"><div class="hd"><span>1 Free Service</span><label class="tg"><input type="checkbox" data-t="freeSvc" aria-label="Add 1 free service to ads"><em>Add to ads</em></label></div><div class="note">Adds “1 Free Service” to every ad</div></div>
+          <label class="f wide"><span>Key features (one per line)</span><textarea id="features" data-k="features" rows="9"></textarea></label>
+        </div>
+        <datalist id="serviceList"><option>Fully Serviced</option><option>Full Agency Service History</option><option>Partial Service History</option></datalist>
+      </section>
+
+      <section class="card">
+        <h2>Finance <small>monthly line is built from the model year</small></h2>
+        <div class="grid">
+          <label class="f"><span>Interest rate (% per year, flat)</span><input id="rate" data-k="rate" type="number" inputmode="decimal" step="0.1" min="0" class="num"></label>
+          <label class="f"><span>Down payment (%)</span><input id="dp" data-k="dp" type="number" inputmode="decimal" step="1" min="0" max="90" class="num"></label>
+        </div>
+        <div class="fin">
+          <div id="calc" class="calc" aria-live="polite"></div>
+          <table class="terms" id="terms" aria-label="Finance term by model year"></table>
+        </div>
+      </section>
+
+      <details class="card">
+        <summary>Showroom details <small class="hint">same for every car</small></summary>
+        <div class="inner">
+          <div class="grid">
+            <label class="f"><span>Dealership name</span><input id="dealer" data-k="dealer" type="text"></label>
+            <label class="f"><span>Registration fee (AED)</span><input id="reg" data-k="reg" type="number" inputmode="numeric" class="num"></label>
+            <label class="f"><span>Insurance (% of price)</span><input id="ins" data-k="ins" type="number" inputmode="decimal" step="0.5" class="num"></label>
+            <label class="f"><span>Bank evaluation (AED)</span><input id="bank" data-k="bank" type="number" inputmode="numeric" class="num"></label>
+            <label class="f"><span>First contact name</span><input id="cname2" data-k="cname2" type="text"></label>
+            <label class="f"><span>First contact phone</span><input id="cphone2" data-k="cphone2" type="text"></label>
+            <label class="f"><span>First contact languages</span><input id="clang2" data-k="clang2" type="text"></label>
+            <label class="f"><span>Contact name</span><input id="cname" data-k="cname" type="text"></label>
+            <label class="f"><span>Contact phone</span><input id="cphone" data-k="cphone" type="text"></label>
+            <label class="f"><span>Languages</span><input id="clang" data-k="clang" type="text"></label>
+            <label class="f"><span>Landline</span><input id="land" data-k="land" type="text"></label>
+            <label class="f wide"><span>Address</span><input id="addr" data-k="addr" type="text"></label>
+            <label class="f wide"><span>Google Maps link</span><input id="maps" data-k="maps" type="text"></label>
+            <label class="f wide"><span>Working hours (one per line)</span><textarea id="hours" data-k="hours" rows="3"></textarea></label>
+            <label class="f wide"><span>Explore &amp; connect links (one per line)</span><textarea id="links" data-k="links" rows="6"></textarea></label>
+            <label class="f"><span>WhatsApp number (optional)</span><input id="wa" data-k="wa" type="text" placeholder="Leave empty to skip"></label>
+            <label class="f"><span>Instagram: features to show</span><input id="nfeat" data-k="nfeat" type="number" min="0" max="12" class="num"></label>
+            <label class="f wide"><span>Base hashtags</span><input id="tags" data-k="tags" type="text"></label>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <aside class="preview">
+      <section class="card">
+        <div class="pv-head">
+          <strong>Ad preview</strong>
+          <span class="row"><span class="meta" id="count"></span><button type="button" class="primary" id="copy">Copy ad</button></span>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Ad format">
+          <button type="button" role="tab" class="tab on" data-p="dubizzle" aria-selected="true">Dubizzle</button>
+          <button type="button" role="tab" class="tab" data-p="instagram" aria-selected="false">Instagram</button>
+          <button type="button" role="tab" class="tab" data-p="facebook" aria-selected="false">Facebook</button>
+          <button type="button" role="tab" class="tab" data-p="website" aria-selected="false">Website</button>
+          <button type="button" role="tab" class="tab" data-p="autoae" aria-selected="false">Auto.ae</button>
+        </div>
+        <textarea id="out" spellcheck="false" aria-label="Generated ad text"></textarea>
+      </section>
+      <p class="hint">You can edit the text here before copying. Changing any field on the left rebuilds it.</p>
+      <section class="card" id="featBox" hidden>
+        <div class="pv-head">
+          <strong>Key features</strong>
+          <button type="button" class="primary" id="copyFeat">Copy features</button>
+        </div>
+        <textarea id="featOut" spellcheck="false" aria-label="Key features only"></textarea>
+      </section>
+    </aside>
+  </div>
+
+  <div class="copybar">
+    <span class="meta" id="count2"></span>
+    <button type="button" class="primary" id="copy2">Copy ad</button>
+  </div>
+</div>
+
+<script src="/js/admin-ad-builder.js?v={{ASSET_VER}}" defer></script>
+{{> partials/admin-footer }}
+
